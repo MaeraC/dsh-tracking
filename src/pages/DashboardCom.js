@@ -12,6 +12,7 @@ import { doc, getDoc } from "firebase/firestore"
 import { auth, db } from "../firebase.config.js"
 import { onAuthStateChanged } from "firebase/auth"
 import SearchVisits from "./SearchVisits"
+import Loader from "../components/Loader.js"
 
 function DashboardCom() {
 
@@ -22,6 +23,7 @@ function DashboardCom() {
 
    useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, async (user) => {
+
             if (user) { 
                 try {
                     setUid(user.uid)
@@ -45,7 +47,7 @@ function DashboardCom() {
     }, [navigate])
 
     if (loading) {
-        return <div>Chargement...</div>
+        return <Loader />
     }
 
     return (

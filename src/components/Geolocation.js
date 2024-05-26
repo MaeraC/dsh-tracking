@@ -22,7 +22,7 @@ function Geolocation() {
         else {
             requestLocationPermission()
         }
-    }, [])
+    }, [locationPermission])
 
     const getUserLocation = () => {
 

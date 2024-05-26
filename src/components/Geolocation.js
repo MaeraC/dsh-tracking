@@ -17,11 +17,10 @@ function Geolocation() {
     const [error, setError] = useState(null)
     const [isRequestingLocation, setIsRequestingLocation] = useState(false)
    
-    useEffect(() => {
+    const handleRequestLocation = () => {
         setIsRequestingLocation(true)
         getUserLocation()
-
-    }, [])
+    }
 
     const getUserLocation = () => {
 
@@ -63,6 +62,11 @@ function Geolocation() {
 
     return ( 
         <div style={{ height: '400px', width: '100%' }}>
+            {!locationFound && !isRequestingLocation && (
+                <button onClick={handleRequestLocation}>
+                    Activer la géolocalisation
+                </button>
+            )}
              {isRequestingLocation && <p>Demande de localisation en cours...</p>}
             {error && <p>{error}</p>}
             {locationFound && (

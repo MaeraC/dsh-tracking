@@ -21,7 +21,7 @@ function Geolocation() {
     const getUserLocation = () => {
 
         if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
+            navigator.geolocation.watchPosition(
 
                 position => {
                     setUserLocation({
@@ -45,10 +45,15 @@ function Geolocation() {
     }
 
     const locateHairSalons = async () => {
-        const response = await fetch(`https://overpass-api.de/api/interpreter?data=[out:json];node[shop=hairdresser](around:20000,${userLocation.lat},${userLocation.lng});out;`)
+        const response = await fetch(`https://overpass-api.de/api/interpreter?data=[out:json];node[shop=hairdresser](around:30000,${userLocation.lat},${userLocation.lng});out;`)
         const data = await response.json()
-        const salons = data.elements.map(element => ({ lat: element.lat, lng: element.lon }))
-        console.log(salons)
+        const salons = data.elements.map(element => ({ 
+            lat: element.lat, 
+            lng: element.lon ,
+            tags: element.tags
+        }))
+
+        console.log(hairSalons.map(salon => salon))
         setHairSalons(salons)
     }
 
@@ -73,7 +78,13 @@ function Geolocation() {
                     {/* Afficher les marqueurs des salons de coiffure */}
                     {hairSalons.map((salon, index) => (
                         <Marker key={index} position={salon} icon={L.icon({ iconUrl: marker2 })} >
-                            <Popup>Salon de coiffure</Popup>
+                            <Popup>
+                                <div>
+                                    <h2>Salon de coiffure</h2>
+                                    <p>Nom: {salon.tags.name}</p>
+                                    {salon.tags['addr:street'] && <p>Adresse: {salon.tags['addr:housenumber']} {salon.tags['addr:street']}, {salon.tags['addr:postcode']}</p>}
+                                </div>
+                            </Popup>
                         </Marker>
                     ))}
 

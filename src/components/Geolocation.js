@@ -1,7 +1,7 @@
 
 // Fichier Geolocation.js
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet" 
 import L from "leaflet"
 import 'leaflet/dist/leaflet.css'
@@ -47,28 +47,32 @@ function Geolocation() {
                         setError("The request to get user location timed out.")
                         break;
                     case error.UNKNOWN_ERROR:
-                        setError("An unknown error occurred.")
+                        setError("ne erreur inconnue est survenue.")
                         break;
                     default:
-                        setError("An unknown error occurred.")
+                        setError("ne erreur inconnue est survenue.")
                 }
                 setIsRequestingLocation(false)
             })
         } 
         else {
-            console.error("Geolocation is not supported by this browser.");
+            console.error("La géolocalisation n'est pas supportée par ce navigateur.");
         }
     }
 
     return ( 
         <div style={{ height: '400px', width: '100%' }}>
+
             {!locationFound && !isRequestingLocation && (
                 <button onClick={handleRequestLocation}>
                     Activer la géolocalisation
                 </button>
             )}
-             {isRequestingLocation && <p>Demande de localisation en cours...</p>}
+
+            {isRequestingLocation && <p>Demande de localisation en cours...</p>}
+
             {error && <p>{error}</p>}
+
             {locationFound && (
                 <MapContainer center={userLocation} zoom={12} style={{ height: '400px', width: '100%' }}>
                     <TileLayer

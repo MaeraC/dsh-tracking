@@ -14,8 +14,11 @@ function Geolocation() {
     
     const [userLocation, setUserLocation] = useState({lat: 0, lng: 0})
     const [locationFound, setLocationFound] = useState(false)
+    const [error, setError] = useState(null)
+    const [isRequestingLocation, setIsRequestingLocation] = useState(false)
    
     useEffect(() => {
+        setIsRequestingLocation(true)
         getUserLocation()
 
     }, [])
@@ -31,6 +34,26 @@ function Geolocation() {
                 })
 
                 setLocationFound(true)
+                setIsRequestingLocation(false)
+            },
+            error => {
+                switch(error.code) {
+                    case error.PERMISSION_DENIED:
+                        setError("User denied the request for Geolocation.")
+                        break;
+                    case error.POSITION_UNAVAILABLE:
+                        setError("Location information is unavailable.")
+                        break;
+                    case error.TIMEOUT:
+                        setError("The request to get user location timed out.")
+                        break;
+                    case error.UNKNOWN_ERROR:
+                        setError("An unknown error occurred.")
+                        break;
+                    default:
+                        setError("An unknown error occurred.")
+                }
+                setIsRequestingLocation(false)
             })
         } 
         else {
@@ -40,7 +63,8 @@ function Geolocation() {
 
     return ( 
         <div style={{ height: '400px', width: '100%' }}>
-            
+             {isRequestingLocation && <p>Demande de localisation en cours...</p>}
+            {error && <p>{error}</p>}
             {locationFound && (
                 <MapContainer center={userLocation} zoom={12} style={{ height: '400px', width: '100%' }}>
                     <TileLayer

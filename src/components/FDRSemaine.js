@@ -35,7 +35,7 @@ function FDRSemaine({ uid }) {
         const q = query(visitsRef, where("userId", "==", uid)) // qui correspond au user connecté
         const querySnapshot = await getDocs(q)
         const visitsData = querySnapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }))
-        console.log(visits)
+        //console.log(visits)
         setVisits(visitsData)
 
     }, [uid])

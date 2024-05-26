@@ -1,3 +1,5 @@
+
+
 // Fichier Geolocation.js
 
 import { useState, useEffect } from "react";
@@ -13,10 +15,13 @@ function Geolocation() {
     const [userLocation, setUserLocation] = useState({ lat: 0, lng: 0 })
     const [locationFound, setLocationFound] = useState(false)
     const [hairSalons, setHairSalons] = useState([])
+    const [locationPermission, setLocationPermission] = useState(localStorage.getItem('locationPermission') === 'true')
 
     useEffect(() => {
-        getUserLocation()
-    }, [])
+        if (locationPermission) {
+            getUserLocation()
+        }
+    }, [locationPermission])
 
     const getUserLocation = () => {
 
@@ -29,6 +34,7 @@ function Geolocation() {
                         lng: position.coords.longitude
                     })
                     setLocationFound(true)
+                    localStorage.setItem('locationPermission', 'true')
                 },
                 error => {
                     console.error("Error getting user location:", error)

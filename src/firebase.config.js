@@ -1,5 +1,5 @@
 
-// fichier firebaseConfig.js 
+// fichier firebase.config.js 
 
 import { initializeApp } from 'firebase/app'
 import { browserSessionPersistence, getAuth, setPersistence } from 'firebase/auth'

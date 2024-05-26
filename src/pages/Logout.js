@@ -1,9 +1,22 @@
 
 // Fichier Logout
 
+import { useNavigate } from "react-router-dom"
+import { logout } from "../auth/AuthUtils"
+
 function Logout() {
+
+    const navigate = useNavigate()
+
+    const handleLogout = async () => {
+        await logout()
+        navigate('/')
+    }
+
     return (
-        <h1>Déconnexion</h1>
+        <div>
+            <button onClick={handleLogout}>Déconnexion</button>
+        </div>
     )
 }
 

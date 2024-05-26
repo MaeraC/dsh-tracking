@@ -25,35 +25,33 @@ function Geolocation() {
     const getUserLocation = () => {
 
         if (navigator.geolocation) {
-
-            navigator.geolocation.getCurrentPosition(position => {
-                setUserLocation({
-                    lat: position.coords.latitude,
-                    lng: position.coords.longitude
-                })
-
-                setLocationFound(true)
-                setIsRequestingLocation(false)
-            },
-            error => {
-                switch(error.code) {
-                    case error.PERMISSION_DENIED:
-                        setError("User denied the request for Geolocation.")
-                        break;
-                    case error.POSITION_UNAVAILABLE:
-                        setError("Location information is unavailable.")
-                        break;
-                    case error.TIMEOUT:
-                        setError("The request to get user location timed out.")
-                        break;
-                    case error.UNKNOWN_ERROR:
-                        setError("ne erreur inconnue est survenue.")
-                        break;
-                    default:
-                        setError("ne erreur inconnue est survenue.")
+            navigator.permissions.query({ name: "geolocation" })
+            .then(function (result) {
+                console.log(result);
+                if (result.state === "granted") {
+                    navigator.geolocation.getCurrentPosition(
+                        position => {
+                            setUserLocation({
+                                lat: position.coords.latitude,
+                                lng: position.coords.longitude
+                            });
+                            setLocationFound(true);
+                            setIsRequestingLocation(false);
+                        },
+                        error => {
+                            console.error("Error getting location:", error);
+                            setError("Erreur lors de la récupération de la localisation.");
+                            setIsRequestingLocation(false);
+                        }
+                    );
+                } else if (result.state === "prompt") {
+                    setError("L'autorisation de géolocalisation est requise.");
+                    setIsRequestingLocation(false);
+                } else if (result.state === "denied") {
+                    setError("L'autorisation de géolocalisation a été refusée.");
+                    setIsRequestingLocation(false);
                 }
-                setIsRequestingLocation(false)
-            })
+            });
         } 
         else {
             console.error("La géolocalisation n'est pas supportée par ce navigateur.");

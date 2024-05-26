@@ -14,6 +14,7 @@ function Geolocation() {
     const [locationFound, setLocationFound] = useState(false)
     const [hairSalons, setHairSalons] = useState([])
     const [locationPermission, setLocationPermission] = useState(localStorage.getItem('locationPermission') === 'true')
+    const [loading, setLoading] = useState(true)
 
     useEffect(() => {
         if (locationPermission) {
@@ -36,6 +37,7 @@ function Geolocation() {
                     })
                     setLocationFound(true)
                     localStorage.setItem('locationPermission', 'true')
+                    setLoading(false)
                 },
                 error => {
                     console.error("Error getting user location:", error)
@@ -61,6 +63,7 @@ function Geolocation() {
                     setLocationFound(true)
                     setLocationPermission(true)
                     localStorage.setItem('locationPermission', 'true')
+                    setLoading(false)
                 },
                 error => {
                     console.error("Error getting user location:", error)
@@ -88,32 +91,45 @@ function Geolocation() {
     return (
         <div style={{ height: '400px', width: '100%' }}>
 
-            <button onClick={locateHairSalons}>Localiser les salons de coiffure autour de moi</button>
+            {loading ? (
 
-            <MapContainer center={userLocation} zoom={locationFound ? 16 : 2} style={{ height: '400px', width: '100%' }}>
-                <TileLayer attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors' url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-                
-                {locationFound && (
-                    <Marker position={userLocation} icon={L.icon({ iconUrl: marker })}>
-                        <Popup>Votre position</Popup>
-                    </Marker>
-                )}
+                <div>Loading...</div>
 
-                {hairSalons.map((salon, index) => (
-                    <Marker key={index} position={salon} icon={L.icon({ iconUrl: marker2 })}>
-                        <Popup>
-                            <div>
-                                <h2>Salon de coiffure</h2>
-                                <p>Nom: {salon.tags.name}</p>
+            ) : (
+                <>
+                <button onClick={locateHairSalons}>Localiser les salons de coiffure autour de moi</button>
+            
+                <MapContainer 
+                    center={[userLocation.lat, userLocation.lng]} 
+                    zoom={16} 
+                    style={{ height: '400px', width: '100%' }}
+                >
+                    <TileLayer attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors' url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                    
+                    {locationFound && (
+                        <Marker position={[userLocation.lat, userLocation.lng]} icon={L.icon({ iconUrl: marker })}>
+                            <Popup>Votre position</Popup>
+                        </Marker>
+                    )}
 
-                                {salon.tags['addr:street'] && (
-                                    <p>Adresse: {salon.tags['addr:housenumber']} {salon.tags['addr:street']}, {salon.tags['addr:postcode']}</p>
-                                )}
-                            </div>
-                        </Popup>
-                    </Marker>
-                ))} 
-            </MapContainer>
+                    {hairSalons.map((salon, index) => (
+
+                        <Marker key={index} position={[salon.lat, salon.lng]} icon={L.icon({ iconUrl: marker2 })}>
+                            <Popup>
+                                <div>
+                                    <h2>Salon de coiffure</h2>
+                                    <p>Nom: {salon.tags.name}</p>
+                                    {salon.tags['addr:street'] && (
+                                        <p>Adresse: {salon.tags['addr:housenumber']} {salon.tags['addr:street']}, {salon.tags['addr:postcode']}</p>
+                                    )}
+                                </div>
+                            </Popup>
+                        </Marker>
+
+                    ))}
+                </MapContainer>
+                </>
+            )}
         </div>
     )
 }

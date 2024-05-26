@@ -184,7 +184,7 @@ function FicheSuiviClients({ visitId }) {
         <div>
             {showForm ? (
                 <>
-                <p>{message}</p>
+                    <p>{message}</p>
                     <form onSubmit={addFicheSuivi} className="form-FSC">
                         <h2>SALON DE COIFFURE / INSTITUT</h2>
                         <p><span className="bold">Nom du salon</span> : {salonData.salonName}</p>

@@ -25,11 +25,14 @@ function Login() {
             const userDoc = await getDoc(doc(db, "users", user.uid))
             const userData = userDoc.data()
     
-            setMessage("Connexion réussie")
+            setMessage("Connexion réussie avec succès !")
             setMessageType("success") 
 
             if (userData.role === "commercial") {
-                navigate("/tableau-de-bord-commercial", { state : { uid : user.uid } })
+
+                setTimeout(() => {
+                    //navigate("/tableau-de-bord-commercial", { state : { uid : user.uid } })
+                }, "3000")  
             } 
             else if (userData.role === "administrateur") {
                 navigate("/tableau-de-bord-administrateur", { state : { uid : user.uid } })
@@ -48,22 +51,26 @@ function Login() {
             <form className="login-form">
                 <h1>CONNEXION</h1>
 
-                <input 
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="Votre Email"
-                /><br></br>
-                <input 
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Votre mot de passe"
-                /><br></br>
+                <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="E-mail" /><br></br>
+                <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Mot de passe" /><br></br>
 
-                <button onClick={handleLogin} >Me connecter</button>
-                <Link to="/inscription" className="link">M'inscrire</Link>
-                <p className={messageType === "success" ? "sucess-message" : "error-message"}>{message}</p>
+                {messageType === "success" ? (
+
+                    <div className="success-animation">
+                        <div className="circle">
+                            <div className="checkmark"></div>
+                        </div>
+                        <span>{message}</span>
+                    </div>
+                ) : (
+                    <p className="error-message">Connexion échouée</p>
+                )}
+
+                <button onClick={handleLogin} className="button" >Me connecter</button>
+                
+                <Link to="" className="link-mdp">Mot de passe oublié ?</Link>
+                <Link to="/inscription" className="link-signup">M'inscrire</Link>
+                
             </form>
         </div>
     )

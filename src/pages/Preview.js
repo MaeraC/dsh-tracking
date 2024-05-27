@@ -1,7 +1,7 @@
 
 // Fichier Preview
 
-import Geolocation from "../components/Geolocation" 
+import StatisticsVisits from "../components/StatisticsVisits"
 
 function Preview({ firstname }) {
 
@@ -11,7 +11,7 @@ function Preview({ firstname }) {
             <h1>Bonjour, <span className="name">{firstname}</span> !</h1>
             <p>Bienvenue sur votre tableau de bord.</p>
 
-            <Geolocation /> 
+            <StatisticsVisits />
         </div>
     )
 }

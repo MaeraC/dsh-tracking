@@ -2,14 +2,15 @@
 // fichier FDRSemaine 
 
 import { useState, useEffect, useCallback } from "react"
-import { startOfWeek, endOfWeek, format, isSameWeek, isSameMonth } from "date-fns"
+import { startOfWeek, endOfWeek, format } from "date-fns"
 import { useNavigate } from "react-router-dom"
 import { addDoc, collection, query, where, getDocs } from "firebase/firestore"
 import { db } from "../firebase.config.js"
-import back from "../assets/back.png"
 import FicheProspection from "./FicheProspection"
 import FicheSuiviClients from "./FicheSuiviClients"
 import FicheSuiviProspects from "./FicheSuiviProspects"
+import CRDemonstration from "./CRDemonstration.js"
+import CRPresentation from "./CRPresentation.js"
 
 function FDRSemaine({ uid }) {
 
@@ -22,6 +23,8 @@ function FDRSemaine({ uid }) {
     const [showFicheSuiviClient, setshowFicheSuiviClient] = useState(false)
     const [showFicheSuiviProspect, setshowFicheSuiviProspect] = useState(false)
     const [currentVisitId, setCurrentVisitId] = useState(null)
+    const [showCRDemonstration, setShowCRDemonstration] = useState(false)
+    const [showCRPresentation, setShowCRPresentation] = useState(false)
 
     const [visitInfo, setVisitInfo] = useState({
         salonName: "",
@@ -131,27 +134,6 @@ function FDRSemaine({ uid }) {
         const detectedDate = `${currentDay} ${timeOfDay}`;
         setDetectedDate(detectedDate);
     }    
-
-    // calcule le nb de visite cette semaine
-    const calculateVisitsThisWeek = () => {
-        const now = new Date()
-        return visits.filter(visit => {
-            const visitDate = new Date(`${visit.exactDate.split('/').reverse().join('-')}T00:00:00`)
-            return isSameWeek(visitDate, now, { weekStartsOn: 1 })
-        }).length
-    }
-
-    // calcule le nb de visite ce mois ci
-    const calculateVisitsThisMonth = () => {
-        const now = new Date()
-        return visits.filter(visit => {
-            const visitDate = new Date(`${visit.exactDate.split('/').reverse().join('-')}T00:00:00`)
-            return isSameMonth(visitDate, now)
-        }).length
-    }
-
-    const visitsThisWeek = calculateVisitsThisWeek()
-    const visitsThisMonth = calculateVisitsThisMonth()
     
     const handleShowProspectionForm = (visitId) => {
         setCurrentVisitId(visitId)
@@ -180,6 +162,21 @@ function FDRSemaine({ uid }) {
         navigate(`fiche-suivi-client/${visitId}`)
     }
 
+    const handleShowCRDemonstration = (visitId) => {
+        setCurrentVisitId(visitId)
+        setShowCRDemonstration(true)
+        setShowVisits(false)
+        navigate(`cr-demonstration/${visitId}`)
+    }
+
+    const handleShowCRPresentation = (visitId) => {
+        setCurrentVisitId(visitId)
+        setShowCRPresentation(true)
+        setShowVisits(false)
+        navigate(`cr-presentation/${visitId}`)
+    }
+    
+
     return (
             <div className="fdr">
                 <h2>Feuille de route de la semaine écoulée</h2>
@@ -205,6 +202,12 @@ function FDRSemaine({ uid }) {
                                 {visit.status === "client" && (
                                     <button onClick={() => handleShowFicheSuiviClient(visit.id)} className="button-visit-saved">Fiche de suivi client</button>
                                 )}
+                                {visit.dailyProspection && visit.dailyProspection.some(prospection => prospection.typeRdv === "demonstration") && (
+                                    <button onClick={() => handleShowCRDemonstration(visit.id)} className="button-visit-saved">Compte Rendu de RDV de Démonstration</button>
+                                )}
+                                {visit.dailyProspection && visit.dailyProspection.some(prospection => prospection.typeRdv === "presentation") && (
+                                    <button onClick={() => handleShowCRPresentation(visit.id)} className="button-visit-saved">Compte Rendu de RDV de Présentation</button>
+                                )}
 
                             </div>
                         ))}
@@ -218,14 +221,15 @@ function FDRSemaine({ uid }) {
 
                 ) : showFicheSuiviProspect && currentVisitId ? (
                     <FicheSuiviProspects visitId={currentVisitId} uid={uid} />
+
+                ) : showCRDemonstration && currentVisitId ? (
+                    <CRDemonstration visitId={currentVisitId} uid={uid} />
+
+                ) : showCRPresentation && currentVisitId ? (
+                    <CRPresentation visitId={currentVisitId} uid={uid} />
                 ) : (
                     <>
-                        <div className="fdr-header">
-                            <div className="nb-visits">
-                                <button onClick={() => navigate("/tableau-de-bord-commercial/questionnaires")} className="button-v3 btn-back"><img src={back} alt="retourner à la liste des questionnaires" /></button>
-                                <p>Nombre de visites cette semaine : {visitsThisWeek}</p>
-                                <p>Nombre de visites ce mois-ci : {visitsThisMonth}</p>     
-                            </div>
+                        <div className="fdr-header">    
                             <button onClick={() => setShowVisits(true)} className="button">Afficher les visites enregistrées</button>
                         </div>
 
@@ -245,7 +249,7 @@ function FDRSemaine({ uid }) {
                                         <option value="prospect">Prospect</option>
                                     </select>
                                     <input 
-                                        type="text" 
+                                        type="text"  
                                         name="city" 
                                         value={visitInfo.city} 
                                         onChange={handleInputChange} 

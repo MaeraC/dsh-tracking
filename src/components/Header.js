@@ -6,8 +6,8 @@ import "../index.css"
 import home from "../assets/home.png"
 import surveys from "../assets/surveys.png"
 import account from "../assets/compte.png"
-import logout from "../assets/logout.png"
-import search from "../assets/search.png"
+import search from "../assets/search.png" 
+import map from "../assets/map.png"
 
 
 function Header() {
@@ -15,11 +15,11 @@ function Header() {
     return (
         <header className="header"> 
             <nav>
-                <NavLink to="apercu"           className={({ isActive }) => (isActive ? "active" : "")}><img src={home} alt="Onglet accueil" /></NavLink>
-                <NavLink to="questionnaires"   className={({ isActive }) => (isActive ? "active" : "")}><img src={surveys} alt="Onglet questionnaires" /></NavLink>
-                <NavLink to="mon-compte"       className={({ isActive }) => (isActive ? "active" : "")}><img src={account} alt="Onglet mon compte" /></NavLink>
-                <NavLink to="deconnexion"      className={({ isActive }) => (isActive ? "active" : "")}><img src={logout} alt="bouton déconnexion" /></NavLink>
-                <NavLink to="recherche-visites"      className={({ isActive }) => (isActive ? "active" : "")}><img src={search} alt="onglet rechercher visites" /></NavLink>
+                <NavLink to="apercu"           className={({ isActive }) => (isActive ? "active" : "")}><img src={home} alt="Onglet accueil" className="iconHeader" /></NavLink>
+                <NavLink to="map"           className={({ isActive }) => (isActive ? "active" : "")}><img src={map} alt="Onglet map" className="iconHeader" /></NavLink>
+                <NavLink to="questionnaires"   className={({ isActive }) => (isActive ? "active" : "")}><img src={surveys} alt="Onglet questionnaires" className="iconHeader" /></NavLink>
+                <NavLink to="mon-compte"       className={({ isActive }) => (isActive ? "active" : "")}><img src={account} alt="Onglet mon compte" className="iconHeader" /></NavLink>
+                <NavLink to="recherche-visites"      className={({ isActive }) => (isActive ? "active" : "")}><img src={search} alt="onglet rechercher visites" className="iconHeader" /></NavLink>
             </nav>
         </header>
     )

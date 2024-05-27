@@ -91,6 +91,12 @@ function FicheProspection({ uid, visitId }) {
             })
 
             setMessage("Le formulaire est bien enregistré.")
+
+            if (newProspection.typeRdv === "demonstration") {
+                await updateDoc(visitDocRef, {
+                    crDemonstration: {}  // Initialiser le champ crDemonstration
+                })
+            }
         } 
         catch (error) {
             console.error("Erreur pour ajouter les informations de la fiche de prospection vers la visite enregistrée dans la base de données: ", error)
@@ -105,115 +111,34 @@ function FicheProspection({ uid, visitId }) {
                                 
         <div> 
             <label>RDV obtenu :</label> 
-            <label>
-                <input
-                    type="radio"
-                    name="rdvObtenu"
-                    value="non"
-                                            checked={formData.rdvObtenu === "non"}
-                                            onChange={handleInputChange}
-                                        />
-                                        Non
-                                    </label>
-                                    <label>
-                                        <input
-                                            type="radio"
-                                            name="rdvObtenu"
-                                            value="oui"
-                                            checked={formData.rdvObtenu === "oui"}
-                                            onChange={handleInputChange}
-                                        />
-                                        Oui
-                                    </label>
-                                </div>
-                                {formData.rdvObtenu === "non" && (
-                                    <div>
-                                        <label>Observation :</label>
-                                        <input
-                                            type="text"
-                                            name="observation"
-                                            value={formData.observation}
-                                            onChange={handleInputChange}
-                                        />
-                                    </div>
-                                )}
-                                {formData.rdvObtenu === "oui" && (
-                                    <>
-                                        <div>
-                                            <label>Date du RDV :</label>
-                                            <input
-                                                type="date"
-                                                name="dateRdv"
-                                                value={formData.dateRdv}
-                                                onChange={handleInputChange}
-                                            />
-                                        </div>
-                                        <div>
-                                            <label>Type de RDV :</label>
-                                            <label>
-                                                <input
-                                                    type="checkbox"
-                                                    name="typeRdv"
-                                                    value="presentation"
-                                                    checked={formData.typeRdv === "presentation"}
-                                                    onChange={handleInputChange}
-                                                />
-                                                Présentation
-                                            </label>
-                                            <label>
-                                                <input
-                                                    type="checkbox"
-                                                    name="typeRdv"
-                                                    value="demonstration"
-                                                    checked={formData.typeRdv === "demonstration"}
-                                                    onChange={handleInputChange}
-                                                />
-                                                Démonstration
-                                            </label>
-                                            <label>
-                                                <input
-                                                    type="checkbox"
-                                                    name="typeRdv"
-                                                    value="autres"
-                                                    checked={formData.typeRdv === "autres"}
-                                                    onChange={handleInputChange}
-                                                />
-                                                Autres
-                                            </label>
-                                        </div>
-                                        {formData.typeRdv === "demonstration" && (
-                                            <div>
-                                                <label>Type de démonstration :</label>
-                                                <label>
-                                                    <input
-                                                        type="checkbox"
-                                                        name="typeDemo"
-                                                        value="mic"
-                                                        checked={formData.typeDemo === "Mic"}
-                                                        onChange={handleInputChange}
-                                                    />
-                                                    Mic
-                                                </label>
-                                                <label>
-                                                    <input
-                                                        type="checkbox"
-                                                        name="typeDemo"
-                                                        value="col_th"
-                                                        checked={formData.typeDemo === "Coloration Thalasso"}
-                                                        onChange={handleInputChange}
-                                                    />
-                                                    Coloration Thalasso
-                                                </label>
-                                                <label>
-                                                    <input
-                                                        type="checkbox"
-                                                        name="typeDemo"
-                                                        value="vege"
-                                                        checked={formData.typeDemo === "La Végétale"}
-                                                        onChange={handleInputChange}
-                                                    />
-                                                    La Végétale
-                                                </label>
+            <label><input type="radio" name="rdvObtenu" value="non" checked={formData.rdvObtenu === "non"} onChange={handleInputChange} />Non</label>
+            <label><input type="radio" name="rdvObtenu" value="oui" checked={formData.rdvObtenu === "oui"} onChange={handleInputChange}/>Oui</label>
+        </div>
+
+        {formData.rdvObtenu === "non" && (
+        <div>
+            <label>Observation :</label>
+            <input type="text" name="observation" value={formData.observation} onChange={handleInputChange} />
+        </div>
+        )}
+        {formData.rdvObtenu === "oui" && (
+        <>
+        <div>
+            <label>Date du RDV :</label>
+            <input type="date" name="dateRdv" value={formData.dateRdv} onChange={handleInputChange} />
+        </div>
+        <div>
+            <label>Type de RDV :</label>
+            <label><input type="checkbox" name="typeRdv" value="presentation" checked={formData.typeRdv === "presentation"} onChange={handleInputChange} />Présentation</label>
+            <label><input type="checkbox" name="typeRdv" value="demonstration" checked={formData.typeRdv === "demonstration"} onChange={handleInputChange} />Démonstration</label>
+            <label><input type="checkbox" name="typeRdv" value="autres" checked={formData.typeRdv === "autres"} onChange={handleInputChange} />Autres</label>
+        </div>
+        {formData.typeRdv === "demonstration" && (
+        <div>
+            <label>Type de démonstration :</label>
+            <label><input type="checkbox" name="typeDemo" value="mic" checked={formData.typeDemo === "Mic"} onChange={handleInputChange} />Mic</label>
+            <label><input type="checkbox" name="typeDemo" value="col_th" checked={formData.typeDemo === "Coloration Thalasso"} onChange={handleInputChange} />Coloration Thalasso</label>
+            <label><input type="checkbox" name="typeDemo" value="vege" checked={formData.typeDemo === "La Végétale"} onChange={handleInputChange} />La Végétale</label>
                                                 <label>
                                                     <input
                                                         type="checkbox"
@@ -249,12 +174,7 @@ function FicheProspection({ uid, visitId }) {
                                         {formData.typeRdv === "autres" && (
                                             <div>
                                                 <label>Précisez :</label>
-                                                <input
-                                                    type="text"
-                                                    name="observation"
-                                                    value={formData.observation}
-                                                    onChange={handleInputChange}
-                                                />
+                                                <input type="text" name="observation" value={formData.observation} onChange={handleInputChange} />
                                             </div>
                                         )}
                                     </>
@@ -290,7 +210,7 @@ function FicheProspection({ uid, visitId }) {
                             </form>
         </>
         
-    );
+    )
 }
 
-export default FicheProspection;
+export default FicheProspection

@@ -167,7 +167,7 @@ select {
 
 /********* SECTIONS ONGLET **************************/
 
-.surveys-section,
+.fdr,
 .preview-section,
 .search-section {
     padding: 20px;
@@ -366,7 +366,11 @@ select {
     margin: 10px 0;
 }
 .form-FSP input,
-.form-FSP textarea {
+.form-FSP textarea,
+.form-CRD input, 
+.form-CRD textarea,
+.form-crp input,
+.form-crp textarea {
     border: none;
     background: white;
     padding: 10px 20px;
@@ -389,4 +393,23 @@ select {
 .fsp-results li h3 {
     color: #62bd88;
     margin-bottom: 10px;
+}
+.form-CRD .space,
+.form-crp .space {
+    margin: 10px;
+}
+.form-CRD .bold,
+.form-crp .bold {
+    margin-bottom: 10px;
+}
+.form-CRD .display,
+.form-crp .display {
+    display: flex;
+    align-items: center;
+}
+.form-CRD h2 {
+    margin: 20px 0;
+}
+.form-CRD .marginRight {
+    margin-right: 10px;
 }

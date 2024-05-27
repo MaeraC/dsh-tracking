@@ -2,9 +2,7 @@
 // Fichier Dashbaord-Commercial.js
 
 import { Routes, Route, Navigate, useNavigate } from "react-router-dom"
-import Surveys from "./Surveys"
 import Account from "./Account"
-import Logout from "./Logout"
 import Preview from "./Preview"
 import Header from "../components/Header"
 import { useEffect, useState } from "react"
@@ -13,6 +11,8 @@ import { auth, db } from "../firebase.config.js"
 import { onAuthStateChanged } from "firebase/auth"
 import SearchVisits from "./SearchVisits"
 import Loader from "../components/Loader.js"
+import FDRSemaine from "../components/FDRSemaine.js"
+import Geolocation from "../components/Geolocation.js"
 
 function DashboardCom() {
 
@@ -57,9 +57,9 @@ function DashboardCom() {
             <Routes>
                 <Route path="/" element={<Navigate to="apercu" replace />} />
                 <Route path="apercu" element={<Preview firstname={firstname} />} />
-                <Route path="questionnaires/*" element={<Surveys uid={uid} />} />
+                <Route path="map" element={<Geolocation />} />
+                <Route path="questionnaires/*" element={<FDRSemaine uid={uid} />} />
                 <Route path="mon-compte" element={<Account />} />
-                <Route path="deconnexion" element={<Logout />} />
                 <Route path="recherche-visites" element={<SearchVisits />} />
             </Routes>
        

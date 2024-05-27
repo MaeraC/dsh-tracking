@@ -33,11 +33,13 @@ function Login() {
             if (userData.role === "commercial") {
 
                 setTimeout(() => {
-                    //navigate("/tableau-de-bord-commercial", { state : { uid : user.uid } })
-                }, "3000")  
+                    navigate("/tableau-de-bord-commercial", { state : { uid : user.uid } })
+                }, "2000")  
             } 
             else if (userData.role === "administrateur") {
-                navigate("/tableau-de-bord-administrateur", { state : { uid : user.uid } })
+                setTimeout(() => {
+                    navigate("/tableau-de-bord-commercial", { state : { uid : user.uid } })
+                }, "2000")
             }
 
         } catch (error) {

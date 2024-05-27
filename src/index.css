@@ -24,7 +24,7 @@ input {
     border: none;
     border-radius: 10px;
     margin-bottom: 20px;
-    box-shadow: 2px 2px 10px #afafaf;
+    box-shadow: 2px 2px 15px #afafaf;
     outline: none;
 }
 .button-colored {
@@ -245,11 +245,7 @@ input {
 .fdr,
 .preview-section,
 .search-section {
-    padding: 20px;
-}
-.preview-section h1,
-.search-section h1 {
-    margin-bottom: 20px;
+    padding: 20px 40px;
 }
 
 
@@ -266,14 +262,6 @@ input {
 }
 .stats-section {
     margin: 20px;
-}
-.stats-section h3 {
-    text-align: right;
-    font-weight: 400;
-    color: grey;
-    font-size: 15px;
-    margin-right: 10px;
-    margin-bottom: 10px;
 }
 .stats-section .nb-calcul {
     border-radius: 20px;
@@ -435,30 +423,7 @@ input {
 }
 
 
-.search-filter {
-    background: white;
-    padding: 20px;
-    border-radius: 20px;
-}
-.search-filter h2 {
-    font-size: 15px;
-    margin-bottom: 10px;
-}
-.search-filter div {
-    margin-bottom: 20px;
-}
-.search-results div {
-    margin: 20px;
-    padding: 20px;
-    background: white;
-    border-radius: 20px;
-}
-.search-results p {
-    margin-bottom: 5px;
-}
-.search-results span {
-    font-weight: bold;
-}
+
 
 
 .form-pj {
@@ -523,4 +488,52 @@ input {
 }
 .form-CRD .marginRight {
     margin-right: 10px;
+}
+
+
+
+
+
+.search-section h1 {
+    font-weight: 400;
+    color: grey;
+    font-size: 15px;
+    margin-right: 10px;
+    margin-bottom: 30px;
+    text-transform: uppercase;
+}
+.search-filter {
+    padding: 30px;
+    box-shadow: 2px 2px 15px #afafaf;
+    border-radius: 20px;
+}
+.search-filter label {
+    display: inline-block;
+    margin-bottom: 10px;
+    font-size: 15px;
+    color: grey;
+}
+.search-filter button {
+    width: 100%;
+}
+.search-results .nb-visit {
+    margin-top: 30px;
+    text-align: center;
+    color: #4c4e78;
+    font-weight: bold;
+    font-size: 18px;
+}
+.search-results div {
+    width: 100%;
+    padding: 20px;
+    margin: 30px 0;
+    box-shadow: 2px 2px 15px #afafaf;
+    border-radius: 20px;
+}
+.search-results div p {
+    margin-bottom: 10px;
+}
+.search-results div span {
+    font-weight: bold;
+    text-transform: uppercase;
 }

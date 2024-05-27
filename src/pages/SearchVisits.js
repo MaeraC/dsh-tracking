@@ -42,10 +42,10 @@ function SearchVisits() {
 
     return (
         <section className="search-section">
-            <h1>Recherche des visites réalisées</h1>
+            <h1>Recherche des visites par filtres</h1>
 
             <div className="search-filter">
-                <h2>Filtres</h2>
+                
                 <div>
                     <label htmlFor="startDate">Date de début :</label>
                     <input type="date" id="startDate" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
@@ -55,28 +55,27 @@ function SearchVisits() {
                     <input type="date" id="endDate" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
                 </div>
                 <div>
-                    <label htmlFor="salonName">Nom du salon :</label>
-                    <input type="text" id="salonName" value={salonName} onChange={(e) => setSalonName(e.target.value)} />
+                    <label htmlFor="salonName"></label>
+                    <input type="text" id="salonName" value={salonName} placeholder="Nom du salon" onChange={(e) => setSalonName(e.target.value)} />
                 </div>
-                <button className="button" onClick={handleSearch}>Rechercher</button>
+                <button className="button-colored" onClick={handleSearch}>Rechercher</button>
             </div>
 
             {searchResults.length > 0 && (
                 <div className="search-results">
-                    <h2>Résultats de la recherche :</h2>
-                    <p>Nombre de visites pour le salon {salonName} : {searchResults.length}</p>
+
+                    <p className="nb-visit">Nombre de visites pour le salon {salonName} : {searchResults.length}</p>
                     
-                    
-                        {searchResults.map((visit, index) => (
-                            <div key={index}>
-                                <p><span>Nom du salon</span> : {visit.salonName}</p>
-                                <p><span>Status</span> : {visit.status}</p>
-                                <p><span>Ville</span> : {visit.city}</p>
-                                <p><span>Date exacte</span> : {visit.exactDate}</p>
-                                <p><span>Date détectée</span> : {visit.detectedDate}</p>
-                                <p><span>Semaine</span> : {visit.week}</p>
-                            </div>
-                        ))}
+                    {searchResults.map((visit, index) => (
+                        <div key={index}>
+                            <p><span>Nom du salon</span> : {visit.salonName}</p>
+                            <p><span>Status</span> : {visit.status}</p>
+                            <p><span>Ville</span> : {visit.city}</p>
+                            <p><span>Date exacte</span> : {visit.exactDate}</p>
+                            <p><span>Date détectée</span> : {visit.detectedDate}</p>
+                            <p><span>Semaine</span> : {visit.week}</p>
+                        </div>
+                    ))}
                     
                 </div>
             )}

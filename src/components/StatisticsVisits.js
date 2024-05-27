@@ -110,7 +110,6 @@ function StatisticsVisits() {
 
     return (
         <section className="stats-section">
-            <h3>Statistiques des visites réalisées</h3>
 
             <div className="nb-calcul">
                 <div className="total-visits">

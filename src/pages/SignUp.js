@@ -89,7 +89,7 @@ function SignUp() {
                 <label><input className="checkbox" type="radio" value="administrateur" checked={role === "administrateur"} onChange={(e) => setRole(e.target.value)} />Compte administrateur</label><br></br>
                 <label><input className="checkbox" type="radio" value="commercial" checked={role === "commercial"} onChange={(e) => setRole(e.target.value)} />Compte commercial</label>
 
-                {messageType === "success" ? (
+                {messageType === "success" && (
 
                     <div className="success-animation">
                         <div className="circle"> 
@@ -97,8 +97,10 @@ function SignUp() {
                         </div>
                         <span>{message}</span>
                     </div>
-                ) : (
-                    <p className="error-message">Connexion échouée</p>
+                )}
+
+                {messageType === "error" && (
+                    <p className="error-message">{message}</p>
                 )}
 
                 <button onClick={handleSignUp} className="button-white">M'inscrire</button>

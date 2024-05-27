@@ -120,6 +120,7 @@ input {
     box-shadow: none;
     padding-left: 30px;
     margin-bottom: 30px;
+    color: white;
 }
 .login-form input::placeholder,
 .signup-form input::placeholder {

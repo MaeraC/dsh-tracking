@@ -62,7 +62,7 @@ function Login() {
                     <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Mot de passe" /> 
                 </div>
                 
-                {messageType === "success" ? (
+                {messageType === "success" && (
 
                     <div className="success-animation">
                         <div className="circle"> 
@@ -70,8 +70,10 @@ function Login() {
                         </div>
                         <span>{message}</span>
                     </div>
-                ) : (
-                    <p className="error-message">Connexion échouée</p>
+                )}
+
+                {messageType === "error" && (
+                    <p className="error-message">{message}</p>
                 )}
 
                 <button onClick={handleLogin} className="button-white" >Me connecter</button>

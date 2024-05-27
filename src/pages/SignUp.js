@@ -7,7 +7,9 @@ import { createUserWithEmailAndPassword } from "firebase/auth"
 import { auth, db } from "../firebase.config.js"
 import { doc, setDoc } from "firebase/firestore"
 import { Link, useNavigate } from "react-router-dom"
-
+import emailImg from "../assets/email.png"
+import mdpImg from "../assets/mdp.png"
+import userImg from "../assets/user.png"
 
 function SignUp() {
     const [firstname, setFirstname] = useState("")
@@ -65,52 +67,42 @@ function SignUp() {
             <form className="signup-form">
                 <h1>INSCRIPTION</h1>
 
-                <input 
-                    type="text"
-                    value={firstname}
-                    onChange={(e) => setFirstname(e.target.value)}
-                    placeholder="Votre prénom"
-                /><br></br>
-                <input 
-                    type="text"
-                    value={lastname}
-                    onChange={(e) => setLastname(e.target.value)}
-                    placeholder="Votre nom"
-                /><br></br>
-                <input 
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="Votre Email"
-                /><br></br>
-                <input 
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Votre mot de passe"
-                /><br></br>
-                <label>
-                    <input
-                        className="checkbox"                     
-                        type="radio"
-                        value="administrateur"
-                        checked={role === "administrateur"}
-                        onChange={(e) => setRole(e.target.value)}
-                    />
-                    Compte administrateur
-                </label><br></br>
-                <label>
-                    <input 
-                        className="checkbox"
-                        type="radio"
-                        value="commercial"
-                        checked={role === "commercial"}
-                        onChange={(e) => setRole(e.target.value)}
-                    />
-                    Compte commercial
-                </label>
-                <button onClick={handleSignUp} >M'inscrire</button>
-                <Link to="/connexion" className="link">Me connecter</Link>
+                <div className="email-input">
+                    <img src={userImg} alt="icone prenom" />   
+                    <input type="text" value={firstname} onChange={(e) => setFirstname(e.target.value)} placeholder="Prénom" />
+                </div>
+                <div className="email-input">
+                    <img src={userImg} alt="icone nom" />   
+                    <input type="text" value={lastname} onChange={(e) => setLastname(e.target.value)} placeholder="Nom" />
+                </div>
+                <div className="email-input">
+                    <img src={emailImg} alt="icone email" />   
+                    <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="E-mail" />
+                </div>
+                <div className="email-input">
+                    <img src={mdpImg} alt="icone email" />   
+                    <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Mot de passe" />
+                </div>
+                
+                
+
+                <label><input className="checkbox" type="radio" value="administrateur" checked={role === "administrateur"} onChange={(e) => setRole(e.target.value)} />Compte administrateur</label><br></br>
+                <label><input className="checkbox" type="radio" value="commercial" checked={role === "commercial"} onChange={(e) => setRole(e.target.value)} />Compte commercial</label>
+
+                {messageType === "success" ? (
+
+                    <div className="success-animation">
+                        <div className="circle"> 
+                            <div className="checkmark"></div>
+                        </div>
+                        <span>{message}</span>
+                    </div>
+                ) : (
+                    <p className="error-message">Connexion échouée</p>
+                )}
+
+                <button onClick={handleSignUp} className="button-white">M'inscrire</button>
+                <Link to="/connexion" className="link-signup">Me connecter</Link>
                 <p className={messageType === "success" ? "sucess-message" : "error-message"}>{message}</p>
             </form>
         </div>

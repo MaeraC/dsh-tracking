@@ -7,8 +7,10 @@ import { useState } from "react"
 import { signInWithEmailAndPassword } from "firebase/auth"
 import { auth, db } from "../firebase.config.js"
 import { doc, getDoc } from "firebase/firestore"
+import emailImg from "../assets/email.png"
+import mdpImg from "../assets/mdp.png"
 
-function Login() {
+function Login() { 
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
     const [message, setMessage] = useState("")
@@ -51,13 +53,19 @@ function Login() {
             <form className="login-form">
                 <h1>CONNEXION</h1>
 
-                <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="E-mail" /><br></br>
-                <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Mot de passe" /><br></br>
-
+                <div className="email-input">
+                    <img src={emailImg} alt="icone email" />   
+                    <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="E-mail" />
+                </div>
+                <div className="email-input">
+                    <img src={mdpImg} alt="icone mot de passe" /> 
+                    <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Mot de passe" /> 
+                </div>
+                
                 {messageType === "success" ? (
 
                     <div className="success-animation">
-                        <div className="circle">
+                        <div className="circle"> 
                             <div className="checkmark"></div>
                         </div>
                         <span>{message}</span>
@@ -66,7 +74,7 @@ function Login() {
                     <p className="error-message">Connexion échouée</p>
                 )}
 
-                <button onClick={handleLogin} className="button" >Me connecter</button>
+                <button onClick={handleLogin} className="button-white" >Me connecter</button>
                 
                 <Link to="" className="link-mdp">Mot de passe oublié ?</Link>
                 <Link to="/inscription" className="link-signup">M'inscrire</Link>

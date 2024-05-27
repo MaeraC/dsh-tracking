@@ -7,8 +7,8 @@ function Home() {
     return (
         <div className="entry">
             <h1>LOGO</h1>
-            <Link to="/inscription" className="button button-v2">M'inscrire</Link>
-            <Link to="/connexion" className="button button-v2">Me connecter</Link>
+            <Link to="/inscription" className="button-white">M'inscrire</Link>
+            <Link to="/connexion" className="button-white">Me connecter</Link>
         </div>
     )
 }

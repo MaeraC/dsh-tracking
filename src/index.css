@@ -27,28 +27,27 @@ input {
     box-shadow: 2px 2px 10px #afafaf;
     outline: none;
 }
-.button {
-    width: 100%;
+.button-colored {
+    width: 280px;
     padding: 15px;
     border-radius: 30px;
-    background: linear-gradient(45deg, #4c4e78, #9b9edd);
+    background: linear-gradient(50deg, #4c4e78, #a8abeb, #a8abeb, #a8abeb , #4c4e78);
     color: white;
     border: none;
     text-transform: uppercase;
     font-weight: 600;
     font-size: 16px;
 }
-
-.button-v2 {
-    background: white;
-    color: black;
-    width: 200px;
-    text-align: center;
-    margin-bottom: 20px;
-}
-.button-v3 {
-    background: #62bd88;
+.button-white {
+    background: linear-gradient(50deg, #8083b6, white, white, white, #8083b6);
+    text-transform: uppercase;
+    font-weight: 600;
+    font-size: 16px;
+    padding: 15px;
+    border-radius: 30px;
     border: none;
+    width: 280px;
+    text-align: center;
 }
 
 
@@ -79,7 +78,7 @@ input {
 /********* SIGNUP PAGE + LOGIN PAGE **************************/
 
 .entry {
-    background-color: #4c4e78;
+    background: #4c4e78;
     height: 100vh;
     display: flex;
     flex-direction: column;
@@ -90,8 +89,12 @@ input {
     color: white;
     margin-bottom: 100px;
 }
+.entry a {
+    margin-bottom: 30px;
+}
 .signup-page,
 .login-page {
+    background: #4c4e78;
     height: 100vh;
     display: flex;
     justify-content: center;
@@ -100,14 +103,41 @@ input {
 }
 .signup-page h1,
 .login-page h1 {
-    margin-bottom: 40px;
+    margin-bottom: 100px;
     text-align: center;
     font-size: 25px;
-    color: #4c4e78;
+    color: white;
 }
 .signup-form,
 .login-form {
     width: 350px;
+}
+.login-form input,
+.signup-form input {
+    background-color: transparent !important;
+    border-bottom: 1px solid white;
+    border-radius: 0;
+    box-shadow: none;
+    padding-left: 30px;
+    margin-bottom: 30px;
+}
+.login-form input::placeholder,
+.signup-form input::placeholder {
+    color: white;
+}
+.login-form .email-input,
+.signup-form .email-input {
+    position: relative;
+}
+.signup-form label {
+    color: white;
+    margin-bottom: 20px;
+    display: inline-block;
+}
+.login-form img,
+.signup-form img {
+    position: absolute;
+    top: 14px;
 }
 .success-animation {
     display: flex;
@@ -140,7 +170,6 @@ input {
     0% { transform: scale(0) }
     100% { transform: scale(1) }
 }
-
 @keyframes drawCheckmark {
     0% {
         opacity: 0;
@@ -159,22 +188,26 @@ input {
 }
 .login-form button,
 .signup-form button {
-    margin-top: 20px;
+    margin-top: 30px;
+    width: 100%;
 }
 .link-mdp {
     text-align: center;
     display: inline-block;
     width: 100%;
     margin-top: 30px;
-    color: #4c4e78;
+    color: white;
     text-decoration: underline;
+}
+.signup-form .link-signup {
+    margin-top: 30px;
 }
 .link-signup {
     text-align: center;
     font-weight: bold;
     display: inline-block;
     width: 100%;
-    color: #4c4e78;
+    color: white;
     text-decoration: underline;
     margin: 10px 0;
 }

@@ -52,6 +52,7 @@ function DashboardCom() {
 
     return (
         <>
+       
             <Header />
             <Routes>
                 <Route path="/" element={<Navigate to="apercu" replace />} />
@@ -61,6 +62,7 @@ function DashboardCom() {
                 <Route path="deconnexion" element={<Logout />} />
                 <Route path="recherche-visites" element={<SearchVisits />} />
             </Routes>
+       
         </>
         
     )

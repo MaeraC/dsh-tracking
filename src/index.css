@@ -246,19 +246,84 @@ input {
 .preview-section,
 .search-section {
     padding: 20px;
-    background-color: #f5f5f5;
 }
-.surveys-section h1,
+.preview-section h1,
 .search-section h1 {
     margin-bottom: 20px;
 }
+
+
+
 .preview-section h1 {
     margin-top: 20px;
     margin-bottom: 10px;
 }
-.preview-section .status,
+.preview-section .status {
+    color: #a8a8a8;
+}
 .preview-section .name {
     color: #9696f7;
+}
+.stats-section {
+    margin: 20px;
+}
+.stats-section h3 {
+    text-align: right;
+    font-weight: 400;
+    color: grey;
+    font-size: 15px;
+    margin-right: 10px;
+    margin-bottom: 10px;
+}
+.stats-section .nb-calcul {
+    border-radius: 20px;
+    box-shadow: 2px 2px 15px #cfcfcf;
+}
+.stats-section .nb-calcul .all-stats .p {
+    padding: 20px;
+}
+.stats-section .nb-calcul .all-stats .wk {
+    padding: 10px 20px;
+    background: #e4e6ff;
+    border-radius: 20px;
+    margin-top: 20px;
+    font-weight: bold;
+}
+.stats-section .nb-calcul .all-stats .wk p {
+    margin-bottom: 5px;
+}
+.stats-section .nb-calcul .all-stats p {
+    margin-bottom: 10px;
+}
+.stats-section .total-visits {
+    background: #4c4e78;
+    color: white;
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+    padding: 20px;
+    position: relative;
+}
+.stats-section .total-visits .nb-total {
+    position: absolute;
+    top: 15px;
+    right: -15px;
+    background: #9696f7;
+    padding: 10px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+.stats-section .total-visits p {
+    font-size: 22px;
+}
+.stats-section .total-visits .txt {
+    margin-top: 2px;
+    font-size: 13px;
+}
+.stats-section .total-visits .nb {
+    font-size: 35px;
+    font-weight: bold;
 }
 
 

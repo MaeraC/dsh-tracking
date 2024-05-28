@@ -194,13 +194,13 @@ function FDRSemaine({ uid }) {
                                 <p><span>Date détectée</span> : {visit.detectedDate}</p>
                                 <p><span>Semaine</span> : {visit.week}</p>
 
-                                <button onClick={() => handleShowProspectionForm(visit.id)} className="button-colored">Fiche de prospection journalière</button>
+                                <button onClick={() => handleShowProspectionForm(visit.id)} className="button-fpj">Fiche de prospection journalière</button>
 
                                 {visit.status === "prospect" && (
-                                <button onClick={() => handleShowFicheSuiviProspect(visit.id)} className="button-colored">Fiche de suivi prospect</button>
+                                <button onClick={() => handleShowFicheSuiviProspect(visit.id)} className="button-fsp">Fiche de suivi prospect</button>
                                 )}
                                 {visit.status === "client" && (
-                                    <button onClick={() => handleShowFicheSuiviClient(visit.id)} className="button-colored">Fiche de suivi client</button>
+                                    <button onClick={() => handleShowFicheSuiviClient(visit.id)} className="button-fsc">Fiche de suivi client</button>
                                 )}
                                 {visit.dailyProspection && visit.dailyProspection.some(prospection => prospection.typeRdv === "demonstration") && (
                                     <button onClick={() => handleShowCRDemonstration(visit.id)} className="button-colored">Compte Rendu de RDV de Démonstration</button>

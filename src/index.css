@@ -56,6 +56,30 @@ select {
     width: 280px;
     text-align: center;
 }
+.button-fpj {
+    padding: 15px;
+    border-radius: 30px;
+    background: #7ee782;
+    border: none;
+    font-size: 16px;
+    color: white;
+}
+.button-fsp {
+    padding: 15px;
+    border-radius: 30px;
+    background: #c07ee7;
+    border: none;
+    font-size: 16px;
+    color: white;
+}
+.button-fsc {
+    padding: 15px;
+    border-radius: 30px;
+    background: #ff9742;
+    border: none;
+    font-size: 16px;
+    color: white;
+}
 
 
 /********* LOADER **************************/

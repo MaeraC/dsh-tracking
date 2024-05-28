@@ -6,8 +6,8 @@ import { GoogleMap } from "@react-google-maps/api"
 import { useState, useEffect, useRef } from "react"
 
 const mapContainerStyle = {
-    width: '94vw',
-    height: '60vh',
+    width: '96vw',
+    height: '70vh',
 }
   
 const options = {
@@ -112,8 +112,7 @@ function Geolocation() {
     return (
         
         <div className="geoloc-section">
-            <button className="button-colored geoloc-button" onClick={handleSalonsNearby}>Afficher les salons de coiffure à proximité</button>
-
+            
             <GoogleMap
                 mapContainerStyle={mapContainerStyle}
                 zoom={15}
@@ -122,6 +121,9 @@ function Geolocation() {
                 onLoad={(map) => (mapRef.current = map)}
             >
             </GoogleMap>
+            
+            <button className="button-colored geoloc-button" onClick={handleSalonsNearby}>Afficher les salons de coiffure à proximité</button>
+
         </div>
     )  
 }

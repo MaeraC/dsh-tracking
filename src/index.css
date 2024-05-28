@@ -47,9 +47,9 @@ textarea {
 }
 .button-colored {
     width: 280px;
-    padding: 15px;
+    padding: 10px;
     border-radius: 30px;
-    background: linear-gradient(50deg, #4c4e78, #a8abeb, #a8abeb, #a8abeb , #4c4e78);
+    background: #7277d1;
     color: white;
     border: none;
     text-transform: uppercase;
@@ -57,7 +57,7 @@ textarea {
     font-size: 16px;
 }
 .button-white {
-    background: linear-gradient(50deg, #8083b6, white, white, white, #8083b6);
+    background: #7277d1;
     text-transform: uppercase;
     font-weight: 600;
     font-size: 16px;
@@ -284,6 +284,14 @@ textarea {
 
 /********* HEADER COMPONENT **************************/
 
+.header {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    border-top: solid 2px #cacaca;
+    padding-bottom: 20px;
+    padding-top: 10px;
+}
 .header nav {
     display: flex;
     justify-content: space-between;
@@ -295,16 +303,14 @@ textarea {
     border: white solid 1px;
     border-bottom: white solid 2px;
     cursor: pointer;
-    background: #7277d1;
+    background: white;
     color: white;
 }
 .header img {
     width: 25px;
     height: 25px;
 }
-.header nav a.active {
-    background: #3BB0C5;
-}
+
 
 /********* SECTIONS ONGLET **************************/
 
@@ -420,9 +426,9 @@ textarea {
 
 
 .geoloc-section {
-    padding: 20px;
+    padding: 10px;
 }
-.geoloc-section button {
+.geoloc-button {
     width: 100%;
     margin-bottom: 20px;
     text-transform: initial;

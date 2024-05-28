@@ -2,130 +2,128 @@
 
 // Fichier Geolocation.js
 
-import { useState, useEffect } from "react"
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet"
-import L from "leaflet"  
-import 'leaflet/dist/leaflet.css'
-import marker from "../assets/marker.png"
-import marker2 from "../assets/marker2.png"
+import { GoogleMap } from "@react-google-maps/api"
+import { useState, useEffect, useRef } from "react"
+
+const mapContainerStyle = {
+    width: '94vw',
+    height: '60vh',
+}
+  
+const options = {
+    disableDefaultUI: true,
+    zoomControl: true,
+    mapId: "b3f2841793c037a8"
+}
 
 function Geolocation() {
-    const [userLocation, setUserLocation] = useState({ lat: 0, lng: 0 })
-    const [locationFound, setLocationFound] = useState(false)
-    const [hairSalons, setHairSalons] = useState([])
-    const [locationPermission, setLocationPermission] = useState(localStorage.getItem('locationPermission') === 'true')
-    const [showMap, setShowMap] = useState(false) 
-
+    const [currentPosition, setCurrentPosition] = useState({ lat: 0, lng: 0 })
+    const [isLoaded, setIsLoaded] = useState(false)
+    const mapRef = useRef(null)
+    const markerRef = useRef(null)
+  
     useEffect(() => {
-        if (locationPermission && showMap) {
-            getUserLocation()
+        if (window.google && window.google.maps && window.google.maps.marker) {
+            setIsLoaded(true)
         } 
         else {
-            requestLocationPermission()
+            const handleScriptLoad = () => {
+                setIsLoaded(true)
+            }
+
+            window.addEventListener('load', handleScriptLoad)
+            return () => window.removeEventListener('load', handleScriptLoad)
         }
-    }, [locationPermission, showMap])
+    }, [])
+  
+    useEffect(() => {
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                setCurrentPosition({
+                    lat: position.coords.latitude,
+                    lng: position.coords.longitude,
+                })
+            },
+            () => {
+                console.error('Error fetching location')
+            }
+        )
+    }, [])
+  
+    useEffect(() => {
+        if (isLoaded && mapRef.current && currentPosition.lat !== 0 && currentPosition.lng !== 0) {
+
+            const { AdvancedMarkerElement } = window.google.maps.marker
     
-    const requestLocationPermission = () => {
-        if (navigator.geolocation) {
-
-            navigator.geolocation.getCurrentPosition(
-                position => {
-
-                    setUserLocation({
-                        lat: position.coords.latitude,
-                        lng: position.coords.longitude
-                    })
-
-                    setLocationFound(true)
-                    setLocationPermission(true)
-                    localStorage.setItem('locationPermission', 'true')
-                },
-                error => {
-                    console.error("Error getting user location:", error)
-                }
-            )
-        } 
-        else {
-            console.error("Geolocation is not supported by this browser.")
+            // Supprime l'ancien marqueur s'il existe
+            if (markerRef.current) {
+                markerRef.current.setMap(null)
+            }
+    
+            // Marker personnalisé
+            const markerIcon = document.createElement('div')
+            markerIcon.style.width = '32px'
+            markerIcon.style.height = '32px'
+            markerIcon.style.backgroundImage = 'url("/assets/marker.png")'
+            markerIcon.style.backgroundSize = 'contain'
+            markerIcon.style.backgroundRepeat = 'no-repeat'
+    
+            // Créer un nouveau marqueur
+            markerRef.current = new AdvancedMarkerElement({
+                position: currentPosition,
+                map: mapRef.current,
+                content: markerIcon,
+            })
         }
-    }
+    }, [isLoaded, currentPosition])
 
-    const getUserLocation = () => { 
-        if (navigator.geolocation) {
-            navigator.geolocation.watchPosition(
-                position => {
-                    setUserLocation({
-                        lat: position.coords.latitude,
-                        lng: position.coords.longitude
-                    });
-                    setLocationFound(true)
-                },
-                error => {
-                    console.error("Error getting user location:", error)
+    const handleSalonsNearby = () => {
+        // Votre code pour rechercher les salons de coiffure à proximité et les afficher sur la carte
+        const service = new window.google.maps.places.PlacesService(mapRef.current)
+        service.nearbySearch({
+            location: currentPosition,
+            radius: 5000, // Rayon de recherche en mètres (ajustez selon vos besoins)
+            type: 'hair_care' // Type de lieu que vous souhaitez rechercher
+        }, 
+        (results, status) => {
+            if (status === window.google.maps.places.PlacesServiceStatus.OK) {
+
+                for (let i = 0; i < results.length; i++) {
+                    const place = results[i]
+                    
+                    
+                    new window.google.maps.marker.AdvancedMarkerElement({
+                        position: place.geometry.location,
+                        map: mapRef.current,
+                        title: place.name
+                    }) 
+                    
                 }
-            );
-        } else {
-            console.error("Geolocation is not supported by this browser.")
-        }
+            } 
+            else {
+                console.error('Erreur lors de la recherche des salons de coiffure', status)
+            }
+        })
     }
 
-    const locateHairSalons = async () => {
-        const response = await fetch(`https://overpass-api.de/api/interpreter?data=[out:json];node[shop=hairdresser](around:30000,${userLocation.lat},${userLocation.lng});out;`)
-        const data = await response.json()
-        const salons = data.elements.map(element => ({ 
-            lat: element.lat, 
-            lng: element.lon ,
-            tags: element.tags
-        }))
-
-        console.log(hairSalons.map(salon => salon))
-        setHairSalons(salons)
-    }
-
+  
+    if (!isLoaded) return <div>Loading Maps...</div>
+  
     return (
         
-        <section className="geoloc-section" style={{ height: '100vh', width: '100%' }}>
+        <div className="geoloc-section">
+            <button className="button-colored geoloc-button" onClick={handleSalonsNearby}>Afficher les salons de coiffure à proximité</button>
 
-            {!showMap && <button onClick={() => setShowMap(true)} className="button-colored">Afficher la carte</button>} 
-  
-                {showMap && (
-                    <>
-                    <button onClick={locateHairSalons} className="button-colored">Localiser les salons de coiffure autour de moi</button>
-            
-                    <MapContainer 
-                        center={[userLocation.lat, userLocation.lng]} 
-                        zoom={16} 
-                        style={{ height: '100%', width: '100%' }}
-                    >
-                        <TileLayer attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors' url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-                        
-                        {locationFound && (
-                            <Marker position={[userLocation.lat, userLocation.lng]} icon={L.icon({ iconUrl: marker })}>
-                                <Popup>Votre position</Popup>
-                            </Marker>
-                        )}
-
-                        {hairSalons.map((salon, index) => (
-
-                            <Marker key={index} position={[salon.lat, salon.lng]} icon={L.icon({ iconUrl: marker2 })}>
-                                <Popup>
-                                    <div>
-                                        <h2>{salon.tags.name}</h2>
-                                        {salon.tags['addr:street'] && (
-                                            <p>Adresse: {salon.tags['addr:housenumber']} {salon.tags['addr:street']}, {salon.tags['addr:postcode']}</p>
-                                        )}
-                                    </div>
-                                </Popup>
-                            </Marker>
-
-                        ))}
-                    </MapContainer>  
-                    </>
-                )}
-
-        </section>
-    )
-    
+            <GoogleMap
+                mapContainerStyle={mapContainerStyle}
+                zoom={15}
+                center={currentPosition}
+                options={options}
+                onLoad={(map) => (mapRef.current = map)}
+            >
+            </GoogleMap>
+        </div>
+    )  
 }
 
 export default Geolocation

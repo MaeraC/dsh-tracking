@@ -5,7 +5,7 @@ import { NavLink } from "react-router-dom"
 import "../index.css"
 import home from "../assets/home.png"
 import surveys from "../assets/surveys.png"
-import account from "../assets/compte.png"
+import account from "../assets/user.png"
 import search from "../assets/search.png" 
 import map from "../assets/map.png"
 

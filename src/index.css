@@ -146,7 +146,7 @@ textarea {
 /********* SIGNUP PAGE + LOGIN PAGE **************************/
 
 .entry {
-    background: #4c4e78;
+    background: #7277d1;
     height: 100vh;
     display: flex;
     flex-direction: column;
@@ -162,7 +162,7 @@ textarea {
 }
 .signup-page,
 .login-page {
-    background: #4c4e78;
+    background: #7277d1;
     height: 100vh;
     display: flex;
     justify-content: center;
@@ -295,11 +295,15 @@ textarea {
     border: white solid 1px;
     border-bottom: white solid 2px;
     cursor: pointer;
-    background: #4c4e78;
+    background: #7277d1;
     color: white;
 }
+.header img {
+    width: 25px;
+    height: 25px;
+}
 .header nav a.active {
-    background: #9696f7;
+    background: #3BB0C5;
 }
 
 /********* SECTIONS ONGLET **************************/

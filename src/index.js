@@ -16,7 +16,7 @@ root.render(
     <React.StrictMode>
         <Router>
             <Routes>
-                <Route path="/"                                     element={<AuthCheck />} />
+                <Route exact path="/"                                     element={<AuthCheck />} />
                 <Route path="/entry"                                element={<Entry />} />
                 <Route path="/inscription"                          element={<SignUp />} />
                 <Route path="/connexion"                            element={<Login />} />

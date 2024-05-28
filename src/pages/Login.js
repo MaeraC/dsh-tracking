@@ -9,6 +9,7 @@ import { auth, db } from "../firebase.config.js"
 import { doc, getDoc } from "firebase/firestore"
 import emailImg from "../assets/email.png"
 import mdpImg from "../assets/mdp.png"
+import { browserLocalPersistence, setPersistence } from "firebase/auth"
 
 function Login() { 
     const [email, setEmail] = useState("")
@@ -22,6 +23,8 @@ function Login() {
         e.preventDefault()
 
         try {
+            await setPersistence(auth, browserLocalPersistence)
+            
             const userCredential = await signInWithEmailAndPassword(auth, email, password)
             const user = userCredential.user
             const userDoc = await getDoc(doc(db, "users", user.uid))
@@ -89,3 +92,4 @@ function Login() {
 }
 
 export default Login
+

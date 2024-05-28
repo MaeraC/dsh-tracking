@@ -4,10 +4,15 @@
 import { useState, useEffect } from "react"
 import { doc, updateDoc, arrayUnion , getDoc, onSnapshot } from "firebase/firestore"
 import { db } from "../firebase.config.js"
+import { useNavigate } from "react-router-dom"
+import back from "../assets/back.png"
 
 function FicheProspection({ uid, visitId }) {
 
+    const navigate = useNavigate()
+
     const [message, setMessage] = useState("")
+    const [errorMessage, setErrorMessage] = useState("")
     const [savedData, setSavedData] = useState([])
 
     const [formData, setFormData] = useState({
@@ -78,6 +83,14 @@ function FicheProspection({ uid, visitId }) {
     const handleSubmit = async (e) => {
         e.preventDefault()
 
+        if (!formData.rdvObtenu || (formData.rdvObtenu === "Oui" && (!formData.dateRdv || !formData.typeRdv)) || (formData.rdvObtenu === "Non" && !formData.observation)) {
+            setErrorMessage("Veuillez remplir tous les champs requis.")
+            return
+        } 
+        else {
+            setErrorMessage("")
+        }
+
         const newProspection = { ...formData, userId: uid }
 
         try {
@@ -89,9 +102,14 @@ function FicheProspection({ uid, visitId }) {
 
             setMessage("Le formulaire est bien enregistré.")
 
-            if (newProspection.typeRdv === "demonstration") {
+            if (newProspection.typeRdv === "Démonstration") {
                 await updateDoc(visitDocRef, {
-                    crDemonstration: {}  // Initialiser le champ crDemonstration
+                    crDemonstration: {}  
+                })
+            }
+            if (newProspection.typeRdv === "Présentation") {
+                await updateDoc(visitDocRef, {
+                    crPresentation: {}  
                 })
             }
         } 
@@ -100,110 +118,100 @@ function FicheProspection({ uid, visitId }) {
         }
     }
 
+    const handleBackClick = () => {
+        navigate("/tableau-de-bord-commercial/questionnaires");
+        window.location.reload()
+    }
+
     return (
         <>
+        <button onClick={handleBackClick} className="button-back"><img src={back} alt="retour" /></button>
+            
         <form onSubmit={handleSubmit} className="form-pj">
                                 
             <div> 
-                <label>RDV obtenu :</label> 
-                <label><input className="checkbox" type="radio" name="rdvObtenu" value="non" checked={formData.rdvObtenu === "non"} onChange={handleInputChange} />Non</label>
-                <label><input className="checkbox" type="radio" name="rdvObtenu" value="oui" checked={formData.rdvObtenu === "oui"} onChange={handleInputChange}/>Oui</label>
+                <label><strong>RDV obtenu </strong>:</label> 
+                <label><input className="checkbox" type="radio" name="rdvObtenu" value="Non" checked={formData.rdvObtenu === "Non"} onChange={handleInputChange} />Non</label>
+                <label><input className="checkbox" type="radio" name="rdvObtenu" value="Oui" checked={formData.rdvObtenu === "Oui"} onChange={handleInputChange}/>Oui</label>
             </div>
+            <br></br>
 
-            {formData.rdvObtenu === "non" && (
+            {formData.rdvObtenu === "Non" && (
                 <div>
-                    <label>Observation :</label>
+                    <label><strong>Observation</strong> :</label>
                     <input type="text" name="observation" placeholder="Ecrivez ici vos observations" value={formData.observation} onChange={handleInputChange} />
                 </div>
             )}
 
-        {formData.rdvObtenu === "oui" && (
+        {formData.rdvObtenu === "Oui" && (
         <>
-        <div>
-            <label>Date du RDV :</label>
+        <div className="date">
+            <label><strong>Date du RDV</strong> :</label>
             <input type="date" name="dateRdv" value={formData.dateRdv} onChange={handleInputChange} />
         </div>
+        <br></br>
+
         <div>
-            <label>Type de RDV :</label>
-            <label><input className="checkbox" type="checkbox" name="typeRdv" value="presentation" checked={formData.typeRdv === "presentation"} onChange={handleInputChange} />Présentation</label>
-            <label><input className="checkbox" type="checkbox" name="typeRdv" value="demonstration" checked={formData.typeRdv === "demonstration"} onChange={handleInputChange} />Démonstration</label>
-            <label><input className="checkbox" type="checkbox" name="typeRdv" value="autres" checked={formData.typeRdv === "autres"} onChange={handleInputChange} />Autres</label>
+            <label><strong>Type de RDV</strong> :</label><br></br>
+            <label><input className="checkbox" type="checkbox" name="typeRdv" value="Présentation" checked={formData.typeRdv === "Présentation"} onChange={handleInputChange} />Présentation</label><br></br>
+            <label><input className="checkbox" type="checkbox" name="typeRdv" value="Démonstration" checked={formData.typeRdv === "Démonstration"} onChange={handleInputChange} />Démonstration</label><br></br>
+            <label><input className="checkbox" type="checkbox" name="typeRdv" value="Autre" checked={formData.typeRdv === "Autre"} onChange={handleInputChange} />Autre</label>
         </div>
-        {formData.typeRdv === "demonstration" && (
-        <div>
-            <label>Type de démonstration :</label>
-            <label><input className="checkbox" type="checkbox" name="typeDemo" value="mic" checked={formData.typeDemo === "Mic"} onChange={handleInputChange} />Mic</label>
-            <label><input className="checkbox" type="checkbox" name="typeDemo" value="col_th" checked={formData.typeDemo === "Coloration Thalasso"} onChange={handleInputChange} />Coloration Thalasso</label>
-            <label><input className="checkbox" type="checkbox" name="typeDemo" value="vege" checked={formData.typeDemo === "La Végétale"} onChange={handleInputChange} />La Végétale</label>
-                                                <label>
-                                                    <input
-                                                        type="checkbox"
-                                                        className="checkbox"
-                                                        name="typeDemo"
-                                                        value="dec_per_by_dsh"
-                                                        checked={formData.typeDemo === "Dec/per"}
-                                                        onChange={handleInputChange}
-                                                    />
-                                                    Déc/per
-                                                </label>
-                                                <label>
-                                                    <input
-                                                        type="checkbox"
-                                                        className="checkbox"
-                                                        name="typeDemo"
-                                                        value="dec_per_by_dsh"
-                                                        checked={formData.typeDemo === "By DSH"}
-                                                        onChange={handleInputChange}
-                                                    />
-                                                    By DSH
-                                                </label>
-                                                <label>
-                                                    <input
-                                                        type="checkbox"
-                                                        className="checkbox"
-                                                        name="typeDemo"
-                                                        value="olyz"
-                                                        checked={formData.typeDemo === "Olyzea"}
-                                                        onChange={handleInputChange} />Olyzea</label>
-                                            </div>
-                                        )}
-                                        {formData.typeRdv === "autres" && (
-                                            <div>
-                                                <label>Précisez :</label>
-                                                <input type="text" name="observation" value={formData.observation} onChange={handleInputChange} />
-                                            </div>
-                                        )}
-                                    </>
-                                )}
-                                <button type="submit" className="button-colored">Valider</button>
-                                <p className="message">{message}</p>
+        <br></br>
+
+            {formData.typeRdv === "Démonstration" && (
+            <>
+            <div>
+                <label><strong>Type de démonstration</strong> :</label><br></br>
+                <label><input className="checkbox" type="checkbox" name="typeDemo" value="Microscopie" checked={formData.typeDemo === "Microscopie"} onChange={handleInputChange} />Microscopie</label><br></br>
+                <label><input className="checkbox" type="checkbox" name="typeDemo" value="Coloration Thalasso" checked={formData.typeDemo === "Coloration Thalasso"} onChange={handleInputChange} />Coloration Thalasso</label><br></br>
+                <label><input className="checkbox" type="checkbox" name="typeDemo" value="La Végétale" checked={formData.typeDemo === "La Végétale"} onChange={handleInputChange} />La Végétale</label><br></br>
+                <label><input type="checkbox" className="checkbox" name="typeDemo" value="Dec/per" checked={formData.typeDemo === "Dec/per"} onChange={handleInputChange} />Déc/per</label><br></br>
+                <label><input type="checkbox" className="checkbox" name="typeDemo" value="By Dsh" checked={formData.typeDemo === "By DSH"} onChange={handleInputChange} />By DSH</label><br></br>
+                <label><input type="checkbox" className="checkbox" name="typeDemo" value="Olyzea" checked={formData.typeDemo === "Olyzea"} onChange={handleInputChange} />Olyzea</label>
+            </div>
+            <br></br>
+            </>
+            )}
+
+            {formData.typeRdv === "Autre" && (
+                <div>
+                    <label><strong>Précisez</strong> :</label>
+                    <input type="text" name="observation" value={formData.observation} onChange={handleInputChange} />
+                </div>
+            )}
+        </>
+        )}
+
+        <button type="submit" className="button-fpj">Valider</button>
+        <p className="message">{message}</p>
+        {errorMessage && <p className="error-message">{errorMessage}</p>}
                     
-                                <div className="saved-data">
-                                    <h3>Données sauvegardées :</h3>
+        <div className="saved-data">
+        {savedData.map((data, index) => (
+            <div className="div" key={index}>
+                <p><span>RDV obtenu</span> : {data.rdvObtenu}</p>
                     
-                                    {savedData.map((data, index) => (
-                                        <div key={index}>
-                                            <p><span>RDV obtenu</span> : {data.rdvObtenu}</p>
-                    
-                                            {data.rdvObtenu === "oui" && (
-                                                <div>
-                                                    <p><span>Date du RDV</span> : {data.dateRdv}</p>
-                                                    <p><span>Type de RDV</span> : {data.typeRdv}</p>
-                                                    {data.typeRdv === "demonstration" && (
-                                                        <p><span>Type de démonstration</span> : {data.typeDemo}</p>
-                                                    )}
-                                                    {data.typeRdv === "autres" && (
-                                                        <p><span>Observation</span> : {data.observation}</p>
-                                                    )}
-                                                </div>
-                                            )}
-                                            {data.rdvObtenu === "non" && (
-                                                <p><span>Observation</span> : {data.observation}</p>
-                                            )}
-                                        </div>
-                                    ))}
-                                </div>
-                            </form>
+                {data.rdvObtenu === "Oui" && (
+                    <div>
+                        <p><span>Date du RDV</span> : {data.dateRdv}</p>
+                        <p><span>Type de RDV</span> : {data.typeRdv}</p>
+
+                        {data.typeRdv === "Démonstration" && (
+                            <p><span>Type de démonstration</span> : {data.typeDemo}</p>
+                        )}
+                        {data.typeRdv === "Autre" && (
+                            <p><span>Observation</span> : {data.observation}</p>
+                        )}
+                    </div>
+                )}
+                {data.rdvObtenu === "Non" && (
+                    <p><span>Observation</span> : {data.observation}</p>
+                )}
+            </div>
+        ))}
+        </div>
+    </form>
         </>
         
     )

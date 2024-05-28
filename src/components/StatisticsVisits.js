@@ -110,35 +110,37 @@ function StatisticsVisits() {
 
     return (
         <section className="stats-section">
-
-            <div className="nb-calcul">
-                <div className="total-visits">
-                    <p>Statistiques des visites réalisées</p>
-                    <div className="nb-total">
-                        <span className="nb">{statistics.totalVisits}</span>
-                        <span className="txt">Total</span>
-                    </div>
-                    
-                </div>
-                
-                <div className="all-stats">
-                    <div className="p">
-                        <p>Nombre total des Fiches de Prospection : {statistics.totalProspectionForms}</p>
-                        <p>Nombre total des Fiches de suivi Client : {statistics.totalSuiviClientForms}</p>
-                        <p>Nombre total des Fiches de suivi Prospect : {statistics.totalSuiviProspectForms}</p>
-                        <p>Nombre total des Comptes rendus de Démonstration : {statistics.totalDemonstrationReports}</p>
-                        <p>Nombre total des Comptes rendus de Présentation : {statistics.totalPresentationReports}</p>
-                        <div className="wk">
-                            <p>Nombre total des visites cette semaine : {statistics.weeklyVisits}</p>
-                            <p>Nombre total de visites ce mois-ci : {statistics.monthlyVisits}</p>
-                        </div>
-                    </div>
-
-                    
-                </div>
-            </div>
             
-
+            <div className="stats-nb">         
+                <div className="nb pj">   
+                    <span>{statistics.totalProspectionForms}</span>
+                    <p>Prospection<br></br> journalière</p>
+                </div>
+                <div className="nb sp">
+                    <span>{statistics.totalSuiviProspectForms}</span>
+                    <p>Suivi Prospect</p>
+                </div>
+                <div className="nb sc">
+                    <span>{statistics.totalSuiviClientForms}</span>
+                    <p>Suivi Client</p>
+                </div>
+                <div className="nb crd">
+                    <span>{statistics.totalDemonstrationReports}</span>
+                    <p>CR Démonstration</p>
+                </div>
+                <div className="nb crp">
+                    <span>{statistics.totalPresentationReports}</span>
+                    <p>CR Présentation</p>
+                </div>
+                <div className="nb wk">
+                    <span>{statistics.weeklyVisits}</span>
+                    <p>Total cette semaine</p>
+                </div>
+                <div className="nb mth">
+                    <span>{statistics.monthlyVisits}</span>
+                    <p>Total ce mois-ci</p>
+                </div>
+            </div> 
 
         </section>
     )

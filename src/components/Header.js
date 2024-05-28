@@ -13,6 +13,7 @@ import map from "../assets/map.png"
 function Header() {
 
     return (
+        
         <header className="header"> 
             <nav>
                 <NavLink to="apercu"           className={({ isActive }) => (isActive ? "active" : "")}><img src={home} alt="Onglet accueil" className="iconHeader" /></NavLink>

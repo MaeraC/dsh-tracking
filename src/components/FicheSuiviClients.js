@@ -3,10 +3,13 @@
 
 import { useState, useEffect } from "react";
 import { doc, updateDoc, getDoc } from "firebase/firestore";
-import { db } from "../firebase.config.js";
+import { db } from "../firebase.config.js"
+import back from "../assets/back.png"
+import { useNavigate } from "react-router-dom"
 
 function FicheSuiviClients({ visitId }) {
 
+    const navigate = useNavigate()
     const [message, setMessage] = useState("")
     const [suiviList, setSuiviList] = useState([])
     const [salonData, setSalonData] = useState({})
@@ -170,6 +173,7 @@ function FicheSuiviClients({ visitId }) {
                 // Mets à jour la liste des formulaires saisis avec les données de Firebase
                 setSuiviList(suiviClientData.map((formData, index) => ({ id: index, data: formData })))
                 setShowForm(false)
+                console.log(suiviList)
             } 
             else {
                 console.error("Document de visite non trouvé.")
@@ -180,55 +184,34 @@ function FicheSuiviClients({ visitId }) {
         }
     }
 
+    const handleBackClick = () => {
+        navigate("/tableau-de-bord-commercial/questionnaires");
+        window.location.reload()
+    }
+
     return (
         <div>
+            <button onClick={handleBackClick} className="button-back"><img src={back} alt="retour" /></button>
+        
             {showForm ? (
                 <>
-                    <p>{message}</p>
+                    <button className="button-fsc fsc-btn" onClick={showSuiviList}>Afficher les formulaires enregistrés</button>
+                    <p className="success">{message}</p>
+
                     <form onSubmit={addFicheSuivi} className="form-FSC">
-                        <h2>SALON DE COIFFURE / INSTITUT</h2>
-                        <p><span className="bold">Nom du salon</span> : {salonData.salonName}</p>
-                        <p><span className="bold">Ville</span> : {salonData.city}</p>
-                        <input
-                            type="text"
-                            name="salonAdresse"
-                            placeholder="Adresse"
-                            value={formData.salonAdresse}
-                            onChange={handleInputChange}
-                        /><br />
-                        <input
-                            type="text"
-                            name="salonTel"
-                            placeholder="Téléphone"
-                            value={formData.salonTel}
-                            onChange={handleInputChange}
-                        /><br />
+                        
+                        <p><span className="bold">Nom du salon</span> : {salonData.salonName}</p><br></br>
+                        <p><span className="bold">Ville</span> : {salonData.city}</p><br></br>
+                        <input type="text" name="salonAdresse" placeholder="Adresse" value={formData.salonAdresse} onChange={handleInputChange} /><br />
+                        <input type="text" name="salonTel" placeholder="Téléphone" value={formData.salonTel} onChange={handleInputChange} /><br />
 
-                        <h3>Responsable du salon</h3>
-                        <input
-                            type="text"
-                            name="responsableNomPrenom"
-                            placeholder="Nom Prénom"
-                            value={formData.responsableNomPrenom}
-                            onChange={handleInputChange}
-                        /><br />
-                        <input
-                            type="text"
-                            name="responsablePortable"
-                            placeholder="Portable"
-                            value={formData.responsablePortable}
-                            onChange={handleInputChange}
-                        /><br />
-                        <input
-                            type="email"
-                            name="responsableEmail"
-                            placeholder="Email"
-                            value={formData.responsableEmail}
-                            onChange={handleInputChange}
-                        /><br />
+                        <p><strong>Responsable du salon</strong></p><br></br>
+                        <input type="text" name="responsableNomPrenom" placeholder="Nom Prénom" value={formData.responsableNomPrenom} onChange={handleInputChange} /><br />
+                        <input type="text" name="responsablePortable" placeholder="Portable" value={formData.responsablePortable} onChange={handleInputChange} /><br />
+                        <input type="email" name="responsableEmail"  placeholder="Email" value={formData.responsableEmail} onChange={handleInputChange} /><br />
 
-                        <h3>Marques en place</h3>
-                        <div>
+                        <p><strong>Marques en place</strong></p><br></br>
+                        <div className="marques">
                             <label><input className="checkbox" type="checkbox" name="systemeDsh" checked={formData.marquesEnPlace.systemeDsh} onChange={handleCheckboxChange} /> Système DSH</label><br />
                             <label><input className="checkbox" type="checkbox" name="colorationThalasso" checked={formData.marquesEnPlace.colorationThalasso} onChange={handleCheckboxChange} /> Coloration Thalasso</label><br />
                             <label><input className="checkbox" type="checkbox" name="mechesThalasso" checked={formData.marquesEnPlace.mechesThalasso} onChange={handleCheckboxChange} /> Mèches Thalasso</label><br />
@@ -239,146 +222,81 @@ function FicheSuiviClients({ visitId }) {
                             <label><input className="checkbox" type="checkbox" name="stylPro" checked={formData.marquesEnPlace.stylPro} onChange={handleCheckboxChange} /> Styl Pro</label><br />
                             <label><input className="checkbox" type="checkbox" name="persTou" checked={formData.marquesEnPlace.persTou} onChange={handleCheckboxChange} /> Pers Tou</label><br />
                         </div>
+                        <br></br>
 
-                        <h3>Équipe</h3>
+                        <p><strong>Équipe</strong></p><br></br>
                         {formData.equipe.map((member, index) => (
                             <div key={index}>
-                                <input
-                                    type="text"
-                                    placeholder="Nom Prénom"
-                                    value={member.nomPrenom}
-                                    onChange={(e) => handleEquipeChange(index, 'nomPrenom', e.target.value)}
-                                /><br />
+                                <input type="text" placeholder="Nom Prénom" value={member.nomPrenom} onChange={(e) => handleEquipeChange(index, 'nomPrenom', e.target.value)} /><br />
                                 <div>
-                                    <label><input className="checkbox" type="radio" name={`role${index}`} value="Coiffeur/se" checked={member.role === "Coiffeur/se"} onChange={(e) => handleEquipeChange(index, 'role', e.target.value)} /> Coiffeur/se</label><br />
-                                    <label><input className="checkbox" type="radio" name={`role${index}`} value="Apprenti(e)" checked={member.role === "Apprenti(e)"} onChange={(e) => handleEquipeChange(index, 'role', e.target.value)} /> Apprenti(e)</label><br />
+                                    <label className="radio-equipe"><input className="checkbox radio" type="radio" name={`role${index}`} value="Coiffeur/se" checked={member.role === "Coiffeur/se"} onChange={(e) => handleEquipeChange(index, 'role', e.target.value)} /> Coiffeur/se</label><br />
+                                    <label className="radio-equipe"><input className="checkbox radio" type="radio" name={`role${index}`} value="Apprenti(e)" checked={member.role === "Apprenti(e)"} onChange={(e) => handleEquipeChange(index, 'role', e.target.value)} /> Apprenti(e)</label><br />
                                 </div>
                             </div>
                         ))}
-                        <button className="button-colored" type="button" onClick={handleAddEquipeMember}>Ajouter un membre de l'équipe</button>
+                        <button className="button-fsc" type="button" onClick={handleAddEquipeMember}>Ajouter un membre de l'équipe</button>
 
-                        <h3>Client en contrat</h3>
+                        <p><strong>Client en contrat</strong></p><br></br>
                         <div>
-                            <label><input className="checkbox" type="radio" name="clientEnContrat" value="OUI" checked={formData.clientEnContrat === "OUI"} onChange={handleInputChange} /> OUI</label>
-                            <label><input className="checkbox" type="radio" name="clientEnContrat" value="NON" checked={formData.clientEnContrat === "NON"} onChange={handleInputChange} /> NON</label>
+                            <label className="oui"><input className="checkbox radio" type="radio" name="clientEnContrat" value="Oui" checked={formData.clientEnContrat === "Oui"} onChange={handleInputChange} /> Oui</label>
+                            <label><input className="checkbox radio" type="radio" name="clientEnContrat" value="Non" checked={formData.clientEnContrat === "Non"} onChange={handleInputChange} /> Non</label>
                         </div>
-                        {formData.clientEnContrat === "OUI" && (
+                        {formData.clientEnContrat === "Oui" && (
                             <div>
-                                <input
-                                    type="text"
-                                    name="contratLequel"
-                                    placeholder="Lequel"
-                                    value={formData.contratLequel}
-                                    onChange={handleInputChange}
-                                /><br />
-                                <input
-                                    type="text"
-                                    name="tarifSpecifique"
-                                    placeholder="Tarif spécifique"
-                                    value={formData.tarifSpecifique}
-                                    onChange={handleInputChange}
-                                /><br />
+                                <input type="text" name="contratLequel" placeholder="Lequel" value={formData.contratLequel} onChange={handleInputChange} /><br />
+                                <input type="text" name="tarifSpecifique" placeholder="Tarif spécifique" value={formData.tarifSpecifique} onChange={handleInputChange} /><br />
                             </div>
                         )}
 
-                        <h3>Visite</h3>
-                        <div>
-                            <label>Date de visite :</label>
-                            <input
-                                type="date"
-                                name="dateVisite"
-                                value={formData.dateVisite}
-                                onChange={handleInputChange}
-                            />
+                        <br></br>
+                        <div className="div-space">
+                            <label className="label-space"><strong>Date de visite</strong> :</label><br></br>
+                            <input type="date" name="dateVisite" value={formData.dateVisite} onChange={handleInputChange} />
+                        </div>
+                        <div className="div-space">
+                            <label className="label-space"><strong>Responsable présent</strong> :</label><br></br>
+                            <input type="text" name="responsablePresent" placeholder="Responsable présent" value={formData.responsablePresent} onChange={handleInputChange} />
+                        </div>
+                        <div className="div-space">
+                            <label className="label-space"><strong>Prise de commande</strong> :</label><br></br>
+                            <input type="text" name="priseDeCommande" placeholder="Prise de commande" value={formData.priseDeCommande} onChange={handleInputChange} />
+                        </div>
+                        <div className="div-space">
+                            <label className="label-space"><strong>Gammes commandées </strong> :</label><br></br>
+                            <input type="text" name="gammesCommande" placeholder="Gammes commandées" value={formData.gammesCommande} onChange={handleInputChange} />
+                        </div>
+                        <div className="div-space">
+                            <label className="label-space"><strong>Animation proposée</strong> :</label><br></br>
+                            <input type="text" name="animationProposee" placeholder="Animation proposée" value={formData.animationProposee} onChange={handleInputChange} />
+                        </div>
+                        <div className="div-space">
+                            <label className="label-space"><strong>Produits proposés</strong> :</label><br></br>
+                            <input type="text" name="produitsProposes" placeholder="Produits proposés" value={formData.produitsProposes} onChange={handleInputChange} />
                         </div>
                         <div>
-                            <label>Responsable présent :</label>
-                            <input
-                                type="text"
-                                name="responsablePresent"
-                                placeholder="Responsable présent"
-                                value={formData.responsablePresent}
-                                onChange={handleInputChange}
-                            />
+                            <label className="label-space"><strong>Autres points abordés</strong> :</label><br></br>
+                            <textarea name="autresPointsAbordes" value={formData.autresPointsAbordes} onChange={handleInputChange} />
                         </div>
                         <div>
-                            <label>Prise de commande :</label>
-                            <input
-                                type="text"
-                                name="priseDeCommande"
-                                placeholder="Prise de commande"
-                                value={formData.priseDeCommande}
-                                onChange={handleInputChange}
-                            />
+                            <label className="label-space"><strong>Points pour la prochaine visite</strong> :</label><br></br>
+                            <textarea name="pointsProchaineVisite" value={formData.pointsProchaineVisite} onChange={handleInputChange} />
                         </div>
                         <div>
-                            <label>Gammes commandées :</label>
-                            <input
-                                type="text"
-                                name="gammesCommande"
-                                placeholder="Gammes commandées"
-                                value={formData.gammesCommande}
-                                onChange={handleInputChange}
-                            />
+                            <label className="label-space"><strong>Observations</strong> :</label><br></br>
+                            <textarea name="observations" value={formData.observations} onChange={handleInputChange} />
                         </div>
-                        <div>
-                            <label>Animation proposée :</label>
-                            <input
-                                type="text"
-                                name="animationProposee"
-                                placeholder="Animation proposée"
-                                value={formData.animationProposee}
-                                onChange={handleInputChange}
-                            />
-                        </div>
-                        <div>
-                            <label>Produits proposés :</label>
-                            <input
-                                type="text"
-                                name="produitsProposes"
-                                placeholder="Produits proposés"
-                                value={formData.produitsProposes}
-                                onChange={handleInputChange}
-                            />
-                        </div>
-                        <div>
-                            <label>Autres points abordés :</label>
-                            <textarea
-                                name="autresPointsAbordes"
-                                placeholder="Autres points abordés"
-                                value={formData.autresPointsAbordes}
-                                onChange={handleInputChange}
-                            />
-                        </div>
-                        <div>
-                            <label>Points pour la prochaine visite :</label>
-                            <textarea
-                                name="pointsProchaineVisite"
-                                placeholder="Points pour la prochaine visite"
-                                value={formData.pointsProchaineVisite}
-                                onChange={handleInputChange}
-                            />
-                        </div>
-                        <div>
-                            <label>Observations :</label>
-                            <textarea
-                                name="observations"
-                                placeholder="Observations"
-                                value={formData.observations}
-                                onChange={handleInputChange}
-                            />
-                        </div>
-                        <button className="button-colored" type="submit">Enregistrer</button>
+                        <button className="button-fsc" type="submit">ENREGISTRER</button>
                     </form>
 
-                    <button className="button-colored" onClick={showSuiviList}>Afficher les formulaires saisis</button>
+                    
                 </>
             ) : (
                 <>
-                    <ul className="fsp-results">
+                    <ul className="fsc-results">
+                    <button onClick={() => setShowForm(true)} className="button-fsc">Réafficher le formulaire</button>
+               
                         {suiviList.map((suivi, index) => (
-                            <li key={index}>
-                                <h3>Formulaire {index + 1}</h3>
+                            <li className="fsc-saved" key={index}>
 
                                 <p><span className="bold">Nom du salon :</span> {suivi.data.salonName}</p>
                                 <p><span className="bold">Ville :</span> {suivi.data.city}</p>
@@ -400,21 +318,16 @@ function FicheSuiviClients({ visitId }) {
                                     {suivi.data.marquesEnPlace && suivi.data.marquesEnPlace.stylPro && <li>Styl Pro</li>}
                                     {suivi.data.marquesEnPlace && suivi.data.marquesEnPlace.persTou && <li>Pers Tou</li>}
                                 </ul>
-                                    
+                                <br></br>
+
                                 <p><span className="bold">Équipe :</span></p>
 
                                 <ul>
-                                    {suivi.data.equipe.length > 0 && (
-                                        <li><span className="bold">Membre 1 :</span> {suivi.data.equipe[0].nomPrenom}, {formData.equipe[0].role}</li>
-                                    )}
-                                    {suivi.data.equipe.length > 1 && (
-                                        <li><span className="bold">Membre 2 :</span> {suivi.data.equipe[1].nomPrenom}, {formData.equipe[1].role}</li>
-                                    )}
-                                    {suivi.data.equipe.length > 2 && (
-                                        <li><span className="bold">Membre 3 :</span> {suivi.data.equipe[2].nomPrenom}, {formData.equipe[2].role}</li>
-                                    )}
-                                    {/* Ajoutez des conditions supplémentaires pour plus de membres si nécessaire */}
+                                    {suivi.data.equipe.map((member, i) => (
+                                        <li key={i}><span className="bold">Membre {i + 1} :</span> {member.nomPrenom}, {member.role}</li>
+                                    ))}
                                 </ul>
+                                <br></br>
 
                                 <p><span className="bold">Client en contrat :</span> {suivi.data.clientEnContrat}</p>
 
@@ -437,8 +350,7 @@ function FicheSuiviClients({ visitId }) {
                             </li>  
                         ))}                 
                     </ul>
-                    <button onClick={() => setShowForm(true)}>Réafficher le formulaire</button>
-                </>
+                     </>
             )}
         </div>
     )

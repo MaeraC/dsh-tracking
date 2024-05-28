@@ -25,6 +25,8 @@ function FDRSemaine({ uid }) {
     const [currentVisitId, setCurrentVisitId] = useState(null)
     const [showCRDemonstration, setShowCRDemonstration] = useState(false)
     const [showCRPresentation, setShowCRPresentation] = useState(false)
+    const [errors, setErrors] = useState({})
+    const [successMessage, setSuccessMessage] = useState("")
 
     const [visitInfo, setVisitInfo] = useState({
         salonName: "",
@@ -58,6 +60,9 @@ function FDRSemaine({ uid }) {
 
     // Ajout des visites dans la base de données 
     const handleAddVisit = async () => {
+
+        setSuccessMessage("")
+        if (!validateForm()) return
 
         const currentDay = new Date()
         const dayOfWeek = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi']
@@ -109,6 +114,10 @@ function FDRSemaine({ uid }) {
                 city: "",
                 km: "",
             })
+
+            setErrors({})
+            setSuccessMessage("La visite a été enregistrée avec succès !")
+
         } catch (error) {
             console.error("Erreur lors de l'ajout de la visite :", error)
         }
@@ -175,6 +184,19 @@ function FDRSemaine({ uid }) {
         setShowVisits(false)
         navigate(`cr-presentation/${visitId}`)
     }
+
+    const validateForm = () => {
+        let newErrors = {}
+
+        if (!visitInfo.salonName) newErrors.salonName = "Le nom du salon est requis."
+        if (!visitInfo.status) newErrors.status = "Le statut est requis."
+        if (!visitInfo.city) newErrors.city = "La ville est requise."
+        if (!visitInfo.km) newErrors.km = "Les kilomètres parcourus sont requis."
+        if (!detectedDate) newErrors.detectedDate = "La date est requise."
+
+        setErrors(newErrors)
+        return Object.keys(newErrors).length === 0
+    }
     
 
     return (
@@ -202,11 +224,11 @@ function FDRSemaine({ uid }) {
                                 {visit.status === "client" && (
                                     <button onClick={() => handleShowFicheSuiviClient(visit.id)} className="button-fsc">Fiche de suivi client</button>
                                 )}
-                                {visit.dailyProspection && visit.dailyProspection.some(prospection => prospection.typeRdv === "demonstration") && (
-                                    <button onClick={() => handleShowCRDemonstration(visit.id)} className="button-colored">Compte Rendu de RDV de Démonstration</button>
+                                {visit.dailyProspection && visit.dailyProspection.some(prospection => prospection.typeRdv === "Démonstration") && (
+                                    <button onClick={() => handleShowCRDemonstration(visit.id)} className="button-crd">Compte Rendu de RDV de Démonstration</button>
                                 )}
-                                {visit.dailyProspection && visit.dailyProspection.some(prospection => prospection.typeRdv === "presentation") && (
-                                    <button onClick={() => handleShowCRPresentation(visit.id)} className="button-colored">Compte Rendu de RDV de Présentation</button>
+                                {visit.dailyProspection && visit.dailyProspection.some(prospection => prospection.typeRdv === "Présentation") && (
+                                    <button onClick={() => handleShowCRPresentation(visit.id)} className="button-crp">Compte Rendu de RDV de Présentation</button>
                                 )}
 
                             </div>
@@ -234,44 +256,32 @@ function FDRSemaine({ uid }) {
                         </div>
 
                         <div className="fdr-survey">
+                        {successMessage && <p className="success">{successMessage}</p>}
+                            
                             <div className="fdr-info">
                                 <div className="fdr-info">
-                                    <input 
-                                        type="text" 
-                                        name="salonName" 
-                                        value={visitInfo.salonName}  
-                                        onChange={handleInputChange} 
-                                        placeholder="Nom du salon" 
-                                    />
+                                    <input type="text" name="salonName" value={visitInfo.salonName} onChange={handleInputChange} placeholder="Nom du salon" />
+                                    {errors.salonName && <p className="error-message">{errors.salonName}</p>}
+                                
                                     <select name="status" value={visitInfo.status} onChange={handleInputChange}>
                                         <option value="">Status Prospect ou Client</option>
                                         <option value="client">Client</option>
                                         <option value="prospect">Prospect</option>
                                     </select>
-                                    <input 
-                                        type="text"  
-                                        name="city" 
-                                        value={visitInfo.city} 
-                                        onChange={handleInputChange} 
-                                        placeholder="Ville géolocalisée" 
-                                    />
-                                    <input 
-                                        type="number" 
-                                        name="km" 
-                                        value={visitInfo.kilometers} 
-                                        onChange={handleInputChange} 
-                                        placeholder="Kilomètres parcourus"  
-                                    />
+                                    {errors.status && <p className="error-message">{errors.status}</p>}
+
+                                    <input type="text" name="city" value={visitInfo.city} onChange={handleInputChange} placeholder="Ville géolocalisée" />
+                                     {errors.city && <p className="error-message">{errors.city}</p>}
+
+                                    <input type="number" name="km" value={visitInfo.kilometers} onChange={handleInputChange} placeholder="Kilomètres parcourus" />
+                                    {errors.km && <p className="error-message">{errors.km}</p>}
+
                                     <div className="fdr-date">
                                         <button className="button-colored" onClick={handleDetectDate}>Detecter la date</button>
-                                        <input 
-                                            type="text" 
-                                            value={detectedDate} 
-                                            onChange={(e) => setDetectedDate(e.target.value)} 
-                                            placeholder="Date détectée" 
-                                            className="btn-date"
-                                        />
+                                        <input type="text" value={detectedDate} onChange={(e) => setDetectedDate(e.target.value)} placeholder="Date détectée" className="btn-date" />
                                     </div> 
+                                    {errors.detectedDate && <p className="error-message">{errors.detectedDate}</p>}
+                                
                                     <button onClick={handleAddVisit} className="button-colored">Valider la visite</button>
                                 </div>
                             </div>

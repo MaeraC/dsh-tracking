@@ -5,8 +5,12 @@ import { useState, useEffect } from "react"
 import { doc, getDoc, updateDoc } from "firebase/firestore"
 import { db } from "../firebase.config.js"
 
+import back from "../assets/back.png"
+import { useNavigate } from "react-router-dom"
+
 function FicheSuiviProspects({ visitId }) {
 
+    const navigate = useNavigate()
     const [message, setMessage] = useState("")
     const [suiviList, setSuiviList] = useState([])
     const [salonData, setSalonData] = useState({})
@@ -199,31 +203,40 @@ function FicheSuiviProspects({ visitId }) {
         setFormData({ ...formData, [type]: newColorations })
     }
 
+    const handleBackClick = () => {
+        navigate("/tableau-de-bord-commercial/questionnaires");
+        window.location.reload()
+    }
+
     return (
         <div>
+            <button onClick={handleBackClick} className="button-back"><img src={back} alt="retour" /></button>
+        
+            
             {showForm ? (
                 <>
+                    <button className="button-fsp" onClick={showSuiviList}>Afficher les formulaires enregistrés</button>
                     <form onSubmit={addFicheSuivi} className="form-FSP">
-                            <h2>SALON DE COIFFURE / INSTITUT</h2>
-                            <p><span className="bold">Nom du salon</span> : {salonData.salonName}</p>
-                            <p><span className="bold">Ville</span> : {salonData.city}</p>
+                            
+                            <p className="margin"><span className="bold">Nom du salon</span> : {salonData.salonName}</p><br></br>
+                            <p className="margin"><span className="bold">Ville</span> : {salonData.city}</p>
                             <input type="text" name="salonAdresse" placeholder="Adresse" value={formData.salonAdresse} onChange={handleInputChange} /><br></br>
                             <input type="text" name="salonTel" placeholder="Téléphone" value={formData.salonTel} onChange={handleInputChange} />
                     
                             <div className="space">
-                                <label className="bold">Tenue du salon :</label>
+                                <label className="bold margin">Tenue du salon :</label>
                                 <div>
-                                    <label><input type="radio" name="tenueSalon" value="TB" checked={formData.tenueSalon === "TB"} onChange={handleInputChange} />TB</label><br></br>
-                                    <label><input type="radio" name="tenueSalon" value="moyenne" checked={formData.tenueSalon === "moyenne"} onChange={handleInputChange} />moyenne</label><br></br>
-                                    <label><input type="radio" name="tenueSalon" value="mauvaise" checked={formData.tenueSalon === "mauvaise"} onChange={handleInputChange} />mauvaise</label><br></br>
+                                    <label className="margin"><input className="checkbox" type="radio" name="tenueSalon" value="TB" checked={formData.tenueSalon === "TB"} onChange={handleInputChange} />TB</label><br></br>
+                                    <label className="margin" ><input className="checkbox" type="radio" name="tenueSalon" value="moyenne" checked={formData.tenueSalon === "moyenne"} onChange={handleInputChange} />moyenne</label><br></br>
+                                    <label className="margin"><input className="checkbox" type="radio" name="tenueSalon" value="mauvaise" checked={formData.tenueSalon === "mauvaise"} onChange={handleInputChange} />mauvaise</label><br></br>
                                 </div>
                             </div>
                 
                         <div className="space">
-                            <label className="bold">Tenu par :</label>
+                            <label className="bold margin">Tenu par :</label>
                             <div>
-                                <label><input type="radio" name="tenuPar" value="Proprétaire" checked={formData.tenuPar === "Proprétaire"} onChange={handleInputChange} />Proprétaire</label><br></br>
-                                <label><input type="radio" name="tenuPar" value="Salarié" checked={formData.tenuPar === "Salarié"} onChange={handleInputChange} />Salarié</label>
+                                <label className="margin"><input className="checkbox" type="radio" name="tenuPar" value="Proprétaire" checked={formData.tenuPar === "Proprétaire"} onChange={handleInputChange} />Proprétaire</label><br></br>
+                                <label className="margin"><input className="checkbox" type="radio" name="tenuPar" value="Salarié" checked={formData.tenuPar === "Salarié"} onChange={handleInputChange} />Salarié</label>
                             </div>
                         </div>
                 
@@ -231,33 +244,32 @@ function FicheSuiviProspects({ visitId }) {
                         <input type="text" name="jFture" placeholder="J. Fture" value={formData.jFture} onChange={handleInputChange} /><br></br>
                         <input type="text" name="responsableNom" placeholder="Nom Prénom du responsable" value={formData.responsableNom} onChange={handleInputChange} />
                 
-                        <div>
-                            <label className="bold">Age du responsable :</label>
+                        <div className="space">
+                            <label className="bold margin">Age du responsable :</label>
                             <div>
-                                <label><input type="radio" name="responsableAge" value="moins de 35 ans" checked={formData.responsableAge === "moins de 35 ans"} onChange={handleInputChange} />moins de 35 ans</label><br></br>
-                                <label><input type="radio" name="responsableAge" value="de 35 ans à 50 ans" checked={formData.responsableAge === "de 35 ans à 50 ans"} onChange={handleInputChange} />entre 35 ans et 50 ans</label><br></br>
-                                <label><input type="radio" name="responsableAge" value="plus de 50 ans" checked={formData.responsableAge === "plus de 50 ans"} onChange={handleInputChange} />plus de 50 ans</label>
+                                <label className="margin"><input className="checkbox" type="radio" name="responsableAge" value="moins de 35 ans" checked={formData.responsableAge === "moins de 35 ans"} onChange={handleInputChange} />moins de 35 ans</label><br></br>
+                                <label className="margin"><input className="checkbox" type="radio" name="responsableAge" value="de 35 ans à 50 ans" checked={formData.responsableAge === "de 35 ans à 50 ans"} onChange={handleInputChange} />entre 35 ans et 50 ans</label><br></br>
+                                <label className="margin"><input className="checkbox" type="radio" name="responsableAge" value="plus de 50 ans" checked={formData.responsableAge === "plus de 50 ans"} onChange={handleInputChange} />plus de 50 ans</label>
                             </div>
                         </div>
                 
                         <input type="text" name="numeroPortable" placeholder="Numéro de portable" value={formData.numeroPortable} onChange={handleInputChange} /><br></br>
                         <input type="email" name="adresseEmail" placeholder="Adresse email" value={formData.adresseEmail} onChange={handleInputChange} /><br></br>
                         <input type="url" name="facebook" placeholder="Facebook" value={formData.facebook} onChange={handleInputChange} /><br></br>
-                        <input type="url" name="instagram" placeholder="Instagram" value={formData.instagram} onChange={handleInputChange} />
+                        <input type="url" name="instagram" placeholder="Instagram" value={formData.instagram} onChange={handleInputChange} /><br></br>
                 
-                        <div>
-                            <label className="bold">Origine de la visite :</label>
+                        <div className="space">
+                            <label className="bold margin">Origine de la visite :</label>
                             <div>
-                                <label><input type="radio" name="origineVisite" value="visite spontanée" checked={formData.origineVisite === "visite spontanée"} onChange={handleInputChange} />visite spontanée </label><br></br>
-                                <label><input type="radio" name="origineVisite" value="S. recomm." checked={formData.origineVisite === "S. recomm."} onChange={handleInputChange} />S. recomm.</label><br></br>
-                                <label><input type="radio" name="origineVisite" value="Ancien client" checked={formData.origineVisite === "Ancien client"} onChange={handleInputChange} />Ancien client </label><br></br>
-                                <label><input type="radio" name="origineVisite" value="Prospection téléphonique" checked={formData.origineVisite === "Prospection téléphonique"} onChange={handleInputChange} />Prospection téléphonique</label>
+                                <label className="margin"><input className="checkbox" type="radio" name="origineVisite" value="visite spontanée" checked={formData.origineVisite === "visite spontanée"} onChange={handleInputChange} />visite spontanée </label><br></br>
+                                <label className="margin"><input className="checkbox" type="radio" name="origineVisite" value="S. recomm." checked={formData.origineVisite === "S. recomm."} onChange={handleInputChange} />S. recomm.</label><br></br>
+                                <label className="margin"><input className="checkbox" type="radio" name="origineVisite" value="Ancien client" checked={formData.origineVisite === "Ancien client"} onChange={handleInputChange} />Ancien client </label><br></br>
+                                <label className="margin"><input className="checkbox" type="radio" name="origineVisite" value="Prospection téléphonique" checked={formData.origineVisite === "Prospection téléphonique"} onChange={handleInputChange} />Prospection téléphonique</label>
                             </div>
                         </div>
                 
-                        <h3>MARQUES DE COLORATION PRESENTES</h3>
+                        <p className="margin"><strong>Marques de coloration présentes</strong> :</p>
                         <div>
-                            <h4>Colorations avec Ammoniaque :</h4>
                             {formData.colorationsAmmoniaque.map((coloration, index) => (
                                 <div key={index}>
                                     <input
@@ -280,11 +292,10 @@ function FicheSuiviProspects({ visitId }) {
                                     />
                                 </div>
                             ))}
-                            <button type="button" onClick={handleAddColorationAmmoniaque}>Ajouter une coloration avec ammoniaque</button>
+                            <button className="button-fsp" type="button" onClick={handleAddColorationAmmoniaque}>Ajouter une coloration avec ammoniaque</button>
                         </div>
             
                         <div>
-                            <h4>Colorations Sans ammoniaque :</h4>
                             {formData.colorationsSansAmmoniaque.map((coloration, index) => (
                                 <div key={index}>
                                     <input
@@ -307,11 +318,10 @@ function FicheSuiviProspects({ visitId }) {
                                     />
                                 </div>
                             ))}
-                            <button type="button" onClick={handleAddColorationSansAmmoniaque}>Ajouter une coloration sans ammoniaque</button>
+                            <button className="button-fsp" type="button" onClick={handleAddColorationSansAmmoniaque}>Ajouter une coloration sans ammoniaque</button>
                         </div>
             
                         <div>
-                            <h4>Colorations végétales :</h4>
                             {formData.colorationsVegetale.map((coloration, index) => (
                                 <div key={index}>
                                     <input
@@ -334,11 +344,11 @@ function FicheSuiviProspects({ visitId }) {
                                     />
                                 </div>
                             ))}
-                            <button type="button" onClick={handleAddColorationVegetale}>Ajouter une coloration végétale</button>
+                            <button className="button-fsp" type="button" onClick={handleAddColorationVegetale}>Ajouter une coloration végétale</button>
                         </div>
             
                         <div>
-                            <h4>Autres marques :</h4>
+                            <p className="margin"><strong>Autres marques :</strong></p>
                             <input
                                     type="text"
                                     name="poudre"
@@ -369,9 +379,8 @@ function FicheSuiviProspects({ visitId }) {
                                 />
                         </div>
             
-                        <h3>Section suivante</h3>
                         <div>
-                            <label className="bold">Date de visite :</label>
+                            <label className="bold margin">Date de visite :</label>
                             <input
                                 type="date"
                                 name="dateVisite"
@@ -379,21 +388,21 @@ function FicheSuiviProspects({ visitId }) {
                                 onChange={handleInputChange}
                             />
                         </div>
-                        <div>
-                            <label className="bold">Responsable présent :</label>
+                        <div className="space">
+                            <label className="bold margin">Responsable présent :</label>
                             <div>
-                                <label>
-                                    <input type="radio" name="responsablePresent" value="OUI" checked={formData.responsablePresent === "OUI"} onChange={handleInputChange} />
+                                <label className="oui">
+                                    <input className="checkbox" type="radio" name="responsablePresent" value="OUI" checked={formData.responsablePresent === "OUI"} onChange={handleInputChange} />
                                     OUI
                                 </label>
                                 <label>
-                                    <input type="radio" name="responsablePresent" value="NON" checked={formData.responsablePresent === "NON"} onChange={handleInputChange} />
+                                    <input className="checkbox" type="radio" name="responsablePresent" value="NON" checked={formData.responsablePresent === "NON"} onChange={handleInputChange} />
                                     NON
                                 </label>
                             </div>
                         </div>
                         <div>
-                            <label className="bold">Quels ont été les concepts ou produits proposés ?</label><br></br>
+                            <label className="bold margin">Quels ont été les concepts ou produits proposés ?</label><br></br>
                             <textarea
                                 name="conceptsProposes"
                                 value={formData.conceptsProposes}
@@ -401,7 +410,7 @@ function FicheSuiviProspects({ visitId }) {
                             />
                         </div>
                         <div>
-                            <label className="bold">Y a-t-il eu une animation proposée ? Si oui, laquelle ?</label><br></br>
+                            <label className="bold margin">Y a-t-il eu une animation proposée ? Si oui, laquelle ?</label><br></br>
                             <textarea
                                 name="animationProposee"
                                 value={formData.animationProposee}
@@ -409,7 +418,7 @@ function FicheSuiviProspects({ visitId }) {
                             />
                         </div>
                         <div>
-                            <label className="bold">Points à aborder lors de la prochaine visite :</label><br></br>
+                            <label className="bold margin">Points à aborder lors de la prochaine visite :</label><br></br>
                             <textarea
                                 name="pointsProchaineVisite"
                                 value={formData.pointsProchaineVisite}
@@ -417,7 +426,7 @@ function FicheSuiviProspects({ visitId }) {
                             />
                         </div>
                         <div>
-                            <label className="bold">Intéressés par :</label><br></br>
+                            <label className="bold margin">Intéressés par :</label><br></br>
                             <textarea
                                 name="interessesPar"
                                 value={formData.interessesPar}
@@ -425,7 +434,7 @@ function FicheSuiviProspects({ visitId }) {
                             />
                         </div>
                         <div>
-                            <label className="bold">Autres points à aborder :</label><br></br>
+                            <label className="bold margin">Autres points à aborder :</label><br></br>
                             <textarea
                                 name="autresPoints"
                                 value={formData.autresPoints}
@@ -433,7 +442,7 @@ function FicheSuiviProspects({ visitId }) {
                             />
                         </div>
                         <div>
-                            <label className="bold">Observations (éléments à retenir) ou motifs si abandon :</label>
+                            <label className="bold margin">Observations (éléments à retenir) ou motifs si abandon :</label>
                             <textarea
                                 name="observations"
                                 value={formData.observations}
@@ -441,18 +450,18 @@ function FicheSuiviProspects({ visitId }) {
                             />
                         </div>
                     
-                        <div>
-                            <label>
-                                <input type="radio" name="statut" value="ABANDON" checked={formData.statut === "ABANDON"} onChange={handleInputChange} />
+                        <div className="space">
+                            <label className="margin">
+                                <input className="checkbox" type="radio" name="statut" value="ABANDON" checked={formData.statut === "ABANDON"} onChange={handleInputChange} />
                                 ABANDON
-                            </label>
-                            <label>
-                                <input type="radio" name="statut" value="A REVOIR" checked={formData.statut === "A REVOIR"} onChange={handleInputChange} />
+                            </label><br></br>
+                            <label className="margin">
+                                <input className="checkbox" type="radio" name="statut" value="A REVOIR" checked={formData.statut === "A REVOIR"} onChange={handleInputChange} />
                                 A REVOIR
                             </label>
                         </div>
                         <div>
-                            <label className="bold">RDV OK LE :</label>
+                            <label className="bold margin">RDV OK LE :</label>
                             <input
                                 type="date"
                                 name="rdvDate"
@@ -462,7 +471,7 @@ function FicheSuiviProspects({ visitId }) {
                             />
                         </div>
                         <div>
-                            <label className="bold">Pour :</label>
+                            <label className="bold margin">Pour :</label>
                             <select
                                 name="rdvPour"
                                 value={formData.rdvPour}
@@ -475,33 +484,33 @@ function FicheSuiviProspects({ visitId }) {
                                 <option value="Commercial">Commercial</option>
                             </select>
                         </div>
-                        <div>
-                            <label className="bold">Commande ? :</label>
+                        <div className="space">
+                            <label className="bold margin">Commande ? :</label>
                             <div>
-                                <label>
-                                    <input type="radio" name="commande" value="OUI" checked={formData.commande === "OUI"} onChange={handleInputChange} />
+                                <label className="oui">
+                                    <input className="checkbox" type="radio" name="commande" value="OUI" checked={formData.commande === "OUI"} onChange={handleInputChange} />
                                     OUI
                                 </label>
                                 <label>
-                                    <input type="radio" name="commande" value="NON" checked={formData.commande === "NON"} onChange={handleInputChange} />
+                                    <input className="checkbox" type="radio" name="commande" value="NON" checked={formData.commande === "NON"} onChange={handleInputChange} />
                                     NON
                                 </label>
                             </div>
                         </div>
             
-                        <button type="submit" className="button">Enregistrer</button>
+                        <button type="submit" className="button-fsp">Enregistrer</button>
                         <p>{message}</p>
-                    </form>
-
-                    <button onClick={showSuiviList}>Afficher les formulaires saisis</button>
+                    </form>                  
                 </>
              ) : (
                 
                 <>
+                    <button className="button-fsp" onClick={() => setShowForm(true)}>Réafficher le formulaire</button>
+
                     <ul className="fsp-results">
                         {suiviList.map((suivi, index) => (
                             <li key={index}>
-                                <h3>Formulaire {index + 1}</h3>
+
                                 <p><strong>Nom du salon:</strong> {suivi.data.salonAdresse}</p>
                                 <p><strong>Adresse:</strong> {suivi.data.salonAdresse}</p>
                                 <p><strong>Téléphone:</strong> {suivi.data.salonTel}</p>
@@ -517,30 +526,30 @@ function FicheSuiviProspects({ visitId }) {
                                 <p><strong>Instagram:</strong> {suivi.data.instagram}</p>
                                 <p><strong>Origine de la visite:</strong> {suivi.data.origineVisite}</p>
                                 
-                                <h4>Colorations avec Ammoniaque:</h4>
+                                <h4 className="margin">Colorations avec Ammoniaque:</h4>
                                 {suivi.data.colorationsAmmoniaque.map((coloration, i) => (
                                     <div key={i}>
-                                        <p><strong>Nom:</strong> {coloration.nom}</p>
-                                        <p><strong>Prix:</strong> {coloration.prix}</p>
-                                        <p><strong>ML:</strong> {coloration.ml}</p>
+                                        <p className="margin"><strong>Nom:</strong> {coloration.nom}</p><br></br>
+                                        <p className="margin"><strong>Prix:</strong> {coloration.prix}</p><br></br>
+                                        <p className="margin"><strong>ML:</strong> {coloration.ml}</p><br></br>
                                     </div>
                                 ))}
 
-                                <h4>Colorations Sans ammoniaque:</h4>
+                                <h4 className="margin">Colorations Sans ammoniaque:</h4>
                                 {suivi.data.colorationsSansAmmoniaque.map((coloration, i) => (
                                     <div key={i}>
-                                        <p><strong>Nom:</strong> {coloration.nom}</p>
-                                        <p><strong>Prix:</strong> {coloration.prix}</p>
-                                        <p><strong>ML:</strong> {coloration.ml}</p>
+                                        <p className="margin"><strong>Nom:</strong> {coloration.nom}</p><br></br>
+                                        <p className="margin"><strong>Prix:</strong> {coloration.prix}</p><br></br>
+                                        <p className="margin"><strong>ML:</strong> {coloration.ml}</p><br></br>
                                     </div>
                                 ))}
 
-                                <h4>Colorations végétales:</h4>
+                                <h4 className="margin">Colorations végétales:</h4>
                                 {suivi.data.colorationsVegetale.map((coloration, i) => (
                                     <div key={i}>
-                                        <p><strong>Nom:</strong> {coloration.nom}</p>
-                                        <p><strong>Prix:</strong> {coloration.prix}</p>
-                                        <p><strong>ML:</strong> {coloration.ml}</p>
+                                        <p className="margin"><strong>Nom:</strong> {coloration.nom}</p><br></br>
+                                        <p className="margin"><strong>Prix:</strong> {coloration.prix}</p><br></br>
+                                        <p className="margin"><strong>ML:</strong> {coloration.ml}</p><br></br>
                                     </div>
                                 ))}
 
@@ -565,16 +574,8 @@ function FicheSuiviProspects({ visitId }) {
                             </li>
                         ))}
                     </ul>
-
-                    <button onClick={() => setShowForm(true)}>Réafficher le formulaire</button>
                 </>
             )}
-
-            
-
-            
-
-
         </div>
     )
 

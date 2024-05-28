@@ -229,15 +229,15 @@ function FicheSuiviClients({ visitId }) {
 
                         <h3>Marques en place</h3>
                         <div>
-                            <label><input type="checkbox" name="systemeDsh" checked={formData.marquesEnPlace.systemeDsh} onChange={handleCheckboxChange} /> Système DSH</label><br />
-                            <label><input type="checkbox" name="colorationThalasso" checked={formData.marquesEnPlace.colorationThalasso} onChange={handleCheckboxChange} /> Coloration Thalasso</label><br />
-                            <label><input type="checkbox" name="mechesThalasso" checked={formData.marquesEnPlace.mechesThalasso} onChange={handleCheckboxChange} /> Mèches Thalasso</label><br />
-                            <label><input type="checkbox" name="ondThPerm" checked={formData.marquesEnPlace.ondThPerm} onChange={handleCheckboxChange} /> Ond Th/Perm</label><br />
-                            <label><input type="checkbox" name="laVegetale" checked={formData.marquesEnPlace.laVegetale} onChange={handleCheckboxChange} /> La Végétale</label><br />
-                            <label><input type="checkbox" name="byDsh" checked={formData.marquesEnPlace.byDsh} onChange={handleCheckboxChange} /> By DSH</label><br />
-                            <label><input type="checkbox" name="oyzea" checked={formData.marquesEnPlace.oyzea} onChange={handleCheckboxChange} /> Oyzea</label><br />
-                            <label><input type="checkbox" name="stylPro" checked={formData.marquesEnPlace.stylPro} onChange={handleCheckboxChange} /> Styl Pro</label><br />
-                            <label><input type="checkbox" name="persTou" checked={formData.marquesEnPlace.persTou} onChange={handleCheckboxChange} /> Pers Tou</label><br />
+                            <label><input className="checkbox" type="checkbox" name="systemeDsh" checked={formData.marquesEnPlace.systemeDsh} onChange={handleCheckboxChange} /> Système DSH</label><br />
+                            <label><input className="checkbox" type="checkbox" name="colorationThalasso" checked={formData.marquesEnPlace.colorationThalasso} onChange={handleCheckboxChange} /> Coloration Thalasso</label><br />
+                            <label><input className="checkbox" type="checkbox" name="mechesThalasso" checked={formData.marquesEnPlace.mechesThalasso} onChange={handleCheckboxChange} /> Mèches Thalasso</label><br />
+                            <label><input className="checkbox" type="checkbox" name="ondThPerm" checked={formData.marquesEnPlace.ondThPerm} onChange={handleCheckboxChange} /> Ond Th/Perm</label><br />
+                            <label><input className="checkbox" type="checkbox" name="laVegetale" checked={formData.marquesEnPlace.laVegetale} onChange={handleCheckboxChange} /> La Végétale</label><br />
+                            <label><input className="checkbox" type="checkbox" name="byDsh" checked={formData.marquesEnPlace.byDsh} onChange={handleCheckboxChange} /> By DSH</label><br />
+                            <label><input className="checkbox" type="checkbox" name="oyzea" checked={formData.marquesEnPlace.oyzea} onChange={handleCheckboxChange} /> Oyzea</label><br />
+                            <label><input className="checkbox" type="checkbox" name="stylPro" checked={formData.marquesEnPlace.stylPro} onChange={handleCheckboxChange} /> Styl Pro</label><br />
+                            <label><input className="checkbox" type="checkbox" name="persTou" checked={formData.marquesEnPlace.persTou} onChange={handleCheckboxChange} /> Pers Tou</label><br />
                         </div>
 
                         <h3>Équipe</h3>
@@ -250,17 +250,17 @@ function FicheSuiviClients({ visitId }) {
                                     onChange={(e) => handleEquipeChange(index, 'nomPrenom', e.target.value)}
                                 /><br />
                                 <div>
-                                    <label><input type="radio" name={`role${index}`} value="Coiffeur/se" checked={member.role === "Coiffeur/se"} onChange={(e) => handleEquipeChange(index, 'role', e.target.value)} /> Coiffeur/se</label><br />
-                                    <label><input type="radio" name={`role${index}`} value="Apprenti(e)" checked={member.role === "Apprenti(e)"} onChange={(e) => handleEquipeChange(index, 'role', e.target.value)} /> Apprenti(e)</label><br />
+                                    <label><input className="checkbox" type="radio" name={`role${index}`} value="Coiffeur/se" checked={member.role === "Coiffeur/se"} onChange={(e) => handleEquipeChange(index, 'role', e.target.value)} /> Coiffeur/se</label><br />
+                                    <label><input className="checkbox" type="radio" name={`role${index}`} value="Apprenti(e)" checked={member.role === "Apprenti(e)"} onChange={(e) => handleEquipeChange(index, 'role', e.target.value)} /> Apprenti(e)</label><br />
                                 </div>
                             </div>
                         ))}
-                        <button type="button" onClick={handleAddEquipeMember}>Ajouter un membre de l'équipe</button>
+                        <button className="button-colored" type="button" onClick={handleAddEquipeMember}>Ajouter un membre de l'équipe</button>
 
                         <h3>Client en contrat</h3>
                         <div>
-                            <label><input type="radio" name="clientEnContrat" value="OUI" checked={formData.clientEnContrat === "OUI"} onChange={handleInputChange} /> OUI</label>
-                            <label><input type="radio" name="clientEnContrat" value="NON" checked={formData.clientEnContrat === "NON"} onChange={handleInputChange} /> NON</label>
+                            <label><input className="checkbox" type="radio" name="clientEnContrat" value="OUI" checked={formData.clientEnContrat === "OUI"} onChange={handleInputChange} /> OUI</label>
+                            <label><input className="checkbox" type="radio" name="clientEnContrat" value="NON" checked={formData.clientEnContrat === "NON"} onChange={handleInputChange} /> NON</label>
                         </div>
                         {formData.clientEnContrat === "OUI" && (
                             <div>
@@ -368,10 +368,10 @@ function FicheSuiviClients({ visitId }) {
                                 onChange={handleInputChange}
                             />
                         </div>
-                        <button type="submit">Enregistrer</button>
+                        <button className="button-colored" type="submit">Enregistrer</button>
                     </form>
 
-                    <button onClick={showSuiviList}>Afficher les formulaires saisis</button>
+                    <button className="button-colored" onClick={showSuiviList}>Afficher les formulaires saisis</button>
                 </>
             ) : (
                 <>

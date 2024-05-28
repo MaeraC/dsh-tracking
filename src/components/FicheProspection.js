@@ -4,12 +4,9 @@
 import { useState, useEffect } from "react"
 import { doc, updateDoc, arrayUnion , getDoc, onSnapshot } from "firebase/firestore"
 import { db } from "../firebase.config.js"
-import back from "../assets/back.png"
-import { useNavigate } from "react-router-dom"
 
 function FicheProspection({ uid, visitId }) {
 
-    const navigate = useNavigate()
     const [message, setMessage] = useState("")
     const [savedData, setSavedData] = useState([])
 
@@ -105,22 +102,21 @@ function FicheProspection({ uid, visitId }) {
 
     return (
         <>
-        <button onClick={() => navigate("/tableau-de-bord-commercial/questionnaires/")} className="button-v3 btn-back"><img src={back} alt="retourner à la liste des questionnaires" /></button>
-                                
         <form onSubmit={handleSubmit} className="form-pj">
                                 
-        <div> 
-            <label>RDV obtenu :</label> 
-            <label><input type="radio" name="rdvObtenu" value="non" checked={formData.rdvObtenu === "non"} onChange={handleInputChange} />Non</label>
-            <label><input type="radio" name="rdvObtenu" value="oui" checked={formData.rdvObtenu === "oui"} onChange={handleInputChange}/>Oui</label>
-        </div>
+            <div> 
+                <label>RDV obtenu :</label> 
+                <label><input className="checkbox" type="radio" name="rdvObtenu" value="non" checked={formData.rdvObtenu === "non"} onChange={handleInputChange} />Non</label>
+                <label><input className="checkbox" type="radio" name="rdvObtenu" value="oui" checked={formData.rdvObtenu === "oui"} onChange={handleInputChange}/>Oui</label>
+            </div>
 
-        {formData.rdvObtenu === "non" && (
-        <div>
-            <label>Observation :</label>
-            <input type="text" name="observation" value={formData.observation} onChange={handleInputChange} />
-        </div>
-        )}
+            {formData.rdvObtenu === "non" && (
+                <div>
+                    <label>Observation :</label>
+                    <input type="text" name="observation" placeholder="Ecrivez ici vos observations" value={formData.observation} onChange={handleInputChange} />
+                </div>
+            )}
+
         {formData.rdvObtenu === "oui" && (
         <>
         <div>
@@ -129,19 +125,20 @@ function FicheProspection({ uid, visitId }) {
         </div>
         <div>
             <label>Type de RDV :</label>
-            <label><input type="checkbox" name="typeRdv" value="presentation" checked={formData.typeRdv === "presentation"} onChange={handleInputChange} />Présentation</label>
-            <label><input type="checkbox" name="typeRdv" value="demonstration" checked={formData.typeRdv === "demonstration"} onChange={handleInputChange} />Démonstration</label>
-            <label><input type="checkbox" name="typeRdv" value="autres" checked={formData.typeRdv === "autres"} onChange={handleInputChange} />Autres</label>
+            <label><input className="checkbox" type="checkbox" name="typeRdv" value="presentation" checked={formData.typeRdv === "presentation"} onChange={handleInputChange} />Présentation</label>
+            <label><input className="checkbox" type="checkbox" name="typeRdv" value="demonstration" checked={formData.typeRdv === "demonstration"} onChange={handleInputChange} />Démonstration</label>
+            <label><input className="checkbox" type="checkbox" name="typeRdv" value="autres" checked={formData.typeRdv === "autres"} onChange={handleInputChange} />Autres</label>
         </div>
         {formData.typeRdv === "demonstration" && (
         <div>
             <label>Type de démonstration :</label>
-            <label><input type="checkbox" name="typeDemo" value="mic" checked={formData.typeDemo === "Mic"} onChange={handleInputChange} />Mic</label>
-            <label><input type="checkbox" name="typeDemo" value="col_th" checked={formData.typeDemo === "Coloration Thalasso"} onChange={handleInputChange} />Coloration Thalasso</label>
-            <label><input type="checkbox" name="typeDemo" value="vege" checked={formData.typeDemo === "La Végétale"} onChange={handleInputChange} />La Végétale</label>
+            <label><input className="checkbox" type="checkbox" name="typeDemo" value="mic" checked={formData.typeDemo === "Mic"} onChange={handleInputChange} />Mic</label>
+            <label><input className="checkbox" type="checkbox" name="typeDemo" value="col_th" checked={formData.typeDemo === "Coloration Thalasso"} onChange={handleInputChange} />Coloration Thalasso</label>
+            <label><input className="checkbox" type="checkbox" name="typeDemo" value="vege" checked={formData.typeDemo === "La Végétale"} onChange={handleInputChange} />La Végétale</label>
                                                 <label>
                                                     <input
                                                         type="checkbox"
+                                                        className="checkbox"
                                                         name="typeDemo"
                                                         value="dec_per_by_dsh"
                                                         checked={formData.typeDemo === "Dec/per"}
@@ -152,6 +149,7 @@ function FicheProspection({ uid, visitId }) {
                                                 <label>
                                                     <input
                                                         type="checkbox"
+                                                        className="checkbox"
                                                         name="typeDemo"
                                                         value="dec_per_by_dsh"
                                                         checked={formData.typeDemo === "By DSH"}
@@ -162,13 +160,11 @@ function FicheProspection({ uid, visitId }) {
                                                 <label>
                                                     <input
                                                         type="checkbox"
+                                                        className="checkbox"
                                                         name="typeDemo"
                                                         value="olyz"
                                                         checked={formData.typeDemo === "Olyzea"}
-                                                        onChange={handleInputChange}
-                                                    />
-                                                    Olyzea
-                                                </label>
+                                                        onChange={handleInputChange} />Olyzea</label>
                                             </div>
                                         )}
                                         {formData.typeRdv === "autres" && (
@@ -179,7 +175,7 @@ function FicheProspection({ uid, visitId }) {
                                         )}
                                     </>
                                 )}
-                                <button type="submit" className="button">Soumettre</button>
+                                <button type="submit" className="button-colored">Valider</button>
                                 <p className="message">{message}</p>
                     
                                 <div className="saved-data">

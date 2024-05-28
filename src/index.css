@@ -16,9 +16,6 @@ li {
 }
 input,
 select {
-    font-size: 16px;
-}
-input {
     width: 100%;
     padding: 15px 20px;
     border: none;
@@ -26,6 +23,16 @@ input {
     margin-bottom: 20px;
     box-shadow: 2px 2px 15px #afafaf;
     outline: none;
+    font-size: 16px;
+}
+.checkbox {
+    width: initial !important;
+    border: initial !important;
+    margin-bottom: 0 !important;
+    padding-bottom: 0 !important;
+    margin-right: 10px;
+    background: transparent !important;
+    box-shadow: none;
 }
 .button-colored {
     width: 280px;
@@ -212,13 +219,7 @@ input {
     text-decoration: underline;
     margin: 10px 0;
 }
-.checkbox {
-    width: initial !important;
-    border: initial !important;
-    margin-bottom: 0 !important;
-    padding-bottom: 0 !important;
-    margin-right: 10px;
-}
+
 
 /********* HEADER COMPONENT **************************/
 
@@ -315,22 +316,41 @@ input {
 }
 
 
+
+
+.geoloc-section {
+    padding: 20px;
+}
+.geoloc-section button {
+    width: 100%;
+    margin-bottom: 20px;
+    text-transform: initial;
+    font-weight: normal;
+}
+
+
+
+
 .fdr h2 {
-    color: #9696f7;
+    color: grey;
     font-size: 15px;
     font-weight: normal;
     text-transform: uppercase;
 }
 .fdr-survey {
-    background-color: white;
-    box-shadow: 5px 5px 10px rgb(209, 209, 209);
-    padding: 20px;
+    box-shadow: 2px 2px 15px #cfcfcf;
+    padding: 30px;
     margin: 20px 0;
     border-radius: 10px;
 }
 .fdr-header {
     display: flex;
     flex-direction: column;
+}
+.fdr-header button {
+    width: 100%;
+    font-weight: normal;
+    text-transform: initial;
 }
 .fdr-header .nb-visits {
     display: flex;
@@ -340,23 +360,29 @@ input {
     background: white;
     padding: 20px;
 }
-.fdr-header .button {
-    text-transform: initial;
-    font-size: 16px;
-    font-weight: normal;
-}
 .fdr-header .nb-visits div {
    background: white;
    border-radius: 10px;
    padding: 15px
 }
-
+.fdr-date {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+.fdr-date .btn-date {
+    margin: 0;
+}
+.fdr-date button {
+    text-transform: initial;
+    font-weight: normal;
+    margin-right: 20px;
+}
 .fdr-header .nb-visits h2 {
     font-size: 16px;
 }
-.btn-back {
-    border-radius: 50%;
-    margin-right: 20px;
+.fdr-survey button {
+    width: 100%;
 }
 .fdr h2 {
     margin-bottom: 20px;
@@ -365,30 +391,10 @@ input {
     display: flex;
     flex-direction: column;
 }
-
-.fdr-date {
-    display: flex;
-    margin-bottom: 20px;
-    align-items: center;
-}
-.fdr-date button {
-    padding: 0 10px;
-    margin-right: 20px;
-    height: 40px;
-    font-weight: normal;
-    background: #9696f7;
-}
-.fdr-saved {
-    margin-top: 20px;
-    background-color: #f3f3ff;
-    padding: 20px;
-}
-.fdr-saved h3 {
-    margin-bottom: 20px;
-    color: #9696f7;
-}
 .fdr-saved div {
-    margin: 20px;
+    margin: 30px 0;
+    border-radius: 20px;
+    box-shadow: 2px 2px 15px #cfcfcf;
 }
 .fdr-saved p {
     margin-bottom: 5px;
@@ -400,17 +406,12 @@ input {
     background: white;
     padding: 20px;
 }
-.button-visit-saved {
-    padding: 10px 20px;
-    background: #4c4e78;
-    border: none;
-    border-radius: 20px;
-    color: white;
-    font-size: 15px;
-    margin-top: 120px;
-
+.fdr-saved button {
+    text-transform: initial;
+    margin: 10px 0px;
+    font-weight: normal;
+    width: 100%;
 }
-
 .all-surveys {
     display: flex;
     flex-direction: column;
@@ -430,6 +431,7 @@ input {
     padding: 20px;
     background: white;
     border-radius: 20px;
+    box-shadow: 2px 2px 15px #cfcfcf;
 }
 .form-pj label {
     padding-bottom: 10px;
@@ -441,11 +443,31 @@ input {
     margin-top: 20px;
     color: green;
 }
+.form-pj .saved-data {
+    padding: 20px;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 2px 2px 15px #cfcfcf;
+}
 .form-pj .saved-data p {
     margin: 10px 0;
 }
 .form-pj .saved-data span {
     font-weight: bold;
+}
+.form-pj button {
+    width: 100%;
+    text-transform: initial;
+    font-weight: normal;
+}
+
+
+
+.form-FSC button {
+    text-transform: initial;
+    font-weight: normal;
+    width: 100%;
+    margin: 20px 0;
 }
 
 
@@ -535,5 +557,4 @@ input {
 }
 .search-results div span {
     font-weight: bold;
-    text-transform: uppercase;
 }

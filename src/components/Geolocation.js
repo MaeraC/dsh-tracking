@@ -84,18 +84,18 @@ function Geolocation() {
 
     return (
         
-        <div style={{ height: '400px', width: '100%' }}>
+        <section className="geoloc-section" style={{ height: '100vh', width: '100%' }}>
 
-            {!showMap && <button onClick={() => setShowMap(true)}>Afficher la carte</button>} 
+            {!showMap && <button onClick={() => setShowMap(true)} className="button-colored">Afficher la carte</button>} 
   
                 {showMap && (
                     <>
-                    <button onClick={locateHairSalons}>Localiser les salons de coiffure autour de moi</button>
+                    <button onClick={locateHairSalons} className="button-colored">Localiser les salons de coiffure autour de moi</button>
             
                     <MapContainer 
                         center={[userLocation.lat, userLocation.lng]} 
                         zoom={16} 
-                        style={{ height: '400px', width: '100%' }}
+                        style={{ height: '100%', width: '100%' }}
                     >
                         <TileLayer attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors' url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
                         
@@ -110,8 +110,7 @@ function Geolocation() {
                             <Marker key={index} position={[salon.lat, salon.lng]} icon={L.icon({ iconUrl: marker2 })}>
                                 <Popup>
                                     <div>
-                                        <h2>Salon de coiffure</h2>
-                                        <p>Nom: {salon.tags.name}</p>
+                                        <h2>{salon.tags.name}</h2>
                                         {salon.tags['addr:street'] && (
                                             <p>Adresse: {salon.tags['addr:housenumber']} {salon.tags['addr:street']}, {salon.tags['addr:postcode']}</p>
                                         )}
@@ -124,7 +123,7 @@ function Geolocation() {
                     </>
                 )}
 
-        </div>
+        </section>
     )
     
 }

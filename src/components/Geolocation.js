@@ -21,9 +21,10 @@ function Geolocation() {
     const [isLoaded, setIsLoaded] = useState(false)
     const mapRef = useRef(null)
     const markerRef = useRef(null)
+    const [salons, setSalons] = useState([])
   
     useEffect(() => {
-        if (window.google && window.google.maps && window.google.maps.marker) {
+        if (window.google && window.google.maps && window.google.maps.marker && window.google.maps.geometry) {
             setIsLoaded(true)
         } 
         else {
@@ -88,23 +89,32 @@ function Geolocation() {
         (results, status) => {
             if (status === window.google.maps.places.PlacesServiceStatus.OK) {
 
-                for (let i = 0; i < results.length; i++) {
-                    const place = results[i]
-                    
-                    
+                const sortedSalons = results.sort((a, b) => {
+                    const distanceA = window.google.maps.geometry.spherical.computeDistanceBetween(
+                        new window.google.maps.LatLng(currentPosition.lat, currentPosition.lng),
+                        a.geometry.location
+                    );
+                    const distanceB = window.google.maps.geometry.spherical.computeDistanceBetween(
+                        new window.google.maps.LatLng(currentPosition.lat, currentPosition.lng),
+                        b.geometry.location
+                    );
+                    return distanceA - distanceB;
+                });
+                for (let i = 0; i < sortedSalons.length; i++) {
+                    const place = sortedSalons[i];
                     new window.google.maps.marker.AdvancedMarkerElement({
                         position: place.geometry.location,
                         map: mapRef.current,
-                        title: place.name
-                    }) 
-                    
+                        title: place.name,
+                    });
                 }
+                setSalons(sortedSalons);
             } 
             else {
                 console.error('Erreur lors de la recherche des salons de coiffure', status)
             }
         })
-    }
+    } 
 
   
     if (!isLoaded) return <div>Loading Maps...</div>
@@ -121,9 +131,26 @@ function Geolocation() {
                 onLoad={(map) => (mapRef.current = map)}
             >
             </GoogleMap>
-            
+
             <button className="button-colored geoloc-button" onClick={handleSalonsNearby}>Afficher les salons de coiffure à proximité</button>
 
+            <div className="geoloc-results">
+                <ul>
+                    {salons.map((salon, index) => (
+                        <li key={index}>
+                            <span>{salon.name}</span><br></br><p>Distance :{" "}
+                            {(
+                                window.google.maps.geometry.spherical.computeDistanceBetween(
+                                    new window.google.maps.LatLng(currentPosition.lat, currentPosition.lng),
+                                    salon.geometry.location
+                                ) / 1000
+                            ).toFixed(2)}{" "} km</p>
+
+                            
+                        </li>
+                    ))}
+                </ul>
+            </div>
         </div>
     )  
 }

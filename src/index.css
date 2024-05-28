@@ -289,8 +289,9 @@ textarea {
     bottom: 0;
     width: 100%;
     border-top: solid 2px #cacaca;
-    padding-bottom: 20px;
+    padding-bottom: 10px;
     padding-top: 10px;
+    background: white;
 }
 .header nav {
     display: flex;
@@ -432,6 +433,7 @@ textarea {
     display: flex;
     flex-direction: column;
     align-items: center;
+    padding-bottom: 120px;
 }
 .geoloc-button {
     width: 90%;
@@ -439,7 +441,22 @@ textarea {
     text-transform: initial;
     font-weight: normal;
     margin: 20px 0;
-    
+}
+.geoloc-results {
+    width: 100%;
+}
+.geoloc-results li {
+    border-bottom: 1px solid rgb(202, 202, 202);
+    padding: 15px 0;
+    width: 100%;
+}
+.geoloc-results li span {
+    font-weight: bold;
+    display: inline-block;
+    margin-bottom: 10px;
+}
+.geoloc-results li p {
+    color: grey;
 }
 
 

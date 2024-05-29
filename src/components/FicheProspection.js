@@ -16,6 +16,7 @@ function FicheProspection({ uid, visitId }) {
     const [savedData, setSavedData] = useState([])
 
     const [formData, setFormData] = useState({
+        salonName: "",
         rdvObtenu: "",
         dateRdv: "",
         typeRdv: "",
@@ -35,6 +36,7 @@ function FicheProspection({ uid, visitId }) {
                         const visitData = visitSnapshot.data()
                         
                         setFormData({
+                            salonName: visitData.salonName || "",
                             rdvObtenu: visitData.rdvObtenu || "",
                             dateRdv: visitData.dateRdv || "",
                             typeRdv: visitData.typeRdv || "",
@@ -83,7 +85,7 @@ function FicheProspection({ uid, visitId }) {
     const handleSubmit = async (e) => {
         e.preventDefault()
 
-        if (!formData.rdvObtenu || (formData.rdvObtenu === "Oui" && (!formData.dateRdv || !formData.typeRdv)) || (formData.rdvObtenu === "Non" && !formData.observation)) {
+        if (!formData.salonName || !formData.rdvObtenu || (formData.rdvObtenu === "Oui" && (!formData.dateRdv || !formData.typeRdv)) || (formData.rdvObtenu === "Non" && !formData.observation)) {
             setErrorMessage("Veuillez remplir tous les champs requis.")
             return
         } 
@@ -135,7 +137,11 @@ function FicheProspection({ uid, visitId }) {
         <button onClick={handleBackClick} className="button-back"><img src={back} alt="retour" /></button>
             
         <form onSubmit={handleSubmit} className="form-pj">
-                                
+
+            <div>
+                <label><strong>Nom du salon</strong> :</label>
+                <input type="text" name="salonName" value={formData.salonName} onChange={handleInputChange} required />
+            </div>                  
             <div> 
                 <label><strong>RDV obtenu </strong>:</label> 
                 <label><input className="checkbox" type="radio" name="rdvObtenu" value="Non" checked={formData.rdvObtenu === "Non"} onChange={handleInputChange} />Non</label>
@@ -198,6 +204,7 @@ function FicheProspection({ uid, visitId }) {
         {savedData.map((data, index) => (
             <div className="div" key={index}>
                 <p><span>{data.typeOfForm} </span>n° {index +1}</p>
+                <p><span>Nom du salon</span> : {data.salonName}</p>
                 <p><span>RDV obtenu</span> : {data.rdvObtenu}</p>
                     
                 {data.rdvObtenu === "Oui" && (

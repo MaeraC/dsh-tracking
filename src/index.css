@@ -711,6 +711,14 @@ textarea {
     margin-bottom: 20px;
     display: inline-block;
 }
+.search-filter .space {
+    margin-bottom: 20px;
+
+}
+.search-filter .space div label {
+    color: black;
+    font-size: 16px;
+}
 
 
 

@@ -221,7 +221,7 @@ function FDRSemaine({ uid }) {
                                 <p><span>Date exacte</span> : {visit.exactDate}</p>
                                 <p><span>Date détectée</span> : {visit.detectedDate}</p>
                                 <p><span>Semaine</span> : {visit.week}</p>
-                                
+                               
 
                                 <button onClick={() => handleShowProspectionForm(visit.id)} className="button-fpj">Fiche de prospection journalière</button>
 

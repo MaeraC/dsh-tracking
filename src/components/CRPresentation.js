@@ -18,7 +18,7 @@ const CRPresentation = ({ visitId }) => {
     const createdAt = new Date()
 
     const [formData, setFormData] = useState({
-        nomSalon: '',
+        salonName: '',
         ville: '',
         departement: '',
         presenceResponsable: '',
@@ -103,7 +103,7 @@ const CRPresentation = ({ visitId }) => {
                 setMessage("Formulaire enregistré avec succès")
 
                 setFormData({
-                    nomSalon: '',
+                    salonName: '',
                     ville: '',
                     departement: '',
                     presenceResponsable: '',
@@ -188,7 +188,7 @@ const CRPresentation = ({ visitId }) => {
             <p className="success">{message}</p>
 
             <form onSubmit={handleSubmit} className='form-crp'>
-            <input type="text" name="nomSalon" placeholder="Nom du salon" value={formData.nomSalon} onChange={handleChange} /><br></br>
+            <input type="text" name="salonName" placeholder="Nom du salon" value={formData.salonName} onChange={handleChange} /><br></br>
             <input type="text" name="ville" placeholder="Ville" value={formData.ville} onChange={handleChange} /><br></br>
             <input type="text" name="departement" placeholder='Département' value={formData.departement} onChange={handleChange} /><br></br>
             
@@ -385,7 +385,7 @@ const CRPresentation = ({ visitId }) => {
             {suiviList.map((item, index) => ( 
                 <li key={item.id}>
                     <p><span className="bold">{item.data.typeOfForm} </span>n° {index +1}</p>
-                    <p><strong>Nom du salon:</strong> {item.data.nomSalon}</p>
+                    <p><strong>Nom du salon:</strong> {item.data.salonName}</p>
                     <p><strong>Ville:</strong> {item.data.ville}</p>
                     <p><strong>Département:</strong> {item.data.departement}</p>
                     <p><strong>Présence du responsable:</strong> {item.data.presenceResponsable}</p>

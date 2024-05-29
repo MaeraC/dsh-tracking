@@ -19,7 +19,7 @@ function CRDémonstration({ visitId }) {
     const createdAt = new Date()
 
     const [formState, setFormState] = useState({
-        nomSalon: '',
+        salonName: '',
         ville: '',
         nomPrenomResponsable: '',
         responsablePresent: '',
@@ -163,7 +163,7 @@ function CRDémonstration({ visitId }) {
                 setMessage("Formulaire enregistré avec succès")
 
                 setFormState({
-                    nomSalon: '',
+                    salonName: '',
                     ville: '',
                     nomPrenomResponsable: '',
                     responsablePresent: '',
@@ -269,7 +269,7 @@ function CRDémonstration({ visitId }) {
                     
             <form onSubmit={handleSubmit} className="form-CRD">
 
-                <input type="text" name="nomSalon" placeholder="Nom du salon" value={formState.nomSalon} onChange={handleChange} /><br></br>
+                <input type="text" name="salonName" placeholder="Nom du salon" value={formState.salonName} onChange={handleChange} /><br></br>
                 <input type="text" name="ville" placeholder="Ville" value={formState.ville} onChange={handleChange} /><br></br>
                 <input type="text" name="nomPrenomResponsable" placeholder="Nom Prénom du responsable" value={formState.nomPrenomResponsable} onChange={handleChange} /><br></br>
             
@@ -498,7 +498,7 @@ function CRDémonstration({ visitId }) {
                         {suiviList.map((item, index) => (
                             <li className="crd-saved" key={item.id}>
                                 <p><span className="bold">{item.data.typeOfForm} </span>n° {index +1}</p>
-                                <p><strong>Nom du salon:</strong> {item.data.nomSalon}</p>
+                                <p><strong>Nom du salon:</strong> {item.data.salonName}</p>
                                 <p><strong>Ville:</strong> {item.data.ville}</p>
                                 <p><strong>Nom du responsable:</strong> {item.data.nomPrenomResponsable}</p>
                                 <p><strong>Responsable présent:</strong> {item.data.responsablePresent}</p>

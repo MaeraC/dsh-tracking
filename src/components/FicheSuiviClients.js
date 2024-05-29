@@ -1,7 +1,7 @@
 
 // Fichier FicheSuiviClients.js
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { doc, updateDoc, getDoc } from "firebase/firestore";
 import { db } from "../firebase.config.js"
 import back from "../assets/back.png"
@@ -12,12 +12,13 @@ function FicheSuiviClients({ visitId }) {
     const navigate = useNavigate()
     const [message, setMessage] = useState("")
     const [suiviList, setSuiviList] = useState([])
-    const [salonData, setSalonData] = useState({})
     const [showForm, setShowForm] = useState(true)
 
     const createdAt = new Date()
 
     const [formData, setFormData] = useState({
+        salonName: "",
+        city: "",
         salonAdresse: "",
         salonTel: "",
         responsableNomPrenom: "",
@@ -50,29 +51,6 @@ function FicheSuiviClients({ visitId }) {
         createdAt: createdAt,
         typeOfForm: "Fiche de suivi Client"
     })
-
-    // Récupère les infos de la visite enregistré qui correspond
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const visitDocRef = doc(db, "visits", visitId)
-                const visitSnapshot = await getDoc(visitDocRef)
-
-                if (visitSnapshot.exists()) {
-                    setSalonData(visitSnapshot.data())
-                } 
-                else {
-                    console.error("Cette visite n'existe pas.")
-                }
-            } 
-            catch (error) {
-                console.error("Erreur lors de la récupération des données de la visite : ", error)
-            }
-        }
-
-        fetchData()
-
-    }, [visitId])
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -123,6 +101,8 @@ function FicheSuiviClients({ visitId }) {
                 
                 // Réinitialise le formulaire après soumission
                 setFormData({
+                    salonName: "",
+                    city: "",
                     salonAdresse: "",
                     salonTel: "",
                     responsableNomPrenom: "",
@@ -206,8 +186,9 @@ function FicheSuiviClients({ visitId }) {
 
                     <form onSubmit={addFicheSuivi} className="form-FSC">
                         
-                        <p><span className="bold">Nom du salon</span> : {salonData.salonName}</p><br></br>
-                        <p><span className="bold">Ville</span> : {salonData.city}</p><br></br>
+                    <input type="text" name="salonName" placeholder="Nom du salon" value={formData.salonName} onChange={handleInputChange} required />
+                            <input type="text" name="city" placeholder="Ville" value={formData.city} onChange={handleInputChange} required />
+            
                         <input type="text" name="salonAdresse" placeholder="Adresse" value={formData.salonAdresse} onChange={handleInputChange} /><br />
                         <input type="text" name="salonTel" placeholder="Téléphone" value={formData.salonTel} onChange={handleInputChange} /><br />
 

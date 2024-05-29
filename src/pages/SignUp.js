@@ -41,7 +41,7 @@ function SignUp() {
             const userRef = doc(db, "users", user.uid)
 
             await setDoc(userRef, {
-                uid: user.uid,
+                userId: user.uid,
                 firstname: firstname,
                 lastname: lastname,
                 email: email,

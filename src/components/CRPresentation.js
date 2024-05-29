@@ -15,6 +15,8 @@ const CRPresentation = ({ visitId }) => {
     const [suiviList, setSuiviList] = useState([])
     const [showForm, setShowForm] = useState(true)
 
+    const createdAt = new Date()
+
     const [formData, setFormData] = useState({
         nomSalon: '',
         ville: '',
@@ -49,7 +51,8 @@ const CRPresentation = ({ visitId }) => {
         dateRevoirInteret: '',
         dateRdvDemoFormation: '',
         observationPreparation: '',
-        motifRefus: ''
+        motifRefus: '',
+        createdAt: createdAt
     })
 
     const handleChange = (e) => {
@@ -94,7 +97,7 @@ const CRPresentation = ({ visitId }) => {
                     ? [...visitData.crPresentation, formData]
                     : [formData];
 
-                await updateDoc(visitDocRef, { crDemonstration: updatedcrPresentation }) 
+                await updateDoc(visitDocRef, { crPresentation: updatedcrPresentation }) 
                 
                 setMessage("Formulaire enregistré avec succès")
 
@@ -132,7 +135,8 @@ const CRPresentation = ({ visitId }) => {
                     dateRevoirInteret: '',
                     dateRdvDemoFormation: '',
                     observationPreparation: '',
-                    motifRefus: ''
+                    motifRefus: '',
+                    createdAt: createdAt
                 })
             }
             else {

@@ -16,7 +16,9 @@ function FicheSuiviProspects({ visitId }) {
     const [salonData, setSalonData] = useState({})
     const [showForm, setShowForm] = useState(true)
 
-    const [formData, setFormData] = useState({
+    const createdAt = new Date()
+
+    const [formData, setFormData] = useState({  
         tenueSalon: "",
         salonAdresse: "",
         salonTel: "",
@@ -50,7 +52,8 @@ function FicheSuiviProspects({ visitId }) {
         statut: "",
         rdvDate: "",
         rdvPour: "",
-        commande: ""
+        commande: "",
+        createdAt: createdAt
     })
 
     // Récupère les infos de la visite enregistré qui correspond
@@ -133,7 +136,8 @@ function FicheSuiviProspects({ visitId }) {
                     statut: "",
                     rdvDate: "",
                     rdvPour: "",
-                    commande: ""
+                    commande: "",
+                    createdAt: createdAt
                 })
             } 
             else {

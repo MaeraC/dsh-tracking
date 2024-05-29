@@ -91,7 +91,13 @@ function FicheProspection({ uid, visitId }) {
             setErrorMessage("")
         }
 
-        const newProspection = { ...formData, userId: uid }
+        const createdAt = new Date()
+
+        const newProspection = { 
+            ...formData, 
+            userId: uid, 
+            createdAt: createdAt
+        }
 
         try {
             const visitDocRef = doc(db, "visits", visitId)
@@ -104,12 +110,12 @@ function FicheProspection({ uid, visitId }) {
 
             if (newProspection.typeRdv === "Démonstration") {
                 await updateDoc(visitDocRef, {
-                    crDemonstration: {}  
+                    crDemonstration: []  
                 })
             }
             if (newProspection.typeRdv === "Présentation") {
                 await updateDoc(visitDocRef, {
-                    crPresentation: {}  
+                    crPresentation: []  
                 })
             }
         } 

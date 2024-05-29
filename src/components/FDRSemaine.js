@@ -89,6 +89,7 @@ function FDRSemaine({ uid }) {
         const year = currentDay.getFullYear();
         const formattedDate = `${day}/${month}/${year}`;
 
+        const createdAt = currentDay 
 
         const newVisit = { 
             salonName: visitInfo.salonName, 
@@ -98,7 +99,8 @@ function FDRSemaine({ uid }) {
             exactDate: formattedDate, 
             week: weekLabel, 
             userId: uid,
-            dailyProspection: []
+            dailyProspection: [],
+            createdAt: createdAt
         }
 
         try {

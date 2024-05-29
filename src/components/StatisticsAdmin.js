@@ -1,4 +1,8 @@
 
+
+/**
+ * 
+ * 
 // Fichier StatisticsVisits.js
 
 import { collection, getDocs, where, Timestamp, query } from "firebase/firestore"
@@ -6,7 +10,7 @@ import { db } from "../firebase.config.js"
 import { useEffect, useState } from "react"
 
 
-function StatisticsVisits({ uid }) {
+function StatisticsVisits() {
 
     const [stats, setStats] = useState({
         feuilleDeRouteCount: 0,
@@ -21,12 +25,10 @@ function StatisticsVisits({ uid }) {
     })
 
     useEffect(() => {
-        
         const fetchData = async () => {
 
             const visitsCollection = collection(db, 'visits')
-            const visitsQuery = query(visitsCollection, where('userId', '==', uid))
-            const visitsSnapshot = await getDocs(visitsQuery)
+            const visitsSnapshot = await getDocs(visitsCollection)
         
             let feuilleDeRouteCount = 0
             let ficheDeProspectionCount = 0
@@ -39,7 +41,7 @@ function StatisticsVisits({ uid }) {
                 feuilleDeRouteCount++
         
                 const data = doc.data()
-                
+        
                 if (data.dailyProspection) {
                     ficheDeProspectionCount += data.dailyProspection.length
                 }
@@ -70,15 +72,8 @@ function StatisticsVisits({ uid }) {
             const oneMonthAgo = Timestamp.fromDate(new Date(Date.now() - 30 * 24 * 60 * 60 * 1000))
         
             const countFormsByDateRange = async (startDate, endDate) => {
-
-                const dateRangeQuery = query(
-                    visitsCollection, 
-                    where('userId', '==', uid), 
-                    where('createdAt', '>=', startDate), 
-                    where('createdAt', '<=', endDate)
-                )
-
-                const dateRangeSnapshot = await getDocs(dateRangeQuery)
+                const visitsQuery = query(visitsCollection, where('createdAt', '>=', startDate), where('createdAt', '<=', endDate));
+                const dateRangeSnapshot = await getDocs(visitsQuery);
         
                 let count = 0;
                 dateRangeSnapshot.forEach(doc => {
@@ -94,13 +89,10 @@ function StatisticsVisits({ uid }) {
         
                 return count;
             }
-
-        const totalFormsWeek = await countFormsByDateRange(oneWeekAgo, Timestamp.now())
-        const totalFormsMonth = await countFormsByDateRange(oneMonthAgo, Timestamp.now())
+            const totalFormsWeek = await countFormsByDateRange(oneWeekAgo, Timestamp.now())
+            const totalFormsMonth = await countFormsByDateRange(oneMonthAgo, Timestamp.now())
     
-         
-
-        setStats({
+          setStats({
             feuilleDeRouteCount,
             ficheDeProspectionCount,
             ficheSuiviClientCount,
@@ -114,7 +106,7 @@ function StatisticsVisits({ uid }) {
         };
     
         fetchData();
-      }, [uid]);
+      }, []);
     
 
     
@@ -166,3 +158,4 @@ function StatisticsVisits({ uid }) {
 }
 
 export default StatisticsVisits
+ */

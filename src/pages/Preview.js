@@ -3,7 +3,7 @@
 
 import StatisticsVisits from "../components/StatisticsVisits"
 
-function Preview({ firstname }) {
+function Preview({ firstname, uid }) {
 
     return (     
         <div className="preview-section"> 
@@ -17,7 +17,7 @@ function Preview({ firstname }) {
             </div>
             
 
-            <StatisticsVisits />
+            <StatisticsVisits uid={uid} />
         </div>
     )
 }

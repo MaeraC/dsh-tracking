@@ -27,6 +27,7 @@ function DashboardCom() {
             if (user) { 
                 try {
                     setUid(user.uid)
+                    
                     const userDoc = await getDoc(doc(db, "users", user.uid))
 
                     if (userDoc.exists()) {
@@ -56,7 +57,7 @@ function DashboardCom() {
             <Header />
             <Routes>
                 <Route path="/" element={<Navigate to="apercu" replace />} />
-                <Route path="apercu" element={<Preview firstname={firstname} />} />
+                <Route path="apercu" element={<Preview firstname={firstname} uid={uid} />} />
                 <Route path="map" element={<Geolocation />} />
                 <Route path="questionnaires/*" element={<FDRSemaine uid={uid} />} />
                 <Route path="mon-compte" element={<Account />} />

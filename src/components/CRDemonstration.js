@@ -16,6 +16,8 @@ function CRDémonstration({ visitId }) {
     const [suiviList, setSuiviList] = useState([])
     const [showForm, setShowForm] = useState(true)
 
+    const createdAt = new Date()
+
     const [formState, setFormState] = useState({
         nomSalon: '',
         ville: '',
@@ -70,7 +72,8 @@ function CRDémonstration({ visitId }) {
           attenteReponse: false,
         },
         precisions: '',
-        observationsGenerales: ''
+        observationsGenerales: '',
+        createdAt: createdAt
     })
     
     const handleChange = (e) => {
@@ -212,7 +215,8 @@ function CRDémonstration({ visitId }) {
                     attenteReponse: false,
                     },
                     precisions: '',
-                    observationsGenerales: ''
+                    observationsGenerales: '',
+                    createdAt: createdAt
                 })
             }
             else {

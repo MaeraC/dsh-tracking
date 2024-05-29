@@ -53,7 +53,8 @@ function FicheSuiviProspects({ visitId }) {
         rdvDate: "",
         rdvPour: "",
         commande: "",
-        createdAt: createdAt
+        createdAt: createdAt,
+        typeOfForm: "Fiche de suivi Prospect"
     })
 
     // Récupère les infos de la visite enregistré qui correspond
@@ -137,7 +138,8 @@ function FicheSuiviProspects({ visitId }) {
                     rdvDate: "",
                     rdvPour: "",
                     commande: "",
-                    createdAt: createdAt
+                    createdAt: createdAt,
+                    typeOfForm: "Fiche de suivi Prospect"
                 })
             } 
             else {
@@ -514,7 +516,7 @@ function FicheSuiviProspects({ visitId }) {
                     <ul className="fsp-results">
                         {suiviList.map((suivi, index) => (
                             <li key={index}>
-
+                                <p><span className="bold">{suivi.data.typeOfForm} </span>n° {index +1}</p>
                                 <p><strong>Nom du salon:</strong> {suivi.data.salonAdresse}</p>
                                 <p><strong>Adresse:</strong> {suivi.data.salonAdresse}</p>
                                 <p><strong>Téléphone:</strong> {suivi.data.salonTel}</p>

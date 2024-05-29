@@ -42,7 +42,7 @@ function FDRSemaine({ uid }) {
         const visitsData = querySnapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }))
         //console.log(visits)
         setVisits(visitsData)
-
+ 
     }, [uid])
     
     useEffect(() => {
@@ -100,7 +100,8 @@ function FDRSemaine({ uid }) {
             week: weekLabel, 
             userId: uid,
             dailyProspection: [],
-            createdAt: createdAt
+            createdAt: createdAt,
+            typeOfForm: "Feuille de route"
         }
 
         try {
@@ -213,12 +214,14 @@ function FDRSemaine({ uid }) {
 
                         {visits.map((visit, index) => (
                             <div className="visit-saved" key={index}>
+                                <p><span>{visit.typeOfForm} </span>n° {index +1}</p>
                                 <p><span>Nom du salon</span> : {visit.salonName}</p>
                                 <p><span>Status</span> : {visit.status}</p>
                                 <p><span>Ville</span> : {visit.city}</p>
                                 <p><span>Date exacte</span> : {visit.exactDate}</p>
                                 <p><span>Date détectée</span> : {visit.detectedDate}</p>
                                 <p><span>Semaine</span> : {visit.week}</p>
+                                
 
                                 <button onClick={() => handleShowProspectionForm(visit.id)} className="button-fpj">Fiche de prospection journalière</button>
 

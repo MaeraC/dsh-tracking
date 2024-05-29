@@ -52,7 +52,8 @@ const CRPresentation = ({ visitId }) => {
         dateRdvDemoFormation: '',
         observationPreparation: '',
         motifRefus: '',
-        createdAt: createdAt
+        createdAt: createdAt,
+        typeOfForm: "Compte rendu de RDV de Présentation"
     })
 
     const handleChange = (e) => {
@@ -136,7 +137,8 @@ const CRPresentation = ({ visitId }) => {
                     dateRdvDemoFormation: '',
                     observationPreparation: '',
                     motifRefus: '',
-                    createdAt: createdAt
+                    createdAt: createdAt,
+                    typeOfForm: "Compte rendu de RDV de Présentation"
                 })
             }
             else {
@@ -380,8 +382,9 @@ const CRPresentation = ({ visitId }) => {
             <button className="button-crp" onClick={() => setShowForm(true)}>Réafficher le formulaire</button>
 
             <ul className="crp-results">
-            {suiviList.map((item) => (
+            {suiviList.map((item, index) => ( 
                 <li key={item.id}>
+                    <p><span className="bold">{item.data.typeOfForm} </span>n° {index +1}</p>
                     <p><strong>Nom du salon:</strong> {item.data.nomSalon}</p>
                     <p><strong>Ville:</strong> {item.data.ville}</p>
                     <p><strong>Département:</strong> {item.data.departement}</p>

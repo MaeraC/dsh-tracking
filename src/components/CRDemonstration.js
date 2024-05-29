@@ -73,7 +73,8 @@ function CRDémonstration({ visitId }) {
         },
         precisions: '',
         observationsGenerales: '',
-        createdAt: createdAt
+        createdAt: createdAt,
+        typeOfForm: "Compte rendu de RDV de Démonstration"
     })
     
     const handleChange = (e) => {
@@ -216,19 +217,15 @@ function CRDémonstration({ visitId }) {
                     },
                     precisions: '',
                     observationsGenerales: '',
-                    createdAt: createdAt
+                    createdAt: createdAt,
+                    typeOfForm: "Compte rendu de RDV de Démonstration"
                 })
             }
             else {
                 console.error("Document de visite non trouvé.")
                 setMessage("Une erreur s'est produite lors de l'enregistrement du formulaire")
             }
-            /*
-            await updateDoc(visitDocRef, {
-                crDemonstration: formState
-            })*/
-
-            //navigate("/tableau-de-bord-commercial/questionnaires/");
+            
         } 
         catch (error) {
             console.error("Erreur lors de la soumission du CRDemonstration :", error);
@@ -498,8 +495,9 @@ function CRDémonstration({ visitId }) {
             <button className="button-crd" onClick={() => setShowForm(true)}>Réafficher le formulaire</button>
 
             <ul className="crd-results">
-                        {suiviList.map((item) => (
+                        {suiviList.map((item, index) => (
                             <li className="crd-saved" key={item.id}>
+                                <p><span className="bold">{item.data.typeOfForm} </span>n° {index +1}</p>
                                 <p><strong>Nom du salon:</strong> {item.data.nomSalon}</p>
                                 <p><strong>Ville:</strong> {item.data.ville}</p>
                                 <p><strong>Nom du responsable:</strong> {item.data.nomPrenomResponsable}</p>

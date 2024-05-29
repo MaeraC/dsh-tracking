@@ -47,7 +47,8 @@ function FicheSuiviClients({ visitId }) {
         autresPointsAbordes: "",
         pointsProchaineVisite: "",
         observations: "",
-        createdAt: createdAt
+        createdAt: createdAt,
+        typeOfForm: "Fiche de suivi Client"
     })
 
     // Récupère les infos de la visite enregistré qui correspond
@@ -151,7 +152,8 @@ function FicheSuiviClients({ visitId }) {
                     autresPointsAbordes: "",
                     pointsProchaineVisite: "",
                     observations: "",
-                    createdAt: createdAt
+                    createdAt: createdAt,
+                    typeOfForm: "Fiche de suivi Client"
                 })
             } 
             else {
@@ -302,6 +304,7 @@ function FicheSuiviClients({ visitId }) {
                         {suiviList.map((suivi, index) => (
                             <li className="fsc-saved" key={index}>
 
+                                <p><span className="bold">{suivi.data.typeOfForm} </span>n° {index +1}</p>
                                 <p><span className="bold">Nom du salon :</span> {suivi.data.salonName}</p>
                                 <p><span className="bold">Ville :</span> {suivi.data.city}</p>
                                 <p><span className="bold">Adresse :</span> {suivi.data.salonAdresse}</p>
@@ -351,6 +354,8 @@ function FicheSuiviClients({ visitId }) {
                                 <p><span className="bold">Autres points abordés :</span> {suivi.data.autresPointsAbordes}</p>
                                 <p><span className="bold">Points pour la prochaine visite :</span> {suivi.data.pointsProchaineVisite}</p>
                                 <p><span className="bold">Observations :</span> {suivi.data.observations}</p>
+
+                                
                             </li>  
                         ))}                 
                     </ul>

@@ -96,7 +96,8 @@ function FicheProspection({ uid, visitId }) {
         const newProspection = { 
             ...formData, 
             userId: uid, 
-            createdAt: createdAt
+            createdAt: createdAt,
+            typeOfForm: "Fiche de prospection"
         }
 
         try {
@@ -196,6 +197,7 @@ function FicheProspection({ uid, visitId }) {
         <div className="saved-data">
         {savedData.map((data, index) => (
             <div className="div" key={index}>
+                <p><span>{data.typeOfForm} </span>n° {index +1}</p>
                 <p><span>RDV obtenu</span> : {data.rdvObtenu}</p>
                     
                 {data.rdvObtenu === "Oui" && (
@@ -214,6 +216,7 @@ function FicheProspection({ uid, visitId }) {
                 {data.rdvObtenu === "Non" && (
                     <p><span>Observation</span> : {data.observation}</p>
                 )}
+                
             </div>
         ))}
         </div>

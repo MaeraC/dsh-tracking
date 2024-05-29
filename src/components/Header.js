@@ -54,18 +54,18 @@ function Header() {
                     <img src={activeTab === "/tableau-de-bord-commercial/questionnaires" ? surveyB : survey} alt="Onglet questionnaires" className="iconHeader" />
                 </NavLink>
                 <NavLink
-                    to="/tableau-de-bord-commercial/mon-compte"
-                    className={activeTab === "/tableau-de-bord-commercial/mon-compte" ? "active" : ""}
-                    onClick={() => handleTabClick("/tableau-de-bord-commercial/mon-compte")}
-                >
-                    <img src={activeTab === "/tableau-de-bord-commercial/mon-compte" ? userB : user} alt="Onglet mon compte" className="iconHeader" />
-                </NavLink>
-                <NavLink
                     to="/tableau-de-bord-commercial/recherche-visites"
                     className={activeTab === "/tableau-de-bord-commercial/recherche-visites" ? "active" : ""}
                     onClick={() => handleTabClick("/tableau-de-bord-commercial/recherche-visites")}
                 >
                     <img src={activeTab === "/tableau-de-bord-commercial/recherche-visites" ? searchB : search} alt="onglet rechercher visites" className="iconHeader" />
+                </NavLink>
+                <NavLink
+                    to="/tableau-de-bord-commercial/mon-compte"
+                    className={activeTab === "/tableau-de-bord-commercial/mon-compte" ? "active" : ""}
+                    onClick={() => handleTabClick("/tableau-de-bord-commercial/mon-compte")}
+                >
+                    <img src={activeTab === "/tableau-de-bord-commercial/mon-compte" ? userB : user} alt="Onglet mon compte" className="iconHeader" />
                 </NavLink>
             </nav>
         </header>

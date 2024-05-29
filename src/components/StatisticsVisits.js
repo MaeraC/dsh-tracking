@@ -39,7 +39,7 @@ function StatisticsVisits({ uid }) {
                 feuilleDeRouteCount++
         
                 const data = doc.data()
-                
+
                 if (data.dailyProspection) {
                     ficheDeProspectionCount += data.dailyProspection.length
                 }
@@ -122,18 +122,23 @@ function StatisticsVisits({ uid }) {
         <section className="stats-section">
             
             <div className="stats-nb"> 
-                <div className="nb">
-                    <p>Total de tous les formualires</p>
-                    <span>{stats.totalForms}</span>
-                </div> 
-                <div className="nb wk">
-                    <p>Total cette semaine</p>
-                    <span>{stats.totalFormsWeek}</span>
+                 
+
+                <div className="wk-mth">
+                    <div className="nb wk">
+                        <span>{stats.totalFormsWeek}</span>
+                        <p>Cette semaine</p>
+                    </div>
+                    <div className="nb mth">
+                        <span>{stats.totalFormsMonth}</span>
+                        <p>Ce mois-ci</p>
+                    </div> 
+                    <div className="nb tt">
+                        <span>{stats.totalForms}</span>
+                        <p>Total</p>
+                    </div>
                 </div>
-                <div className="nb mth">
-                    <p>Total ce mois-ci</p>
-                    <span>{stats.totalFormsMonth}</span>
-                </div> 
+                
                 <div className="nb">
                     <p>Feuilles de route</p>
                     <span>{stats.feuilleDeRouteCount}</span>

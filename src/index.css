@@ -363,8 +363,11 @@ textarea {
     margin: 20px;
     margin-top: 40px;
 }
+.stats-section .wk-mth {
+    display: flex;
+    justify-content: space-between;
+}
 .stats-section .nb {
-    width: 100%;
     margin: 30px 0;
     padding: 20px;
     background: rgb(228, 228, 228); /*rouge*/
@@ -373,6 +376,18 @@ textarea {
     justify-content: space-between;
     align-items: center;
 }
+.stats-section .wk,
+.stats-section .mth,
+.stats-section .tt {
+    width: 30%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    border: #7277d1 solid 4px;
+}
+
 .stats-section .pj {
     background: #D8E7FB; /*bleu*/
 }
@@ -413,6 +428,14 @@ textarea {
 }
 .crp span {
     color: #b78dcf;
+}
+.stats-section .wk p,
+.stats-section .mth p,
+.stats-section .tt p {
+    font-size: 14px;
+    font-weight: normal;
+    margin-top: 10px;
+    text-align: center;
 }
 
 
@@ -716,7 +739,7 @@ textarea {
 .search-results .nb-visit {
     margin-top: 30px;
     text-align: center;
-    color: #4c4e78;
+    color: #7277d1;
     font-weight: bold;
     font-size: 18px;
 }

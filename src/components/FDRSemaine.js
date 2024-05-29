@@ -201,7 +201,9 @@ function FDRSemaine({ uid }) {
 
     return (
             <div className="fdr">
-                <h2>Feuille de route de la semaine écoulée</h2>
+                <header>
+                    <h1>Feuilles de routes</h1>
+                </header>
 
                 {showVisits ? (
                     <div className="fdr-saved">

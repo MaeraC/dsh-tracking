@@ -120,7 +120,10 @@ function Geolocation() {
     if (!isLoaded) return <div>Loading Maps...</div>
   
     return (
-        
+        <>
+        <header className="geo-header">
+            <h1>Geolocalisation</h1>
+        </header>
         <div className="geoloc-section">
             
             <GoogleMap
@@ -152,6 +155,8 @@ function Geolocation() {
                 </ul>
             </div>
         </div>
+        </>
+        
     )  
 }
 

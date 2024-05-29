@@ -42,7 +42,9 @@ function SearchVisits() {
 
     return (
         <section className="search-section">
-            <h1>Recherche des visites par filtres</h1>
+            <header>
+                <h1>Recherche par filtres</h1>
+            </header>
 
             <div className="search-filter">
                 

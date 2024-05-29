@@ -13,8 +13,11 @@ function Account() {
     }
 
     return (
-        <div>
-            <h1>Mon compte</h1>
+        <div className="account">
+            <header className="account-header">
+                <h1>Mon compte</h1>
+            </header>
+            
             <button onClick={handleLogout}>Déconnexion</button>
         </div>
     )

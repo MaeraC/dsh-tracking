@@ -19,8 +19,8 @@ select {
     width: 100%;
     padding: 15px 20px;
     border: none;
-    border-radius: 10px;
-    margin-bottom: 20px;
+    border-radius: 30px;
+    margin-bottom: 30px;
     box-shadow: 2px 2px 15px #afafaf;
     outline: none;
     font-size: 16px;
@@ -47,7 +47,7 @@ textarea {
 }
 .button-colored {
     width: 280px;
-    padding: 10px;
+    padding: 15px;
     border-radius: 30px;
     background: #7277d1;
     color: white;
@@ -57,7 +57,7 @@ textarea {
     font-size: 16px;
 }
 .button-white {
-    background: #7277d1;
+    background: white;
     text-transform: uppercase;
     font-weight: 600;
     font-size: 16px;
@@ -70,7 +70,7 @@ textarea {
 .button-fpj {
     padding: 15px;
     border-radius: 30px;
-    background: #4f97e3;
+    background: #7cb5ff;
     border: none;
     font-size: 16px;
     color: white;
@@ -78,7 +78,7 @@ textarea {
 .button-fsp {
     padding: 15px;
     border-radius: 30px;
-    background: #3BB0C5;
+    background: #5eb6b6;
     border: none;
     font-size: 16px;
     color: white;
@@ -86,7 +86,7 @@ textarea {
 .button-fsc {
     padding: 15px;
     border-radius: 30px;
-    background: #F3B955;
+    background: #8ad88e;
     border: none;
     font-size: 16px;
     color: white;
@@ -94,7 +94,7 @@ textarea {
 .button-crd {
     padding: 15px;
     border-radius: 30px;
-    background: #F23D58;
+    background: #ff7583;
     border: none;
     font-size: 16px;
     color: white;
@@ -102,7 +102,7 @@ textarea {
 .button-crp {
     padding: 15px;
     border-radius: 30px;
-    background: #913df2;
+    background: #b78dcf;
     border: none;
     font-size: 16px;
     color: white;
@@ -289,7 +289,7 @@ textarea {
     bottom: 0;
     width: 100%;
     border-top: solid 2px #cacaca;
-    padding-bottom: 10px;
+    padding-bottom: 20px;
     padding-top: 10px;
     background: white;
 }
@@ -308,8 +308,8 @@ textarea {
     color: white;
 }
 .header img {
-    width: 25px;
-    height: 25px;
+    width: 30px;
+    height: 30px;
 }
 
 
@@ -317,44 +317,61 @@ textarea {
 
 .fdr,
 .preview-section,
-.search-section {
+.search-section,
+.account {
     padding: 20px;
+    padding-bottom: 150px;
 }
 
 
-
-.preview-section h1 {
+.preview-section header,
+.fdr header,
+.account-header,
+.search-section header {
+    padding-top: 10px;
+    padding-bottom: 20px;
+}
+.geo-header {
+    padding-top: 30px;
+    padding-bottom: 20px;
+}
+.preview-section header h1,
+.geo-header h1,
+.fdr header h1,
+.account-header h1,
+.search-section header h1 {  
+    font-size: 20px;
+    text-align: center;
+}
+.preview-section .hello {
     margin-top: 10px;
-    margin-bottom: 5px;
-    font-size: 25px;
 }
-.preview-section .status {
+.preview-section .hello .status {
     color: #a8a8a8;
 }
-
+.preview-section .hello h2 {
+    padding-top: 5px;
+}
 .preview-section .name {
     color: #7277d1;
+    text-align: right;
+}
+.preview-section .hello p {
+    margin-top: 10px;
 }
 .stats-section {
     margin: 20px;
-}
-.stats-nb {
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
+    margin-top: 40px;
 }
 .stats-section .nb {
-    width: 40%;
-    margin: 15px;
-    padding: 10px;
-    background: #F9E5E7; /*rouge*/
+    width: 100%;
+    margin: 30px 0;
+    padding: 20px;
+    background: rgb(228, 228, 228); /*rouge*/
     border-radius: 20px;
     display: flex;
-    flex-direction: column;
+    justify-content: space-between;
     align-items: center;
-    justify-content: center;
-    padding-top: 30px;
 }
 .stats-section .pj {
     background: #D8E7FB; /*bleu*/
@@ -371,65 +388,37 @@ textarea {
 .stats-section .crp {
     background: #f3e5f9; /*violet*/
 }
+.nb p {
+    font-weight: bold;
+}
 .nb span {
     font-size: 35px;
     font-weight: bold;
-    position: relative;
-    z-index: 1;
 }
-.nb p {
+.nb span {
     color: #F23D58 ;
-    text-align: center;
-    margin-top: 30px;
-    font-size: 13px;
+    text-align: right;
 }
-.pj p {
-    color: #4f97e3;
+.pj span {
+    color: #7cb5ff;
 }
-.sp p {
-    color: #3BB0C5;
+.sp span {
+    color: #5eb6b6;
 }
-.sc p {
-    color: #F3B955;
+.sc span {
+    color: #8ad88e;
 }
-.crd p {
-    color: #F23D58;
+.crd span {
+    color: #ff7583;
 }
-.crp p {
-    color: #913df2;
-}
-.nb span::before {
-    content : "";
-    position: absolute;
-    border-radius: 50%;
-    width: 70px;
-    height: 70px;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: -1;
-}
-.pj span::before {
-    border: solid 5px #4f97e3;
-}
-.sp span::before {
-    border: solid 5px #3BB0C5;
-}
-.sc span::before {
-    border: solid 5px #F3B955;
-}
-.crd span::before {
-    border: solid 5px #F23D58;
-}
-.crp span::before {
-    border: solid 5px #913df2;
+.crp span {
+    color: #b78dcf;
 }
 
 
 
 
 .geoloc-section {
-    padding: 10px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -446,8 +435,8 @@ textarea {
     width: 100%;
 }
 .geoloc-results li {
-    border-bottom: 1px solid rgb(202, 202, 202);
-    padding: 15px 0;
+    border-bottom: 1px solid #cacaca;
+    padding: 15px;
     width: 100%;
 }
 .geoloc-results li span {
@@ -462,17 +451,12 @@ textarea {
 
 
 
-.fdr h2 {
-    color: grey;
-    font-size: 15px;
-    font-weight: normal;
-    text-transform: uppercase;
-}
+
 .fdr-survey {
     box-shadow: 2px 2px 15px #cfcfcf;
     padding: 30px;
-    margin: 20px 0;
-    border-radius: 10px;
+    margin: 30px 0;
+    border-radius: 20px;
 }
 .fdr-header {
     display: flex;
@@ -603,7 +587,7 @@ textarea {
 
 
 .form-FSC {
-    background: #FAEFDE;
+    background: #e2fae1;
     padding: 20px;
     border-radius: 20px;
 }
@@ -714,14 +698,7 @@ textarea {
 
 
 
-.search-section h1 {
-    font-weight: 400;
-    color: grey;
-    font-size: 15px;
-    margin-right: 10px;
-    margin-bottom: 30px;
-    text-transform: uppercase;
-}
+
 .search-filter {
     padding: 30px;
     box-shadow: 2px 2px 15px #afafaf;

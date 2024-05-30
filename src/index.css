@@ -478,7 +478,7 @@ textarea {
     width: 100%;
 }
 .geoloc-results li {
-    border-bottom: 3px solid #e4e4e4;
+    border-bottom: 5px solid #e4e4e4;
     padding: 15px;
     width: 100%;
     display: flex;
@@ -493,13 +493,16 @@ textarea {
     padding: 10px;
 }
 .geoloc-results li span {
-    font-weight: bold;
+    font-size: 17px;
     display: inline-block;
     margin-bottom: 10px;
 }
 .geoloc-results li p {
     color: grey;
     font-size: 15px;
+}
+.geoloc-results li .distance {
+    margin-bottom: 5px;
 }
 .modale {
     position: relative;
@@ -519,21 +522,54 @@ textarea {
 .modale .content {
     background: white;
     width: 80%;
-    height: 40%;
     padding: 30px;
     box-shadow: 2px 2Px 15px #c4c3c3;
     border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
     text-align: center;
 }
 .modale .content p {
     margin: 20px 0;
 }
-.modale .content button {
+.geoloc-section button {
     text-transform: initial;
     font-weight: normal;
-    margin-top: 20px;
+    margin: 20px 0;
 }
-
+.modale button {
+    text-transform: initial;
+    font-weight: normal;
+    margin: 20px 0;
+}
+.distance-results {
+    border-top: 5px solid #e4e4e4;
+    border-bottom: 5px solid #e4e4e4;
+    width: 100%;
+    padding: 20px;
+    padding-bottom: 0;
+}
+.distance-results p {
+    margin-bottom: 10px;
+}
+.distance-results .info {
+    color: grey;
+    font-style: italic;
+    font-size: 15px;
+    padding-top: 10px;
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    margin-top: 10px;
+}
+.distance-results .info p {
+    margin-bottom: 0;
+}
+.distance-results .info img {
+    margin-right: 10px;
+}
 
 
 

@@ -46,17 +46,27 @@ function Geolocation() {
     }, [])
   
     useEffect(() => {
-        navigator.geolocation.getCurrentPosition(
+        const watchId = navigator.geolocation.watchPosition(
             (position) => {
-                setCurrentPosition({
+                const newPosition = {
                     lat: position.coords.latitude,
                     lng: position.coords.longitude,
-                })
+                }
+                setCurrentPosition(newPosition)
             },
             () => {
-                console.error('Erreur pour récupérer votre position')
+                console.error('Erreur lors de la récupération de votre position')
+            },
+            {
+                enableHighAccuracy: true,
+                maximumAge: 0,
+                timeout: 5000
             }
         )
+
+        return () => {
+            navigator.geolocation.clearWatch(watchId)
+        }
     }, [])
   
     useEffect(() => {

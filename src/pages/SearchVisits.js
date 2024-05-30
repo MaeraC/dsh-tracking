@@ -108,11 +108,11 @@ function SearchVisits() {
                     </div>
                     <div>
                         <input className="checkbox" type="checkbox" id="crDemonstration" value="Compte rendu de RDV de Démonstration" onChange={handleCheckboxChange} />
-                        <label htmlFor="crDemonstration">Compte rendu de RDV de Démonstration</label>
+                        <label htmlFor="crDemonstration">CR de RDV de Démonstration</label>
                     </div>
                     <div>
                         <input className="checkbox" type="checkbox" id="crPresentation" value="Compte rendu de RDV de Présentation" onChange={handleCheckboxChange} />
-                        <label htmlFor="crPresentation">Compte rendu de RDV de Présentation</label>
+                        <label htmlFor="crPresentation">CR de RDV de Présentation</label>
                     </div>
                 </div>
 

@@ -53,6 +53,16 @@ function Geolocation() {
                     lng: position.coords.longitude,
                 }
                 setCurrentPosition(newPosition)
+
+                if (isTracking && trackingRef.current.startPos) {
+                    const distanceCovered = window.google.maps.geometry.spherical.computeDistanceBetween(
+                        new window.google.maps.LatLng(trackingRef.current.startPos.lat, trackingRef.current.startPos.lng),
+                        new window.google.maps.LatLng(newPosition.lat, newPosition.lng)
+                    )
+
+                    const distanceInKm = distanceCovered / 1000
+                    setDistance(distanceInKm)
+                }
             },
             () => {
                 console.error('Erreur lors de la récupération de votre position')
@@ -67,7 +77,7 @@ function Geolocation() {
         return () => {
             navigator.geolocation.clearWatch(watchId)
         }
-    }, [])
+    }, [isTracking])
   
     useEffect(() => {
         if (isLoaded && mapRef.current && currentPosition.lat !== 0 && currentPosition.lng !== 0) {
@@ -93,6 +103,9 @@ function Geolocation() {
                 map: mapRef.current,
                 content: markerIcon,
             })
+
+            // Centre la carte sur la nouvelle position
+            mapRef.current.setCenter(currentPosition)
         }
     }, [isLoaded, currentPosition])
 
@@ -147,17 +160,7 @@ function Geolocation() {
     }
 
     const handleStopTracking = () => {
-
         setIsTracking(false)
-
-        const distanceCovered = window.google.maps.geometry.spherical.computeDistanceBetween(
-            new window.google.maps.LatLng(trackingRef.current.startPos.lat, trackingRef.current.startPos.lng),
-            new window.google.maps.LatLng(currentPosition.lat, currentPosition.lng)
-        ) / 1000
-
-        const distanceInKm = distanceCovered / 1000
-
-        setDistance(distanceInKm.toFixed(2))
         setShowDistance(true)
     }
 
@@ -226,11 +229,14 @@ function Geolocation() {
                             {isTracking ? (
                                 <div>
                                     <button className="button-colored" onClick={handleStopTracking}>Arrivé à destination</button>
-                                    <p>Calcul des km parcourus en cours ...</p>
                                 </div>
                             ) : (
                                 <button className="button-colored" onClick={handleStartTracking}>Démarrer le compteur de km</button>
                             )}
+
+                        {isTracking && (
+                            <p>Distance parcourue: {formatDistance(distance)}</p>
+                        )}
 
                             {showDistance && (
                                 <p>Distance parcourue: {formatDistance(distance)}</p>

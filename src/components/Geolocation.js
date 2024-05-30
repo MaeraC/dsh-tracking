@@ -18,6 +18,8 @@ const options = {
     mapId: "b3f2841793c037a8"
 }
 
+ReactModal.setAppElement('#root');
+
 function Geolocation() {
     const [currentPosition, setCurrentPosition] = useState({ lat: 0, lng: 0 })
     const [isLoaded, setIsLoaded] = useState(false)
@@ -29,8 +31,11 @@ function Geolocation() {
     const [distance, setDistance] = useState(0)
     const [showDistance, setShowDistance] = useState(false)
     const [isTracking, setIsTracking] = useState(false)
+    const [stops, setStops] = useState([]);
+    const [totalDistance, setTotalDistance] = useState(0)
     const trackingRef = useRef({})
-  
+    const [isTourStarted, setIsTourStarted] = useState(false)
+
     useEffect(() => {
         if (window.google && window.google.maps && window.google.maps.marker && window.google.maps.geometry) {
             setIsLoaded(true)
@@ -44,7 +49,7 @@ function Geolocation() {
             return () => window.removeEventListener('load', handleScriptLoad)
         }
     }, [])
-  
+
     useEffect(() => {
         const watchId = navigator.geolocation.watchPosition(
             (position) => {
@@ -78,17 +83,17 @@ function Geolocation() {
             navigator.geolocation.clearWatch(watchId)
         }
     }, [isTracking])
-  
+
     useEffect(() => {
         if (isLoaded && mapRef.current && currentPosition.lat !== 0 && currentPosition.lng !== 0) {
 
             const { AdvancedMarkerElement } = window.google.maps.marker
-    
+
             // Supprime l'ancien marqueur s'il existe
             if (markerRef.current) {
                 markerRef.current.setMap(null)
             }
-    
+
             // Marker personnalisé
             const markerIcon = document.createElement('div')
             markerIcon.style.width = '32px'
@@ -96,7 +101,7 @@ function Geolocation() {
             markerIcon.style.backgroundImage = 'url("/assets/marker.png")'
             markerIcon.style.backgroundSize = 'contain'
             markerIcon.style.backgroundRepeat = 'no-repeat'
-    
+
             // Créer un nouveau marqueur
             markerRef.current = new AdvancedMarkerElement({
                 position: currentPosition,
@@ -145,12 +150,37 @@ function Geolocation() {
                 console.error('Erreur lors de la recherche des salons de coiffure', status)
             }
         })
-    } 
+    }
 
     const handleSelectSalon = (salon) => {
         setSelectedSalon(salon)
         setIsModalOpen(true)
+
+        // Ajouter la position du salon sélectionné à la liste des arrêts
+        const newStop = {
+            name: salon.name,
+            position: salon.geometry.location,
+            address: salon.vicinity,
+        };
+
+        setStops((prevStops) => [...prevStops, newStop]);
     }
+
+    const handleStartTour = () => {
+        handleSalonsNearby()
+        setIsTourStarted(true);
+        setTotalDistance(0);
+        setStops([]);
+        setIsTracking(false);
+        setDistance(0);
+        setShowDistance(false);
+    };
+
+    const handleEndTour = () => {
+        setIsTourStarted(false);
+        setIsTracking(false);
+        setShowDistance(true);
+    };
 
     const handleStartTracking = () => {
         setIsTracking(true)
@@ -162,70 +192,144 @@ function Geolocation() {
     const handleStopTracking = () => {
         setIsTracking(false)
         setShowDistance(true)
+
+        // Calculer la distance entre les arrêts
+        if (stops.length > 0) {
+            const lastStop = stops[stops.length - 1]
+
+            const distanceCovered = window.google.maps.geometry.spherical.computeDistanceBetween(
+                new window.google.maps.LatLng(lastStop.position.lat(), lastStop.position.lng()),
+                new window.google.maps.LatLng(currentPosition.lat, currentPosition.lng)
+            )
+
+            const distanceInKm = distanceCovered / 1000
+
+            // Ajouter la distance au total
+            setTotalDistance((prevTotal) => prevTotal + distanceInKm);
+
+            // Mettre à jour la liste des arrêts avec la nouvelle distance
+            setStops((prevStops) => {
+                const updatedStops = [...prevStops]
+
+                updatedStops[updatedStops.length - 1] = {
+                    ...lastStop,
+                    distance: distanceInKm,
+                }
+
+                return updatedStops
+            })
+        }
+
+        setIsModalOpen(false)
     }
 
     const formatDistance = (distance) => {
-
         if (distance < 1) {
-            return `${(distance * 1000).toFixed(0)} m`
+            return `${(distance * 1000).toFixed(0)} m`;
         }
-
-        return `${distance.toFixed(2)} km`
+        return `${distance.toFixed(2)} km`;
     }
-  
+
     if (!isLoaded) return <div>Loading Maps...</div>
-  
+
     return (
         <>
-        <header className="geo-header">
-            <h1>Geolocalisation</h1>
-        </header>
-        <div className="geoloc-section">
-            
-            <GoogleMap
-                mapContainerStyle={mapContainerStyle}
-                zoom={15}
-                center={currentPosition}
-                options={options}
-                onLoad={(map) => (mapRef.current = map)}
-            >
-            </GoogleMap>
+            <header className="geo-header">
+                <h1>Geolocalisation</h1>
+            </header>
+            <div className="geoloc-section">
+                <GoogleMap
+                    mapContainerStyle={mapContainerStyle}
+                    zoom={15}
+                    center={currentPosition}
+                    options={options}
+                    onLoad={(map) => (mapRef.current = map)}
+                >
+                </GoogleMap>
+    
+                {!isTourStarted && (
+                    <button className="button-colored" onClick={handleStartTour}>Démarrer une nouvelle tournée</button>
+                )}
+    
+                {isTourStarted && (
+                    <>
+                        <button className="button-colored" onClick={handleEndTour}>Terminer la tournée</button>
 
-            <button className="button-colored geoloc-button" onClick={handleSalonsNearby}>Afficher les salons de coiffure à proximité</button>
+                        {stops.length > 0 && (
+                            <div>
+                                <p>Total distance parcourue : {formatDistance(totalDistance)}</p>
+                            </div>
+                        )}
 
-            <div className="geoloc-results">
-                <ul>
-                    {salons.map((salon, index) => (
-                        <li key={index}>
-                           <div>
-                                <span>{salon.name}</span><br />
+                        {stops.length > 0 && (
+                            <div>
+                                <p>Distance entre chaque point d'arrêt :</p>
 
-                                <p>Distance: {formatDistance(
-                                    window.google.maps.geometry.spherical.computeDistanceBetween(
-                                        new window.google.maps.LatLng(currentPosition.lat, currentPosition.lng),
-                                        salon.geometry.location
-                                    ) / 1000
-                                )}</p>
+                                <ul>
+                                    {stops.map((stop, index) => {
 
-                                <p>Adresse: {salon.vicinity}</p>
-                           </div>
-                            <button className="button-colored" onClick={() => handleSelectSalon(salon)}>Choisir</button>
-                        </li>
-                    ))}
-                </ul>
-            </div>
+                                        if (index === 0 ) { 
+                                            const distanceToFirstStop = window.google.maps.geometry.spherical.computeDistanceBetween(
+                                                new window.google.maps.LatLng(currentPosition.lat, currentPosition.lng),
+                                                new window.google.maps.LatLng(stop.position.lat, stop.position.lng)
+                                            ) / 1000
 
-            {selectedSalon && (
+                                            return (
+                                                <li key={index}>
+                                                    <p>- Point A Domicile jusqu'au {stop.name} = {formatDistance(distanceToFirstStop)}</p>
+                                                </li>
+                                            )
+                                        } 
+
+                                        
+                                        const previousStop = stops[index - 1]
+
+                                        const distanceBetweenStops = window.google.maps.geometry.spherical.computeDistanceBetween(
+                                            new window.google.maps.LatLng(previousStop.position.lat, previousStop.position.lng),
+                                            new window.google.maps.LatLng(stop.position.lat, stop.position.lng)
+                                        ) / 1000
+
+                                        return (
+                                            <li key={index}>
+                                                <p>- Point {String.fromCharCode(65 + index)} : {previousStop.name} jusqu'au {stop.name} = {formatDistance(distanceBetweenStops)}</p>
+                                            </li>
+                                        );
+                                    })}
+                                </ul>
+                            </div>
+                        )}
+                        <div className="geoloc-results">
+                            <ul>
+                                {salons.map((salon, index) => (
+                                    <li key={index}>
+                                        <div>
+                                            <span>{salon.name}</span><br />
+                                            <p>Distance: {formatDistance(
+                                                window.google.maps.geometry.spherical.computeDistanceBetween(
+                                                    new window.google.maps.LatLng(currentPosition.lat, currentPosition.lng),
+                                                    salon.geometry.location
+                                                ) / 1000
+                                            )}</p>
+                                            <p>Adresse: {salon.vicinity}</p>
+                                        </div>
+                                        <button className="button-colored" onClick={() => handleSelectSalon(salon)}>Choisir</button>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    </>
+                )}
+    
+                {selectedSalon && (
                     <ReactModal
                         isOpen={isModalOpen}
                         onRequestClose={() => setIsModalOpen(false)}
                         contentLabel="Salon Details"
-                        className="modale" 
+                        className="modale"
                     >
                         <div className="content">
                             <h2>{selectedSalon.name}</h2>
                             <p>Adresse: {selectedSalon.vicinity}</p>
-
                             {isTracking ? (
                                 <div>
                                     <button className="button-colored" onClick={handleStopTracking}>Arrivé à destination</button>
@@ -233,25 +337,24 @@ function Geolocation() {
                             ) : (
                                 <button className="button-colored" onClick={handleStartTracking}>Démarrer le compteur de km</button>
                             )}
-
-                        {isTracking && (
-                            <p>Distance parcourue: {formatDistance(distance)}</p>
-                        )}
-
+                            {isTracking && (
+                                <p>Calcul en cours : {formatDistance(distance)}</p>
+                            )}
                             {showDistance && (
-                                <p>Distance parcourue: {formatDistance(distance)}</p>
+                                <div>
+                                    <p>Distance parcourue : {formatDistance(distance)}</p>
+                                </div>
                             )}
                         </div>
-
-                        
-
                         <button onClick={() => setIsModalOpen(false)} className="close-btn"><img src={closeIcon} alt="fermer le compteur de km" /></button>
                     </ReactModal>
                 )}
-        </div>
+            </div>
         </>
-        
-    )  
+    );
+    
 }
 
-export default Geolocation
+export default Geolocation;
+
+

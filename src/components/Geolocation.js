@@ -5,8 +5,8 @@
 import { GoogleMap } from "@react-google-maps/api"
 import { useState, useEffect, useRef } from "react"
 import ReactModal from "react-modal"
-import closeIcon from "../assets/close.png"
-import infoIcon from "../assets/info.png"
+import infoIcon from "../assets/info.png" 
+import startIcon from "../assets/start.png" 
 
 const mapContainerStyle = {
     width: '96vw',
@@ -253,7 +253,7 @@ function Geolocation() {
     return (
         <>
             <header className="geo-header">
-                <h1>Geolocalisation</h1>
+                <h1>Map Salons de coiffures</h1>
             </header>
             <div className="geoloc-section">
                 <GoogleMap
@@ -266,21 +266,22 @@ function Geolocation() {
                 </GoogleMap>
     
                 {!isTourStarted && (
-                    <button className="button-colored" onClick={handleStartTour}>Démarrer une nouvelle tournée</button>
+                    <button className="button-colored" onClick={handleStartTour}>Démarrer mon parcours</button>
+                    
                 )}
     
                 {isTourStarted && (
                     <>
-                        <button className="button-colored" onClick={handleEndTour}>Terminer la tournée</button>
+                        <button className="button-colored" onClick={handleEndTour}>Terminer mon parcours</button>
 
                         <div className="distance-results">
                             {stops.length > 0 && (
-                                <p>Total distance parcourue : {formatDistance(totalDistance)}</p>
+                                <p className="total"><strong>{formatDistance(totalDistance)}</strong> Kilomètres parcourus aujourd'hui</p>
                             )}
 
                             {stops.length > 0 && (
-                                <div>
-                                    <p>Distance entre chaque point d'arrêt :</p>
+                                <div className="arrets">
+                                    <p className="point">Distance entre chaque point d'arrêt</p>
 
                                     <ul>
                                         {stops.map((stop, index) => {
@@ -292,8 +293,8 @@ function Geolocation() {
 
                                                 return (
                                                     <li key={index}>
-                                                        <p>De <strong> Domicile </strong> à <strong> {stop.name} </strong> = {formatDistance(distanceToFirstStop)}</p>
-                                                    </li>
+                                                    <p><strong>{formatDistance(distanceToFirstStop)}</strong> De <em> {stop.name} </em> à <em> {stop.name}</em></p>
+                                                </li>
                                                 )
                                             } 
 
@@ -306,14 +307,14 @@ function Geolocation() {
 
                                             return (
                                                 <li key={index}>
-                                                    <p>De <strong> {previousStop.name} </strong> à <strong> {stop.name} </strong>  = {formatDistance(distanceBetweenStops)}</p>
+                                                    <p><strong>{formatDistance(distanceBetweenStops)}</strong> De <em> {previousStop.name} </em> à <em> {stop.name}</em></p>
                                                 </li>
                                             );
                                         })}
                                     </ul>
                                     <div className="info">
                                         <img src={infoIcon} alt="info" />
-                                        <p>N'oubliez pas de noter les kilomètres parcouru dans votre feuille de route</p>
+                                        <p>N'oubliez pas de noter les kilomètres parcourus dans chaque feuille de route des salons visités.</p>
                                     </div>
                                     
                                 </div>
@@ -333,7 +334,7 @@ function Geolocation() {
                                             )}</p>
                                             <p>{salon.vicinity}</p>
                                         </div>
-                                        <button className="button-colored" onClick={() => handleSelectSalon(salon)}>Choisir</button>
+                                        <button className="button-colored btn" onClick={() => handleSelectSalon(salon)}><img src={startIcon} alt="choisir ce salon"/></button>
                                     </li>
                                 ))}
                             </ul>
@@ -350,10 +351,10 @@ function Geolocation() {
                     >
                         <div className="content">
                             <h2>{selectedSalon.name}</h2>
-                            <p>{selectedSalon.vicinity}</p>
+                            <p className="city">{selectedSalon.vicinity}</p>
 
                             {isTracking && (
-                                <p>Calcul en cours : {formatDistance(distance)}</p>
+                                <p>Calcul en cours :<strong>{formatDistance(distance)}</strong> </p>
                             )}
 
                             {isTracking ? (
@@ -365,7 +366,7 @@ function Geolocation() {
                             )}
                             
                         </div>
-                        <button onClick={() => setIsModalOpen(false)} className="close-btn"><img src={closeIcon} alt="fermer le compteur de km" /></button>
+                        
                     </ReactModal>
                 )}
             </div>

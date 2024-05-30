@@ -181,7 +181,7 @@ function FicheSuiviClients({ visitId }) {
         
             {showForm ? (
                 <>
-                    <button className="button-fsc fsc-btn" onClick={showSuiviList}>Afficher les formulaires enregistrés</button>
+                    <button className="button-colored fsc-btn" onClick={showSuiviList}>Afficher les formulaires enregistrés</button>
                     <p className="success">{message}</p>
 
                     <form onSubmit={addFicheSuivi} className="form-FSC">
@@ -221,7 +221,7 @@ function FicheSuiviClients({ visitId }) {
                                 </div>
                             </div>
                         ))}
-                        <button className="button-fsc" type="button" onClick={handleAddEquipeMember}>Ajouter un membre de l'équipe</button>
+                        <button className="button-colored" type="button" onClick={handleAddEquipeMember}>Ajouter un membre de l'équipe</button>
 
                         <p><strong>Client en contrat</strong></p><br></br>
                         <div>
@@ -272,7 +272,7 @@ function FicheSuiviClients({ visitId }) {
                             <label className="label-space"><strong>Observations</strong> :</label><br></br>
                             <textarea name="observations" value={formData.observations} onChange={handleInputChange} />
                         </div>
-                        <button className="button-fsc" type="submit">ENREGISTRER</button>
+                        <button className="button-colored" type="submit">ENREGISTRER</button>
                     </form>
 
                     
@@ -280,7 +280,7 @@ function FicheSuiviClients({ visitId }) {
             ) : (
                 <>
                     <ul className="fsc-results">
-                    <button onClick={() => setShowForm(true)} className="button-fsc">Réafficher le formulaire</button>
+                    <button onClick={() => setShowForm(true)} className="button-colored">Réafficher le formulaire</button>
                
                         {suiviList.map((suivi, index) => (
                             <li className="fsc-saved" key={index}>

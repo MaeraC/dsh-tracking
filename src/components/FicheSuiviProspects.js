@@ -199,7 +199,7 @@ function FicheSuiviProspects({ visitId }) {
             <button onClick={handleBackClick} className="button-back"><img src={back} alt="retour" /></button>
             {showForm ? (
                 <>
-                    <button className="button-fsp" onClick={showSuiviList}>Afficher les formulaires enregistrés</button>
+                    <button className="button-colored fsc-btn" onClick={showSuiviList}>Afficher les formulaires enregistrés</button>
                     <form onSubmit={addFicheSuivi} className="form-FSP">
                             
                             <input type="text" name="salonName" placeholder="Nom du salon" value={formData.salonName} onChange={handleInputChange} required />
@@ -215,7 +215,7 @@ function FicheSuiviProspects({ visitId }) {
                                     <label className="margin" ><input className="checkbox" type="radio" name="tenueSalon" value="moyenne" checked={formData.tenueSalon === "moyenne"} onChange={handleInputChange} />moyenne</label><br></br>
                                     <label className="margin"><input className="checkbox" type="radio" name="tenueSalon" value="mauvaise" checked={formData.tenueSalon === "mauvaise"} onChange={handleInputChange} />mauvaise</label><br></br>
                                 </div>
-                            </div>
+                            </div><br></br>
                 
                         <div className="space">
                             <label className="bold margin">Tenu par :</label>
@@ -277,7 +277,7 @@ function FicheSuiviProspects({ visitId }) {
                                     />
                                 </div>
                             ))}
-                            <button className="button-fsp" type="button" onClick={handleAddColorationAmmoniaque}>Ajouter une coloration avec ammoniaque</button>
+                            <button className="button-colored" type="button" onClick={handleAddColorationAmmoniaque}>Ajouter une coloration avec ammoniaque</button>
                         </div>
             
                         <div>
@@ -303,7 +303,7 @@ function FicheSuiviProspects({ visitId }) {
                                     />
                                 </div>
                             ))}
-                            <button className="button-fsp" type="button" onClick={handleAddColorationSansAmmoniaque}>Ajouter une coloration sans ammoniaque</button>
+                            <button className="button-colored" type="button" onClick={handleAddColorationSansAmmoniaque}>Ajouter une coloration sans ammoniaque</button>
                         </div>
             
                         <div>
@@ -329,7 +329,7 @@ function FicheSuiviProspects({ visitId }) {
                                     />
                                 </div>
                             ))}
-                            <button className="button-fsp" type="button" onClick={handleAddColorationVegetale}>Ajouter une coloration végétale</button>
+                            <button className="button-colored" type="button" onClick={handleAddColorationVegetale}>Ajouter une coloration végétale</button>
                         </div>
             
                         <div>
@@ -483,14 +483,14 @@ function FicheSuiviProspects({ visitId }) {
                             </div>
                         </div>
             
-                        <button type="submit" className="button-fsp">Enregistrer</button>
+                        <button type="submit" className="button-colored">Enregistrer</button>
                         <p>{message}</p>
                     </form>                  
                 </>
              ) : (
                 
                 <>
-                    <button className="button-fsp" onClick={() => setShowForm(true)}>Réafficher le formulaire</button>
+                    <button className="button-colored" onClick={() => setShowForm(true)}>Réafficher le formulaire</button>
 
                     <ul className="fsp-results">
                         {suiviList.map((suivi, index) => (

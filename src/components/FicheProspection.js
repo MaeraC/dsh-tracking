@@ -196,7 +196,7 @@ function FicheProspection({ uid, visitId }) {
         </>
         )}
 
-        <button type="submit" className="button-fpj">Valider</button>
+        <button type="submit" className="button-colored">Valider</button>
         <p className="message">{message}</p>
         {errorMessage && <p className="error-message">{errorMessage}</p>}
                     

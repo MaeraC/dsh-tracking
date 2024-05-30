@@ -184,7 +184,7 @@ const CRPresentation = ({ visitId }) => {
         
         {showForm ? (
             <>
-            <button className="button-crp" onClick={showSuiviList}>Afficher les formulaires enregistrés</button>
+            <button className="button-colored btn-crp" onClick={showSuiviList}>Afficher les formulaires enregistrés</button>
             <p className="success">{message}</p>
 
             <form onSubmit={handleSubmit} className='form-crp'>
@@ -263,7 +263,7 @@ const CRPresentation = ({ visitId }) => {
                         <input type="text" value={marque} onChange={(e) => handleChange(e)} />
                     </div>
                 ))}
-                <button className="button-crp" type="button" onClick={() => setFormData({...formData, marquesColoration: [...formData.marquesColoration, '']})}>Ajouter une marque de coloration</button>
+                <button className="button-colored" type="button" onClick={() => setFormData({...formData, marquesColoration: [...formData.marquesColoration, '']})}>Ajouter une marque de coloration</button>
             </div>
             <div className="space">
                 {formData.marquesRevente.map((marque, index) => (
@@ -271,7 +271,7 @@ const CRPresentation = ({ visitId }) => {
                     <input type="text" value={marque} onChange={(e) => handleChange(e)} />
                 </div>
                 ))}
-                <button className="button-crp" type="button" onClick={() => setFormData({...formData, marquesRevente: [...formData.marquesRevente, '']})}>Ajouter une marque de revente</button>
+                <button className="button-colored" type="button" onClick={() => setFormData({...formData, marquesRevente: [...formData.marquesRevente, '']})}>Ajouter une marque de revente</button>
             </div>
             <div className="space">
                 {formData.marquesBacTech.map((marque, index) => (
@@ -279,7 +279,7 @@ const CRPresentation = ({ visitId }) => {
                 <input type="text" value={marque} onChange={(e) => handleChange(e)} />
                 </div>
                 ))}
-                <button className="button-crp" type="button" onClick={() => setFormData({...formData, marquesBacTech: [...formData.marquesBacTech, '']})}>Ajouter une marque BAC/TECH</button>
+                <button className="button-colored" type="button" onClick={() => setFormData({...formData, marquesBacTech: [...formData.marquesBacTech, '']})}>Ajouter une marque BAC/TECH</button>
             </div><br></br><br></br>
             <div>
                 <p className="margin"><strong>Concepts DSH abordés :</strong></p><br></br>
@@ -374,12 +374,12 @@ const CRPresentation = ({ visitId }) => {
                 <label className="margin bold">Si refus, motif:</label>
                 <textarea name="motifRefus" value={formData.motifRefus} onChange={handleChange}></textarea>
             </div>
-            <button className="button-crp" type="submit">Enregistrer</button>
+            <button className="button-colored" type="submit">Enregistrer</button>
         </form>
         </>
         ) : (
             <>
-            <button className="button-crp" onClick={() => setShowForm(true)}>Réafficher le formulaire</button>
+            <button className="button-colored btn-crp" onClick={() => setShowForm(true)}>Réafficher le formulaire</button>
 
             <ul className="crp-results">
             {suiviList.map((item, index) => ( 

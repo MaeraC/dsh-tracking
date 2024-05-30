@@ -123,22 +123,18 @@ function StatisticsVisits({ uid }) {
             
             <div className="stats-nb"> 
                  
-
-                <div className="wk-mth">
-                    <div className="nb wk">
-                        <span>{stats.totalFormsWeek}</span>
-                        <p>Cette semaine</p>
-                    </div>
-                    <div className="nb mth">
-                        <span>{stats.totalFormsMonth}</span>
-                        <p>Ce mois-ci</p>
-                    </div> 
-                    <div className="nb tt">
-                        <span>{stats.totalForms}</span>
-                        <p>Total</p>
-                    </div>
+            <div className="nb total">
+                <p>Total des visites</p>
+                    <span>{stats.totalForms}</span>
                 </div>
-                
+                <div className="nb total">
+                    <p>Total ce mois-ci</p> 
+                    <span>{stats.totalFormsMonth}</span>
+                </div> 
+                <div className="nb total">
+                    <p>Total cette semaine</p>
+                    <span>{stats.totalFormsWeek}</span>
+                </div>
                 <div className="nb fr">
                     <p>Feuilles de route</p>
                     <span>{stats.feuilleDeRouteCount}</span>

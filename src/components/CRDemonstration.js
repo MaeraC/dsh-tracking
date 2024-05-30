@@ -264,7 +264,7 @@ function CRDémonstration({ visitId }) {
         <button onClick={handleBackClick} className="button-back"><img src={back} alt="retour" /></button>
         {showForm ? (
             <>
-            <button className="button-crd" onClick={showSuiviList}>Afficher les formulaires enregistrés</button>
+            <button className="button-colored btn-crd" onClick={showSuiviList}>Afficher les formulaires enregistrés</button>
             <p className="success">{message}</p>
                     
             <form onSubmit={handleSubmit} className="form-CRD">
@@ -487,12 +487,12 @@ function CRDémonstration({ visitId }) {
                 <textarea name="observationsGenerales" value={formState.observationsGenerales} onChange={handleChange}></textarea>
                 <br></br>
             
-                <button type="submit" className="button-crd">Envoyer</button>
+                <button type="submit" className="button-colored">Envoyer</button>
             </form>
             </>
         ) : (
             <>
-            <button className="button-crd" onClick={() => setShowForm(true)}>Réafficher le formulaire</button>
+            <button className="button-colored" onClick={() => setShowForm(true)}>Réafficher le formulaire</button>
 
             <ul className="crd-results">
                         {suiviList.map((item, index) => (

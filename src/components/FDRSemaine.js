@@ -205,7 +205,7 @@ function FDRSemaine({ uid }) {
     return (
             <div className="fdr">
                 <header>
-                    <h1>Feuilles de routes</h1>
+                    <h1>Formulaires</h1>
                 </header>
 
                 {showVisits ? (
@@ -214,6 +214,7 @@ function FDRSemaine({ uid }) {
 
                         {visits.map((visit, index) => (
                             <div className="visit-saved" key={index}>
+                                <div>
                                 <p><span>{visit.typeOfForm} </span>n° {index +1}</p>
                                 <p><span>Nom du salon</span> : {visit.salonName}</p>
                                 <p><span>Status</span> : {visit.status}</p>
@@ -221,21 +222,21 @@ function FDRSemaine({ uid }) {
                                 <p><span>Date exacte</span> : {visit.exactDate}</p>
                                 <p><span>Date détectée</span> : {visit.detectedDate}</p>
                                 <p><span>Semaine</span> : {visit.week}</p>
-                               
+                                </div>
 
-                                <button onClick={() => handleShowProspectionForm(visit.id)} className="button-fpj">Fiche de prospection journalière</button>
+                                <button onClick={() => handleShowProspectionForm(visit.id)} className="button-colored">Fiche de prospection journalière</button>
 
                                 {visit.status === "prospect" && (
-                                <button onClick={() => handleShowFicheSuiviProspect(visit.id)} className="button-fsp">Fiche de suivi prospect</button>
+                                <button onClick={() => handleShowFicheSuiviProspect(visit.id)} className="button-colored">Fiche de suivi prospect</button>
                                 )}
                                 {visit.status === "client" && (
-                                    <button onClick={() => handleShowFicheSuiviClient(visit.id)} className="button-fsc">Fiche de suivi client</button>
+                                    <button onClick={() => handleShowFicheSuiviClient(visit.id)} className="button-colored">Fiche de suivi client</button>
                                 )}
                                 {visit.dailyProspection && visit.dailyProspection.some(prospection => prospection.typeRdv === "Démonstration") && (
-                                    <button onClick={() => handleShowCRDemonstration(visit.id)} className="button-crd">Compte Rendu de RDV de Démonstration</button>
+                                    <button onClick={() => handleShowCRDemonstration(visit.id)} className="button-colored">Compte Rendu de RDV de Démonstration</button>
                                 )}
                                 {visit.dailyProspection && visit.dailyProspection.some(prospection => prospection.typeRdv === "Présentation") && (
-                                    <button onClick={() => handleShowCRPresentation(visit.id)} className="button-crp">Compte Rendu de RDV de Présentation</button>
+                                    <button onClick={() => handleShowCRPresentation(visit.id)} className="button-colored">Compte Rendu de RDV de Présentation</button>
                                 )}
 
                             </div>
@@ -267,6 +268,7 @@ function FDRSemaine({ uid }) {
                             
                             <div className="fdr-info">
                                 <div className="fdr-info">
+                                    <h1>Feuille de route</h1>
                                     <input type="text" name="salonName" value={visitInfo.salonName} onChange={handleInputChange} placeholder="Nom du salon" />
                                     {errors.salonName && <p className="error-message">{errors.salonName}</p>}
                                 
@@ -284,7 +286,7 @@ function FDRSemaine({ uid }) {
                                     {errors.km && <p className="error-message">{errors.km}</p>}
 
                                     <div className="fdr-date">
-                                        <button className="button-colored" onClick={handleDetectDate}>Detecter la date</button>
+                                        <button className="button-colored detected-date" onClick={handleDetectDate}>Detecter la date</button>
                                         <input type="text" value={detectedDate} onChange={(e) => setDetectedDate(e.target.value)} placeholder="Date détectée" className="btn-date" />
                                     </div> 
                                     {errors.detectedDate && <p className="error-message">{errors.detectedDate}</p>}

@@ -25,6 +25,12 @@ select {
     outline: none;
     font-size: 16px;
 }
+select {
+    color: black;
+}
+select::placeholder {
+    color: grey;
+}
 textarea {
     padding: 10px;
     width: 100%;
@@ -49,12 +55,13 @@ textarea {
     width: 280px;
     padding: 15px;
     border-radius: 30px;
-    background: #7277d1;
+    background: #3D9B9B;
     color: white;
     border: none;
     text-transform: uppercase;
     font-weight: 600;
-    font-size: 16px;
+    font-size: 17px;
+    cursor: pointer;
 }
 .button-white {
     background: white;
@@ -66,46 +73,6 @@ textarea {
     border: none;
     width: 280px;
     text-align: center;
-}
-.button-fpj {
-    padding: 15px;
-    border-radius: 30px;
-    background: #7cb5ff;
-    border: none;
-    font-size: 16px;
-    color: white;
-}
-.button-fsp {
-    padding: 15px;
-    border-radius: 30px;
-    background: #5eb6b6;
-    border: none;
-    font-size: 16px;
-    color: white;
-}
-.button-fsc {
-    padding: 15px;
-    border-radius: 30px;
-    background: #ffc793;
-    border: none;
-    font-size: 16px;
-    color: white;
-}
-.button-crd {
-    padding: 15px;
-    border-radius: 30px;
-    background: #ff7583;
-    border: none;
-    font-size: 16px;
-    color: white;
-}
-.button-crp {
-    padding: 15px;
-    border-radius: 30px;
-    background: #b78dcf;
-    border: none;
-    font-size: 16px;
-    color: white;
 }
 .button-back {
     background: #c5c5c5;
@@ -146,7 +113,7 @@ textarea {
 /********* SIGNUP PAGE + LOGIN PAGE **************************/
 
 .entry {
-    background: #7277d1;
+    background: #3D9B9B;
     height: 100vh;
     display: flex;
     flex-direction: column;
@@ -162,7 +129,7 @@ textarea {
 }
 .signup-page,
 .login-page {
-    background: #7277d1;
+    background: #3D9B9B;
     height: 100vh;
     display: flex;
     justify-content: center;
@@ -333,8 +300,7 @@ textarea {
     padding-bottom: 20px;
 }
 .geo-header {
-    padding-top: 10px;
-    padding-bottom: 20px;
+    padding: 20px 0;
 }
 .preview-section header h1,
 .geo-header h1,
@@ -347,115 +313,40 @@ textarea {
 .preview-section .hello {
     margin-top: 10px;
 }
-.preview-section .hello .status {
-    color: #a8a8a8;
-}
-.preview-section .hello h2 {
-    padding-top: 5px;
-}
 .preview-section .name {
-    color: #7277d1;
+    color: #3D9B9B;
     text-align: right;
 }
 .preview-section .hello p {
-    margin-top: 10px;
+    margin-top: 5px;
 }
 .stats-section {
-    margin: 20px;
     margin-top: 40px;
 }
-.stats-section .wk-mth {
-    display: flex;
-    justify-content: space-between;
-}
 .stats-section .nb {
-    margin: 30px 0;
-    padding-left: 20px;
-    padding-right: 5px;
-    padding-top: 5px;
-    padding-bottom: 5px;
-    background: #abcfff; 
+    box-shadow: 2px 2px 15px #cfcfcf;
+    padding: 20px;
     border-radius: 20px;
+    margin-bottom: 30px;
     display: flex;
+    align-items: center;
     justify-content: space-between;
-    align-items: center;
+    
 }
-.stats-section .wk,
-.stats-section .mth,
-.stats-section .tt {
-    width: 30%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    margin: 0;
-    border: #7277d1 solid 4px;
+.stats-section .total {
+    background: #DCF1F2;
+    border: 2px solid #3D9B9B;
 }
-
-.stats-section .pj {
-    background: #D8E7FB; /*bleu*/
-}
-.stats-section .sp {
-    background: #DFF5F5; /*bleu*/
-}
-.stats-section .sc {
-    background: #faefde; /*jaune*/
-}
-.stats-section .crd {
-    background: #F9E5E7; /*rouge*/
-}
-.stats-section .crp {
-    background: #f3e5f9; /*violet*/
-}
-.nb p {
-    font-weight: bold;
+.stats-section .nb p {
     font-size: 17px;
 }
-.nb span {
-    font-size: 35px;
+.stats-section .nb span {
+    color: white;
     font-weight: bold;
-    background: white;
-    padding: 20px;
-    border-top-right-radius: 20px;
-    border-bottom-right-radius: 20px;
-}
-.nb span {
-    color: white ;
-    text-align: right;
-}
-.pj span {
-    color: #7cb5ff;
-}
-.sp span {
-    color: #5eb6b6;
-}
-.sc span {
-    color: #ffc793;
-}
-.crd span {
-    color: #ff7583;
-}
-.crp span {
-    color: #b78dcf;
-}
-.stats-section .wk p,
-.stats-section .mth p,
-.stats-section .tt p {
-    font-size: 12px;
-    font-weight: normal;
-    margin-top: 10px;
-    text-align: center;
-}
-.stats-section .fr span {
-    color: #7277d1;
-}
-.stats-section .wk span,
-.stats-section .mth span,
-.stats-section .tt span {
-    background: none;
-    padding: 10px;
-    border-top-right-radius: 0;
-    border-bottom-right-radius: 0;
+    background: #3D9B9B;
+    padding: 10px 15px;
+    border-radius: 10px;
+    font-size: 18px;
 }
 
 
@@ -489,8 +380,8 @@ textarea {
     width: initial;
     text-transform: initial;
     font-weight: normal;
-    font-size: 15px;
-    padding: 10px;
+    padding: 8px;
+    padding-bottom: 6px;
 }
 .geoloc-results li span {
     font-size: 17px;
@@ -505,19 +396,10 @@ textarea {
     margin-bottom: 5px;
 }
 .modale {
-    position: relative;
     height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
-}
-.modale .close-btn {
-    border-radius: 50%;
-    padding: 5px;
-    padding-bottom: 3px;
-    position: absolute;
-    top: 20px;
-    right: 20px;
 }
 .modale .content {
     background: white;
@@ -534,6 +416,16 @@ textarea {
 .modale .content p {
     margin: 20px 0;
 }
+.modale .content strong {
+    background: #3D9B9B;
+    color: white;
+    padding: 5px;
+    border-radius: 5px;
+    margin-left: 10px;
+}
+.modale .content .city {
+    color: grey;
+}
 .geoloc-section button {
     text-transform: initial;
     font-weight: normal;
@@ -545,19 +437,53 @@ textarea {
     margin: 20px 0;
 }
 .distance-results {
-    border-top: 5px solid #e4e4e4;
     border-bottom: 5px solid #e4e4e4;
     width: 100%;
-    padding: 20px;
-    padding-bottom: 0;
 }
 .distance-results p {
     margin-bottom: 10px;
 }
-.distance-results .info {
+.distance-results .total {
+    border-top: 5px solid #e4e4e4;
+    border-bottom: 5px solid #e4e4e4;
+    padding: 15px 20px;
+    text-align: center;
+}
+.distance-results .total strong {
+    background: #3D9B9B;
+    color: white;
+    padding: 5px;
+    border-radius: 5px;
+    margin-right: 10px;
+}
+.distance-results .arrets {
+    padding: 20px;
+    padding-top: 10px;
+    padding-bottom: 0;
+}
+.distance-results .arrets li p {
+    margin-bottom: 15px;
     color: grey;
+    line-height: 25px;
+}
+.distance-results .arrets li em {
+    color: black;
+}
+.distance-results .arrets li strong {
+    background: #3D9B9B;
+    color: white;
+    padding: 5px;
+    border-radius: 5px;
+    margin-right: 10px;
+}
+.distance-results .point {
+    color: grey;
+    font-size: 14px;
+}
+.distance-results .info {
+    color: #3D9B9B;
     font-style: italic;
-    font-size: 15px;
+    font-size: 14px;
     padding-top: 10px;
     display: flex;
     align-items: center;
@@ -628,6 +554,17 @@ textarea {
     display: flex;
     flex-direction: column;
 }
+.fdr-info h1 {
+    text-align: center;
+    font-size: 25px;
+    margin-bottom: 30px;
+}
+.detected-date {
+   background: #DCF1F2;
+   color: #3D9B9B;
+   padding: initial 10px;
+   font-size: 14px;
+}
 .fdr-saved div {
     margin: 30px 0;
     border-radius: 20px;
@@ -659,6 +596,15 @@ textarea {
     text-transform: initial;
     font-weight: normal;
 }
+.visit-saved .button-colored {
+    padding: 10px;
+    margin-bottom: 5px;
+}
+.visit-saved div {
+    margin-bottom: 20px;
+    box-shadow: none;
+    margin-top: 0;
+}
 
 
 
@@ -669,7 +615,7 @@ textarea {
     background: white;
     border-radius: 20px;
     box-shadow: 2px 2px 15px #cfcfcf;
-    background: #D8E7FB;
+    background: #DCF1F2;
 }
 .form-pj label {
     padding-bottom: 10px;
@@ -709,22 +655,22 @@ textarea {
 
 
 .form-FSC {
-    background: #faefde;
+    background: #DCF1F2;
     padding: 20px;
     border-radius: 20px;
 }
 .form-FSP {
-    background: #DFF5F5;
+    background: #DCF1F2;
     padding: 20px;
     border-radius: 20px;
 }
 .form-CRD {
-    background: #F9E5E7;
+    background: #DCF1F2;
     padding: 20px;
     border-radius: 20px;
 }
 .form-crp {
-    background: #f3e5f9;
+    background: #DCF1F2;
     padding: 20px;
     border-radius: 20px;
 }
@@ -764,22 +710,25 @@ textarea {
 .fsc-btn {
     width: 100%;
     margin-bottom: 20px;
+    text-transform: initial;
+    font-weight: normal;
 }
-.fsc-saved{
+.fsc-saved, 
+.crp-results li {
     padding: 20px;
-    background: #faefde;
+    background: #DCF1F2;
     border-radius: 20px;
     margin: 20px 0;
 }
 .crd-saved {
     padding: 20px;
-    background: #f9e5e7;
+    background: #DCF1F2;
     border-radius: 20px;
     margin: 20px 0;
 }
 .fsp-results li {
     padding: 20px;
-    background: #DFF5F5;
+    background: #DCF1F2;
     border-radius: 20px;
     margin: 20px 0;
 }
@@ -818,6 +767,19 @@ textarea {
     color: black;
     font-size: 16px;
 }
+.form-FSC button,
+.form-FSP button,
+.form-crp button,
+.fsc-results button,
+.fsc-btn,
+.btn-crp,
+.btn-crd,
+.form-CRD .button-colored {
+    text-transform: initial;
+    font-weight: normal;
+    width: 100%;
+    margin-bottom: 10px;
+}
 
 
 
@@ -846,7 +808,7 @@ textarea {
 .search-results .nb-visit {
     margin-top: 30px;
     text-align: center;
-    color: #7277d1;
+    color: #3D9B9B;
     font-weight: bold;
     font-size: 18px;
 }

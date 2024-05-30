@@ -139,7 +139,7 @@ function StatisticsVisits({ uid }) {
                     </div>
                 </div>
                 
-                <div className="nb">
+                <div className="nb fr">
                     <p>Feuilles de route</p>
                     <span>{stats.feuilleDeRouteCount}</span>
                 </div>        

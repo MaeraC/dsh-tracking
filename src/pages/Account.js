@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom"
 import { useState } from "react"
 import { logout } from "../auth/AuthUtils"
 import { auth } from "../firebase.config"
+import { sendPasswordResetEmail } from "firebase/auth"
 
 function Account() {
     
@@ -19,10 +20,13 @@ function Account() {
 
     const handleResetPassword = async () => {
         try {
-            const email = auth.currentUser.email // Récupère l'e-mail du user connecté
-            await auth.sendPasswordResetEmail(email) // Envoie un e-mail de réinitialisation du mot de passe à cet e-mail
+            const email = auth.currentUser.email
             
-            setMessage("Un e-mail de réinitialisation de mot de passe a été envoyé à votre adresse e-mail.")
+            sendPasswordResetEmail(auth, email)
+            .then(() => {
+                setMessage("Un e-mail de réinitialisation de mot de passe a été envoyé à votre adresse e-mail.")
+            })
+            
         } 
         catch (error) {
             console.error("Erreur lors de l'envoi de l'e-mail de réinitialisation du mot de passe :", error)

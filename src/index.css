@@ -86,7 +86,7 @@ textarea {
 .button-fsc {
     padding: 15px;
     border-radius: 30px;
-    background: #8ad88e;
+    background: #ffc793;
     border: none;
     font-size: 16px;
     color: white;
@@ -321,6 +321,7 @@ textarea {
 .account {
     padding: 20px;
     padding-bottom: 150px;
+    padding-top: 10px;
 }
 
 
@@ -332,7 +333,7 @@ textarea {
     padding-bottom: 20px;
 }
 .geo-header {
-    padding-top: 30px;
+    padding-top: 10px;
     padding-bottom: 20px;
 }
 .preview-section header h1,
@@ -340,7 +341,7 @@ textarea {
 .fdr header h1,
 .account-header h1,
 .search-section header h1 {  
-    font-size: 20px;
+    font-size: 16px;
     text-align: center;
 }
 .preview-section .hello {
@@ -369,8 +370,11 @@ textarea {
 }
 .stats-section .nb {
     margin: 30px 0;
-    padding: 20px;
-    background: rgb(228, 228, 228); /*rouge*/
+    padding-left: 20px;
+    padding-right: 5px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    background: #abcfff; 
     border-radius: 20px;
     display: flex;
     justify-content: space-between;
@@ -405,13 +409,18 @@ textarea {
 }
 .nb p {
     font-weight: bold;
+    font-size: 17px;
 }
 .nb span {
     font-size: 35px;
     font-weight: bold;
+    background: white;
+    padding: 20px;
+    border-top-right-radius: 20px;
+    border-bottom-right-radius: 20px;
 }
 .nb span {
-    color: #F23D58 ;
+    color: white ;
     text-align: right;
 }
 .pj span {
@@ -421,7 +430,7 @@ textarea {
     color: #5eb6b6;
 }
 .sc span {
-    color: #8ad88e;
+    color: #ffc793;
 }
 .crd span {
     color: #ff7583;
@@ -432,10 +441,21 @@ textarea {
 .stats-section .wk p,
 .stats-section .mth p,
 .stats-section .tt p {
-    font-size: 14px;
+    font-size: 12px;
     font-weight: normal;
     margin-top: 10px;
     text-align: center;
+}
+.stats-section .fr span {
+    color: #7277d1;
+}
+.stats-section .wk span,
+.stats-section .mth span,
+.stats-section .tt span {
+    background: none;
+    padding: 10px;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
 }
 
 
@@ -610,7 +630,7 @@ textarea {
 
 
 .form-FSC {
-    background: #e2fae1;
+    background: #faefde;
     padding: 20px;
     border-radius: 20px;
 }

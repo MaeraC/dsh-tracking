@@ -564,7 +564,7 @@ textarea {
 .detected-date {
    background: #DCF1F2;
    color: #3D9B9B;
-   padding: initial 10px;
+   padding: 10px;
    font-size: 14px;
 }
 .fdr-saved div {

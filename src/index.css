@@ -173,7 +173,9 @@ textarea {
 .login-form img,
 .signup-form img {
     position: absolute;
-    top: 14px;
+    top: 10px;
+    width: 25px;
+    height: 25px;
 }
 .success-animation {
     display: flex;

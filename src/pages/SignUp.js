@@ -9,7 +9,7 @@ import { doc, setDoc } from "firebase/firestore"
 import { Link, useNavigate } from "react-router-dom"
 import emailImg from "../assets/email.png"
 import mdpImg from "../assets/mdp.png"
-import userImg from "../assets/user.png"
+import userImg from "../assets/users.png"
 
 function SignUp() {
     const [firstname, setFirstname] = useState("")

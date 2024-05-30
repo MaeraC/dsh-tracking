@@ -4,10 +4,12 @@
 
 import { GoogleMap } from "@react-google-maps/api"
 import { useState, useEffect, useRef } from "react"
+import ReactModal from "react-modal"
+import closeIcon from "../assets/close.png"
 
 const mapContainerStyle = {
     width: '96vw',
-    height: '70vh',
+    height: '60vh',
 }
   
 const options = {
@@ -22,6 +24,12 @@ function Geolocation() {
     const mapRef = useRef(null)
     const markerRef = useRef(null)
     const [salons, setSalons] = useState([])
+    const [selectedSalon, setSelectedSalon] = useState(null)
+    const [isModalOpen, setIsModalOpen] = useState(false)
+    const [distance, setDistance] = useState(0)
+    const [showDistance, setShowDistance] = useState(false)
+    const [isTracking, setIsTracking] = useState(false)
+    const trackingRef = useRef({})
   
     useEffect(() => {
         if (window.google && window.google.maps && window.google.maps.marker && window.google.maps.geometry) {
@@ -46,7 +54,7 @@ function Geolocation() {
                 })
             },
             () => {
-                console.error('Error fetching location')
+                console.error('Erreur pour récupérer votre position')
             }
         )
     }, [])
@@ -79,7 +87,7 @@ function Geolocation() {
     }, [isLoaded, currentPosition])
 
     const handleSalonsNearby = () => {
-        // Votre code pour rechercher les salons de coiffure à proximité et les afficher sur la carte
+        // Recherche les salons de coiffure à proximité
         const service = new window.google.maps.places.PlacesService(mapRef.current)
         service.nearbySearch({
             location: currentPosition,
@@ -116,6 +124,41 @@ function Geolocation() {
         })
     } 
 
+    const handleSelectSalon = (salon) => {
+        setSelectedSalon(salon)
+        setIsModalOpen(true)
+    }
+
+    const handleStartTracking = () => {
+        setIsTracking(true)
+        setDistance(0)
+        setShowDistance(false)
+        trackingRef.current.startPos = currentPosition
+    }
+
+    const handleStopTracking = () => {
+
+        setIsTracking(false)
+
+        const distanceCovered = window.google.maps.geometry.spherical.computeDistanceBetween(
+            new window.google.maps.LatLng(trackingRef.current.startPos.lat, trackingRef.current.startPos.lng),
+            new window.google.maps.LatLng(currentPosition.lat, currentPosition.lng)
+        ) / 1000
+
+        const distanceInKm = distanceCovered / 1000
+
+        setDistance(distanceInKm.toFixed(2))
+        setShowDistance(true)
+    }
+
+    const formatDistance = (distance) => {
+
+        if (distance < 1) {
+            return `${(distance * 1000).toFixed(0)} m`
+        }
+
+        return `${distance.toFixed(2)} km`
+    }
   
     if (!isLoaded) return <div>Loading Maps...</div>
   
@@ -141,19 +184,54 @@ function Geolocation() {
                 <ul>
                     {salons.map((salon, index) => (
                         <li key={index}>
-                            <span>{salon.name}</span><br></br><p>Distance :{" "}
-                            {(
-                                window.google.maps.geometry.spherical.computeDistanceBetween(
-                                    new window.google.maps.LatLng(currentPosition.lat, currentPosition.lng),
-                                    salon.geometry.location
-                                ) / 1000
-                            ).toFixed(2)}{" "} km</p>
+                           <div>
+                                <span>{salon.name}</span><br />
 
-                            
+                                <p>Distance: {formatDistance(
+                                    window.google.maps.geometry.spherical.computeDistanceBetween(
+                                        new window.google.maps.LatLng(currentPosition.lat, currentPosition.lng),
+                                        salon.geometry.location
+                                    ) / 1000
+                                )}</p>
+
+                                <p>Adresse: {salon.vicinity}</p>
+                           </div>
+                            <button className="button-colored" onClick={() => handleSelectSalon(salon)}>Choisir</button>
                         </li>
                     ))}
                 </ul>
             </div>
+
+            {selectedSalon && (
+                    <ReactModal
+                        isOpen={isModalOpen}
+                        onRequestClose={() => setIsModalOpen(false)}
+                        contentLabel="Salon Details"
+                        className="modale" 
+                    >
+                        <div className="content">
+                            <h2>{selectedSalon.name}</h2>
+                            <p>Adresse: {selectedSalon.vicinity}</p>
+
+                            {isTracking ? (
+                                <div>
+                                    <button className="button-colored" onClick={handleStopTracking}>Arrivé à destination</button>
+                                    <p>Calcul des km parcourus en cours ...</p>
+                                </div>
+                            ) : (
+                                <button className="button-colored" onClick={handleStartTracking}>Démarrer le compteur de km</button>
+                            )}
+
+                            {showDistance && (
+                                <p>Distance parcourue: {formatDistance(distance)}</p>
+                            )}
+                        </div>
+
+                        
+
+                        <button onClick={() => setIsModalOpen(false)} className="close-btn"><img src={closeIcon} alt="fermer le compteur de km" /></button>
+                    </ReactModal>
+                )}
         </div>
         </>
         

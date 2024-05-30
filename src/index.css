@@ -289,7 +289,7 @@ textarea {
     bottom: 0;
     width: 100%;
     border-top: solid 2px #cacaca;
-    padding-bottom: 20px;
+    padding-bottom: 30px;
     padding-top: 10px;
     background: white;
 }
@@ -478,9 +478,19 @@ textarea {
     width: 100%;
 }
 .geoloc-results li {
-    border-bottom: 1px solid #cacaca;
+    border-bottom: 3px solid #e4e4e4;
     padding: 15px;
     width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.geoloc-results li button {
+    width: initial;
+    text-transform: initial;
+    font-weight: normal;
+    font-size: 15px;
+    padding: 10px;
 }
 .geoloc-results li span {
     font-weight: bold;
@@ -489,6 +499,39 @@ textarea {
 }
 .geoloc-results li p {
     color: grey;
+    font-size: 15px;
+}
+.modale {
+    position: relative;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.modale .close-btn {
+    border-radius: 50%;
+    padding: 5px;
+    padding-bottom: 3px;
+    position: absolute;
+    top: 20px;
+    right: 20px;
+}
+.modale .content {
+    background: white;
+    width: 80%;
+    height: 40%;
+    padding: 30px;
+    box-shadow: 2px 2Px 15px #c4c3c3;
+    border-radius: 20px;
+    text-align: center;
+}
+.modale .content p {
+    margin: 20px 0;
+}
+.modale .content button {
+    text-transform: initial;
+    font-weight: normal;
+    margin-top: 20px;
 }
 
 

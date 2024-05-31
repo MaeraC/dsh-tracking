@@ -29,12 +29,12 @@ function Geolocation() {
     const [salons, setSalons] = useState([])
     const [selectedSalon, setSelectedSalon] = useState(null)
     const [isModalOpen, setIsModalOpen] = useState(false)
-    const [distance, setDistance] = useState(0)
     const [isTracking, setIsTracking] = useState(false)
     const [stops, setStops] = useState([]);
     const [totalDistance, setTotalDistance] = useState(0)
     const trackingRef = useRef({})
     const [isTourStarted, setIsTourStarted] = useState(false)
+    const [congratulations, setCongratulations] = useState("")
 
     useEffect(() => {
         if (window.google && window.google.maps && window.google.maps.marker && window.google.maps.geometry) {
@@ -66,7 +66,7 @@ function Geolocation() {
                     )
 
                     const distanceInKm = distanceCovered / 1000
-                    setDistance(distanceInKm)
+                    console.log(distanceInKm)
                 }
             },
             () => {
@@ -192,18 +192,17 @@ function Geolocation() {
         setIsTourStarted(true);
         setTotalDistance(0);
         setStops([]);
-        setIsTracking(false);
-        setDistance(0)
-    };
+        setIsTracking(false)
+    }
 
     const handleEndTour = () => {
         setIsTourStarted(false)
         setIsTracking(false)
-    };
+        setCongratulations("Félicitations, Vous avez terminé votre tournée de la journée ! À bientôt !")
+    }
 
     const handleStartTracking = () => {
         setIsTracking(true)
-        setDistance(0)
         trackingRef.current.startPos = currentPosition
     }
 
@@ -266,7 +265,10 @@ function Geolocation() {
                 </GoogleMap>
     
                 {!isTourStarted && (
-                    <button className="button-colored" onClick={handleStartTour}>Démarrer mon parcours</button>
+                    <>
+                        <button className="button-colored" onClick={handleStartTour}>Démarrer mon parcours</button>
+                        <p className="congrats">{congratulations}</p>
+                    </>
                     
                 )}
     
@@ -293,7 +295,7 @@ function Geolocation() {
 
                                                 return (
                                                     <li key={index}>
-                                                    <p><strong>{formatDistance(distanceToFirstStop)}</strong> De <em> {stop.name} </em> à <em> {stop.name}</em></p>
+                                                    <p><strong>{formatDistance(distanceToFirstStop)}</strong> De <em> Domicile </em> à <em> {stop.name}</em></p>
                                                 </li>
                                                 )
                                             } 
@@ -354,7 +356,7 @@ function Geolocation() {
                             <p className="city">{selectedSalon.vicinity}</p>
 
                             {isTracking && (
-                                <p>Calcul en cours :<strong>{formatDistance(distance)}</strong> </p>
+                                <p>Calcul en cours...</p>
                             )}
 
                             {isTracking ? (

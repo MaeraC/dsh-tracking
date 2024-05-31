@@ -402,9 +402,10 @@ textarea {
     display: flex;
     align-items: center;
     justify-content: center;
+    background: #dadada3d;
 }
 .modale .content {
-    background: #dadadab4;
+    background: white;
     width: 80%;
     padding: 30px;
     box-shadow: 2px 2Px 15px #c4c3c3;
@@ -497,6 +498,10 @@ textarea {
 }
 .distance-results .info img {
     margin-right: 10px;
+}
+.congrats {
+    text-align: center;
+    line-height: 25px;
 }
 
 
@@ -907,9 +912,9 @@ textarea {
     margin: 0 !important;
 }
 .shadow {
-    box-shadow: 2px 2px 15px #afafaf;
-    padding: 20px;
-    border-radius: 20px;
+    box-shadow: 2px 2px 15px #afafaf ;
+    padding: 20px ;
+    border-radius: 20px ;
 }
 .shadow p {
     margin-bottom: 10px;

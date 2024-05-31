@@ -148,7 +148,7 @@ function SearchVisits() {
                                     <p><span>RDV obtenu</span> : {visit.rdvObtenu}</p>
                                         
                                     {visit.rdvObtenu === "Oui" && (
-                                        <div>
+                                        <div className="nope">
                                             <p><span>Date du RDV</span> : {visit.dateRdv}</p>
                                             <p><span>Type de RDV</span> : {visit.typeRdv}</p>
 

@@ -2,7 +2,7 @@
 
 // fichier SearchVisitsAdmin
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { getDocs, query, where, collection, getDoc, doc } from "firebase/firestore"
 import { db } from "../firebase.config.js"
 
@@ -43,18 +43,26 @@ function SearchVisitsAdmin({ uid, role }) {
                 ...(visit.suiviProspect || []),
             ])
 
-            const userIds = new Set(allVisits.map(visit => visit.userId).filter(id => id !== undefined));
+            console.log(allVisits)
+
+            const userIds = new Set(allVisits.map(visit => visit.userId).filter(id => id !== undefined))
+
+            console.log(userIds)
                    
             const usersData = await Promise.all(Array.from(userIds).map(async userId => {
-                const userDoc = await getDoc(doc(db, "users", userId));
+                const userDoc = await getDoc(doc(db, "users", userId))
                 
-                return { id: userId, name: userDoc.data().firstname, lastname: userDoc.data().lastname };
+                return { id: userId, name: userDoc.data().firstname, lastname: userDoc.data().lastname }
             }))
+
+            console.log(usersData)
             
             const userIdToName = usersData.reduce((acc, user) => {
                 acc[user.id] = user.name + " " + user.lastname
-                return acc;
-            }, {});
+                return acc
+            }, {})
+
+            console.log(userIdToName)
  
             const visitsWithNames = allVisits.map(visit => ({
                 ...visit,

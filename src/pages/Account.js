@@ -10,6 +10,8 @@ import { sendPasswordResetEmail } from "firebase/auth"
 function Account({ email, firstname, lastname }) {
     
     const [message, setMessage] = useState("")
+    const [showModal, setShowModal] = useState(false)
+    const [action, setAction] = useState(null)
 
     const navigate = useNavigate()
 
@@ -34,6 +36,22 @@ function Account({ email, firstname, lastname }) {
         }
     }
 
+    const confirmAction = () => {
+        if (action === "logout") {
+            handleLogout()
+        } 
+        else if (action === "resetPassword") {
+            handleResetPassword()
+        }
+
+        setShowModal(false)
+    }
+
+    const openModal = (actionType) => {
+        setAction(actionType)
+        setShowModal(true)
+    }
+
     return (
         <div className="account">
             <header className="account-header">
@@ -54,9 +72,19 @@ function Account({ email, firstname, lastname }) {
                     <p>{email}</p>
                 </div>
                 
-                <button onClick={handleResetPassword}>Réinitialiser mon mot de passe</button>
-                <button onClick={handleLogout}>Déconnexion</button>
+                <button onClick={() => openModal("resetPassword")}>Réinitialiser mon mot de passe</button>
+                <button onClick={() => openModal("logout")}>Déconnexion</button>
             </div>
+
+            {showModal && (
+                <div className="modal">
+                    <div className="modal-content">
+                        <p>Êtes-vous sûr de vouloir {action === "logout" ? "vous déconnecter" : "réinitialiser votre mot de passe"} ?</p>
+                        <button onClick={confirmAction}>Oui</button>
+                        <button onClick={() => setShowModal(false)}>Non</button>
+                    </div>
+                </div>
+            )}
             
             <p className="success">{message}</p>
         </div>

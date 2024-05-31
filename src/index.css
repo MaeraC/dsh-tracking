@@ -404,7 +404,7 @@ textarea {
     justify-content: center;
 }
 .modale .content {
-    background: white;
+    background: #dadadab4;
     width: 80%;
     padding: 30px;
     box-shadow: 2px 2Px 15px #c4c3c3;
@@ -840,7 +840,7 @@ textarea {
     margin-top: 20px;
     border-top: 5px #e9e9e9 solid;
 }
-.account button,
+.account .content button,
 .account .content div  {
     padding: 20px 0;
     border: none;
@@ -848,19 +848,59 @@ textarea {
     font-size: 16px;
     background-color: white;
     border-bottom: 5px #e9e9e9 solid;
+}
+.account button {
     cursor: pointer;
+}
+.account .content div {
+    position: relative;
 }
 .account .content div span {
     color: grey;
-    font-size: 13px;
-    display: inline-block;
-    width: 100%;
-    text-align: center;
-    margin-bottom: 10px;
+    font-size: 12px;
+    position: absolute;
+    top: 5px;
+    left: 5px;
 }
 .account .content div p {
     text-align: center;
 }
+.account .modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #dadadab4;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+.account .modal-content {
+    background-color: white;
+    padding: 20px;
+    text-align: center;
+    border-radius: 20px;
+    line-height: 25px;
+}
+.account .modal-content button {
+    margin-top: 20px;
+    background: #3D9B9B;
+    color: white;
+    font-family: "Roboto";
+    border: none;
+    border-radius: 5px;
+    padding: 5px;
+    font-size: 16px;
+    margin-right: 10px;
+    width: 60px;
+}
+
+
+
+
+
 .nope {
     box-shadow: none !important;
     padding: 0 !important;

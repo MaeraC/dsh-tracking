@@ -6,11 +6,8 @@ import { useState } from "react"
 import { db } from "../firebase.config"
 import { updateDoc, doc, getDoc } from "firebase/firestore"
 import back from "../assets/back.png"
-import { useNavigate } from "react-router-dom"
 
-function CRDémonstration({ uid, visitId }) {
-
-    const navigate = useNavigate()
+function CRDémonstration({ uid, visitId, onReturn }) {
 
     const [message, setMessage] = useState("")
     const [suiviList, setSuiviList] = useState([])
@@ -255,15 +252,10 @@ function CRDémonstration({ uid, visitId }) {
             console.error("Erreur lors de la récupération des formulaires : ", error)
         }
     }
-
-    const handleBackClick = () => {
-        navigate("/tableau-de-bord-commercial/questionnaires");
-        window.location.reload()
-    }
     
     return (
         <>
-        <button onClick={handleBackClick} className="button-back"><img src={back} alt="retour" /></button>
+        <button onClick={onReturn} className="button-back"><img src={back} alt="retour" /></button>
         {showForm ? (
             <>
             <button className="button-colored btn-crd" onClick={showSuiviList}>Afficher les formulaires enregistrés</button>

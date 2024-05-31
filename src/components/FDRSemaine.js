@@ -200,6 +200,16 @@ function FDRSemaine({ uid }) {
         setErrors(newErrors)
         return Object.keys(newErrors).length === 0
     }
+
+    const handleReturnToVisits = () => {
+        setShowProspectionForm(false);
+        setshowFicheSuiviProspect(false);
+        setshowFicheSuiviClient(false);
+        setShowCRDemonstration(false);
+        setShowCRPresentation(false);
+        setShowVisits(true);
+        //navigate('/'); // Assurez-vous que cela pointe correctement vers la liste des visites enregistrées
+    };
     
 
     return (
@@ -224,6 +234,7 @@ function FDRSemaine({ uid }) {
                                 <p><span>Semaine</span> : {visit.week}</p>
                                 </div>
 
+
                                 <button onClick={() => handleShowProspectionForm(visit.id)} className="button-colored">Fiche de prospection journalière</button>
 
                                 {visit.status === "prospect" && (
@@ -244,19 +255,19 @@ function FDRSemaine({ uid }) {
                         
                     </div>
                 ) : showProspectionForm && currentVisitId ? (
-                    <FicheProspection visitId={currentVisitId} uid={uid} />
+                    <FicheProspection visitId={currentVisitId} uid={uid} onReturn={handleReturnToVisits} />
                 
                 ) : showFicheSuiviClient && currentVisitId ? (
-                    <FicheSuiviClients visitId={currentVisitId} uid={uid} />
+                    <FicheSuiviClients visitId={currentVisitId} uid={uid} onReturn={handleReturnToVisits} />
 
                 ) : showFicheSuiviProspect && currentVisitId ? (
-                    <FicheSuiviProspects visitId={currentVisitId} uid={uid} />
+                    <FicheSuiviProspects visitId={currentVisitId} uid={uid} onReturn={handleReturnToVisits} />
 
                 ) : showCRDemonstration && currentVisitId ? (
-                    <CRDemonstration visitId={currentVisitId} uid={uid} />
+                    <CRDemonstration visitId={currentVisitId} uid={uid} onReturn={handleReturnToVisits} />
 
                 ) : showCRPresentation && currentVisitId ? (
-                    <CRPresentation visitId={currentVisitId} uid={uid} />
+                    <CRPresentation visitId={currentVisitId} uid={uid} onReturn={handleReturnToVisits} />
                 ) : (
                     <>
                         <div className="fdr-header">    

@@ -6,11 +6,9 @@ import { doc, getDoc, updateDoc } from "firebase/firestore"
 import { db } from "../firebase.config.js"
 
 import back from "../assets/back.png"
-import { useNavigate } from "react-router-dom"
 
-function FicheSuiviProspects({ uid, visitId }) {
+function FicheSuiviProspects({ uid, visitId, onReturn }) {
 
-    const navigate = useNavigate()
     const [message, setMessage] = useState("")
     const [suiviList, setSuiviList] = useState([])
     const [showForm, setShowForm] = useState(true)
@@ -191,14 +189,10 @@ function FicheSuiviProspects({ uid, visitId }) {
         setFormData({ ...formData, [type]: newColorations })
     }
 
-    const handleBackClick = () => {
-        navigate("/tableau-de-bord-commercial/questionnaires");
-        window.location.reload()
-    }
 
     return (
         <div>
-            <button onClick={handleBackClick} className="button-back"><img src={back} alt="retour" /></button>
+            <button  onClick={onReturn} className="button-back"><img src={back} alt="retour" /></button>
             {showForm ? (
                 <>
                     <button className="button-colored fsc-btn" onClick={showSuiviList}>Afficher les formulaires enregistrés</button>

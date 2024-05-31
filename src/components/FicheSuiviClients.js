@@ -5,11 +5,9 @@ import { useState } from "react";
 import { doc, updateDoc, getDoc } from "firebase/firestore";
 import { db } from "../firebase.config.js"
 import back from "../assets/back.png"
-import { useNavigate } from "react-router-dom"
 
-function FicheSuiviClients({ uid, visitId }) {
+function FicheSuiviClients({ uid, visitId, onReturn }) {
 
-    const navigate = useNavigate()
     const [message, setMessage] = useState("")
     const [suiviList, setSuiviList] = useState([])
     const [showForm, setShowForm] = useState(true)
@@ -172,14 +170,10 @@ function FicheSuiviClients({ uid, visitId }) {
         }
     }
 
-    const handleBackClick = () => {
-        navigate("/tableau-de-bord-commercial/questionnaires");
-        window.location.reload()
-    }
 
     return (
         <div>
-            <button onClick={handleBackClick} className="button-back"><img src={back} alt="retour" /></button>
+            <button  onClick={onReturn} className="button-back"><img src={back} alt="retour" /></button>
         
             {showForm ? (
                 <>

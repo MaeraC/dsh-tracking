@@ -4,12 +4,9 @@
 import { useState, useEffect } from "react"
 import { doc, updateDoc, arrayUnion , getDoc, onSnapshot } from "firebase/firestore"
 import { db } from "../firebase.config.js"
-import { useNavigate } from "react-router-dom"
 import back from "../assets/back.png"
 
-function FicheProspection({ uid, visitId }) {
-
-    const navigate = useNavigate()
+function FicheProspection({ uid, visitId , onReturn }) {
 
     const [message, setMessage] = useState("")
     const [errorMessage, setErrorMessage] = useState("")
@@ -127,18 +124,13 @@ function FicheProspection({ uid, visitId }) {
         }
     }
 
-    const handleBackClick = () => {
-        navigate("/tableau-de-bord-commercial/questionnaires");
-        window.location.reload()
-    }
-
     return (
         <>
-        <button onClick={handleBackClick} className="button-back"><img src={back} alt="retour" /></button>
+        <button onClick={onReturn} className="button-back"><img src={back} alt="retour" /></button>
             
         <form onSubmit={handleSubmit} className="form-pj">
 
-            <div>
+            <div>  
                 <label><strong>Nom du salon</strong> :</label>
                 <input type="text" name="salonName" value={formData.salonName} onChange={handleInputChange} required />
             </div>                  

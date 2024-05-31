@@ -6,11 +6,9 @@ import { updateDoc, doc, getDoc } from 'firebase/firestore'
 import { db } from '../firebase.config'
 
 import back from "../assets/back.png"
-import { useNavigate } from "react-router-dom"
 
-const CRPresentation = ({ uid , visitId }) => {
+const CRPresentation = ({ uid , visitId, onReturn }) => {
 
-    const navigate = useNavigate()
     const [message, setMessage] = useState("")
     const [suiviList, setSuiviList] = useState([])
     const [showForm, setShowForm] = useState(true)
@@ -175,14 +173,10 @@ const CRPresentation = ({ uid , visitId }) => {
         }
     }
 
-    const handleBackClick = () => {
-        navigate("/tableau-de-bord-commercial/questionnaires");
-        window.location.reload()
-    }
 
     return (
         <>
-        <button onClick={handleBackClick} className="button-back"><img src={back} alt="retour" /></button>
+        <button onClick={onReturn} className="button-back"><img src={back} alt="retour" /></button>
         
         {showForm ? (
             <>

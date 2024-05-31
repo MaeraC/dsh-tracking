@@ -44,9 +44,7 @@ function SearchVisitsAdmin({ uid, role }) {
             ])
 
             const userIds = new Set(allVisits.map(visit => visit.userId).filter(id => id !== undefined));
-            console.log(userIds)
-
-            
+                   
             const usersData = await Promise.all(Array.from(userIds).map(async userId => {
                 const userDoc = await getDoc(doc(db, "users", userId));
                 
@@ -58,14 +56,10 @@ function SearchVisitsAdmin({ uid, role }) {
                 return acc;
             }, {});
  
-            console.log(userIdToName)
-            
             const visitsWithNames = allVisits.map(visit => ({
                 ...visit,
                 userName: userIdToName[visit.userId]
             }))
-            
-            console.log(visitsWithNames);
 
             const filteredVisits = visitsWithNames.filter(visit => {
                 const matchesSalon = salonName ? visit.salonName.toLowerCase() === salonName.toLowerCase() : true;
@@ -145,7 +139,7 @@ function SearchVisitsAdmin({ uid, role }) {
             {searchResults.length > 0 && (
                 <div className="search-results">
 
-                    <p className="nb-visit">Nombre de visites pour le salon {salonName} : {searchResults.length}</p>
+                    <p className="nb-visit">Nombre de visites enregistrées : {searchResults.length}</p>
                     
                     {searchResults.map((visit, index) => {
                         if (visit.typeOfForm === "Feuille de route") {

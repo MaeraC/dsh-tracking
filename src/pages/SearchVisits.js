@@ -122,7 +122,7 @@ function SearchVisits() {
             {searchResults.length > 0 && (
                 <div className="search-results">
 
-                    <p className="nb-visit">Nombre de visites pour le salon {salonName} : {searchResults.length}</p>
+                    <p className="nb-visit">Nombre de visites enregistrées : {searchResults.length}</p>
                     
                     {searchResults.map((visit, index) => {
                         if (visit.typeOfForm === "Feuille de route") {

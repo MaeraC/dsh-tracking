@@ -69,6 +69,8 @@ function SearchVisitsAdmin({ uid, role }) {
                 userName: userIdToName[visit.userId]
             }))
 
+            console.log(visitsWithNames)
+
             const filteredVisits = visitsWithNames.filter(visit => {
                 const matchesSalon = salonName ? visit.salonName.toLowerCase() === salonName.toLowerCase() : true;
                 const matchesFormType = formType.length > 0 ? formType.includes(visit.typeOfForm) : true;

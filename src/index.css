@@ -292,7 +292,38 @@ textarea {
     padding-bottom: 150px;
     padding-top: 10px;
 }
-
+@media screen and (min-width: 600px) {
+    .preview-section,
+    .fdr,
+    .search-section {
+        margin-left: 100px;
+        margin-right: 100px;
+    }
+}
+@media screen and (min-width: 800px) {
+    .preview-section,
+    .fdr,
+    .search-section {
+        margin-left: 200px;
+        margin-right: 200px;
+    }
+}
+@media screen and (min-width: 1000px) {
+    .preview-section,
+    .fdr,
+    .search-section {
+        margin-left: 300px;
+        margin-right: 300px;
+    }
+}
+@media screen and (min-width: 1400px) {
+    .preview-section,
+    .fdr,
+    .search-section {
+        margin-left: 400px;
+        margin-right: 400px;
+    }
+}
 
 .preview-section header,
 .fdr header,

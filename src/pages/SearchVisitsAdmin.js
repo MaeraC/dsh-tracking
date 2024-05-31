@@ -1,11 +1,12 @@
 
-// Fichier SearchVisits.js
 
-import { useState } from "react"
-import { getDocs, query, where, collection } from "firebase/firestore"
+// fichier SearchVisitsAdmin
+
+import { useState, useEffect } from "react"
+import { getDocs, query, where, collection, getDoc, doc } from "firebase/firestore"
 import { db } from "../firebase.config.js"
 
-function SearchVisits() {
+function SearchVisitsAdmin({ uid, role }) {
     const [startDate, setStartDate] = useState("")
     const [endDate, setEndDate] = useState("")
     const [salonName, setSalonName] = useState("")
@@ -14,20 +15,24 @@ function SearchVisits() {
 
     const handleSearch = async () => {
         try {
-            const visitsRef = collection(db, "visits") // liste totale des visites enregistrées
+            const visitsRef = collection(db, "visits")
             let filteredQuery = query(visitsRef)
 
-            // Convertir les dates en objets Date
             const start = startDate ? new Date(startDate) : null
             const end = endDate ? new Date(endDate) : null
 
-            // Filtre par période
             if (start && end) {
                 filteredQuery = query(filteredQuery, where("createdAt", ">=", start), where("createdAt", "<=", end))
             }
 
+            
+            if (role !== "administrateur") {
+                filteredQuery = query(filteredQuery, where("userId", "==", uid))
+            }
+
             const querySnapshot = await getDocs(filteredQuery)
             let visitsData = querySnapshot.docs.map(doc => doc.data())
+
 
             const allVisits = visitsData.flatMap(visit => [
                 visit,
@@ -38,23 +43,41 @@ function SearchVisits() {
                 ...(visit.suiviProspect || []),
             ])
 
-            console.log(allVisits)
-            // Filtre par le nom du salon et type de formulaire
-            const filteredVisits = allVisits.filter(visit => {
-                const matchesSalon = salonName ? visit.salonName.toLowerCase() === salonName.toLowerCase() : true;
-                const matchesFormType = formType.length > 0 ? formType.includes(visit.typeOfForm) : true
-                return matchesSalon && matchesFormType
-            })
+            const userIds = new Set(allVisits.map(visit => visit.userId).filter(id => id !== undefined));
+            console.log(userIds)
 
-            console.log(filteredVisits)
+            
+            const usersData = await Promise.all(Array.from(userIds).map(async userId => {
+                const userDoc = await getDoc(doc(db, "users", userId));
+                
+                return { id: userId, name: userDoc.data().firstname, lastname: userDoc.data().lastname };
+            }))
+            
+            const userIdToName = usersData.reduce((acc, user) => {
+                acc[user.id] = user.name + " " + user.lastname
+                return acc;
+            }, {});
+ 
+            console.log(userIdToName)
+            
+            const visitsWithNames = allVisits.map(visit => ({
+                ...visit,
+                userName: userIdToName[visit.userId]
+            }))
+            
+            console.log(visitsWithNames);
+
+            const filteredVisits = visitsWithNames.filter(visit => {
+                const matchesSalon = salonName ? visit.salonName.toLowerCase() === salonName.toLowerCase() : true;
+                const matchesFormType = formType.length > 0 ? formType.includes(visit.typeOfForm) : true;
+                return matchesSalon && matchesFormType;
+            })
 
             setSearchResults(filteredVisits)
 
             return true 
 
-            
-        } 
-        catch (error) {
+        } catch (error) {
             console.error("Erreur lors de la recherche des visites :", error)
         }
     }
@@ -83,7 +106,7 @@ function SearchVisits() {
                 <div>
                     <label htmlFor="endDate">Date de fin :</label>
                     <input type="date" id="endDate" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
-                </div>
+                </div> 
                 <div>
                     <label htmlFor="salonName"></label>
                     <input type="text" id="salonName" value={salonName} placeholder="Nom du salon" onChange={(e) => setSalonName(e.target.value)} />
@@ -135,6 +158,7 @@ function SearchVisits() {
                                     <p><span>Date exacte</span> : {visit.exactDate}</p>
                                     <p><span>Date détectée</span> : {visit.detectedDate}</p>
                                     <p><span>Semaine</span> : {visit.week}</p>
+                                    <p className="savedby"><span>Enregistré par</span> : {visit.userName}</p>
                                 </div>
                             );
                         } 
@@ -142,13 +166,13 @@ function SearchVisits() {
                         else if (visit.typeOfForm === "Fiche de prospection") {
                             return (
                                 
-                                    <div className="shadow" key={index}>
+                                    <div  className="shadow" key={index}>
                                     <p className="title"><span>{visit.typeOfForm} </span>n° {index +1}</p>
                                     <p><span>Nom du salon</span> : {visit.salonName}</p>
                                     <p><span>RDV obtenu</span> : {visit.rdvObtenu}</p>
                                         
                                     {visit.rdvObtenu === "Oui" && (
-                                        <div>
+                                        <div className="nope">
                                             <p><span>Date du RDV</span> : {visit.dateRdv}</p>
                                             <p><span>Type de RDV</span> : {visit.typeRdv}</p>
 
@@ -163,16 +187,16 @@ function SearchVisits() {
                                     {visit.rdvObtenu === "Non" && (
                                         <p><span>Observation</span> : {visit.observation}</p>
                                     )}
-                                    
+                                    <p className="savedby"><span>Enregistré par</span> : {visit.userName}</p>
                                 </div>
-                               
+                                
                             );
                         } 
                         
                         else if (visit.typeOfForm === "Fiche de suivi Prospect") {
                             return (
-                               
-                                 <li  className="shadow" key={index}>
+                               <div   className="shadow" key={index}>
+                                 <li key={index}>
                                     <p className="title"><span className="bold">{visit.typeOfForm} </span>n° {index +1}</p>
                                     <p><strong>Nom du salon:</strong> {visit.salonName}</p>
                                     <p><strong>Adresse:</strong> {visit.salonAdresse}</p>
@@ -234,14 +258,15 @@ function SearchVisits() {
                                     <p><strong>RDV Date:</strong> {visit.rdvDate}</p>
                                     <p><strong>RDV Pour:</strong> {visit.rdvPour}</p>
                                     <p><strong>Commande:</strong> {visit.commande}</p>
+                                    <p className="savedby"><span>Enregistré par</span> : {visit.userName}</p>
                                 </li>
-                               
+                               </div>
                             );
                         } 
                         
                         else if (visit.typeOfForm === "Fiche de suivi Client") {
                             return (
-                                <li  className="shadow" key={index}>
+                                <div  className="shadow" key={index}>
 
                                     <p className="title"><span className="bold">{visit.typeOfForm} </span>n° {index +1}</p>
                                     <p><span className="bold">Nom du salon :</span> {visit.salonName}</p>
@@ -294,14 +319,14 @@ function SearchVisits() {
                                     <p><span className="bold">Points pour la prochaine visite :</span> {visit.pointsProchaineVisite}</p>
                                     <p><span className="bold">Observations :</span> {visit.observations}</p>
 
-                                    
-                                </li>  
+                                    <p className="savedby"><span>Enregistré par</span> : {visit.userName}</p>
+                                </div>  
                             );
                         }
                         
                         else if (visit.typeOfForm === "Compte rendu de RDV de Démonstration") {
                             return (
-                                <li  className="shadow" key={index}>
+                                <li  className="shadow"  key={index}>
                                 <p className="title"><span className="bold">{visit.typeOfForm} </span>n° {index +1}</p>
                                 <p><strong>Nom du salon:</strong> {visit.salonName}</p>
                                 <p><strong>Ville:</strong> {visit.ville}</p>
@@ -339,16 +364,17 @@ function SearchVisits() {
                                 </ul>
                                 <p><strong>Précisions:</strong> {visit.precisions}</p>
                                 <p><strong>Observations générales:</strong> {visit.observationsGenerales}</p>
+                                <p className="savedby"><span>Enregistré par</span> : {visit.userName}</p>
                             </li>
                             );
                         } 
                         
                         else if (visit.typeOfForm === "Compte rendu de RDV de Présentation") {
                             return (
-                              
-                                    <li className="shadow" key={index}>
-                                    <p><span className="bold">{visit.typeOfForm} </span>n° {index +1}</p>
-                                    <p className="title"><strong>Nom du salon:</strong> {visit.salonName}</p>
+                                <div className="shadow" key={index}>
+                                    <li key={index}>
+                                    <p className="title"><span className="bold">{visit.typeOfForm} </span>n° {index +1}</p>
+                                    <p><strong>Nom du salon:</strong> {visit.salonName}</p>
                                     <p><strong>Ville:</strong> {visit.ville}</p>
                                     <p><strong>Département:</strong> {visit.departement}</p>
                                     <p><strong>Présence du responsable:</strong> {visit.presenceResponsable}</p>
@@ -401,8 +427,9 @@ function SearchVisits() {
                                     )}
                                     <p><strong>Observation à préparer:</strong> {visit.observationPreparation}</p>
                                     <p><strong>Motif de refus:</strong> {visit.motifRefus}</p>
+                                    <p className="savedby"><span>Enregistré par</span> : {visit.userName}</p>
                                 </li>
-                                
+                                </div>
                             );
                         } 
                         else {
@@ -416,4 +443,4 @@ function SearchVisits() {
     )
 }
 
-export default SearchVisits
+export default SearchVisitsAdmin;

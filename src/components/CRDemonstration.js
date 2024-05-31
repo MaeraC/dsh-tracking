@@ -8,7 +8,7 @@ import { updateDoc, doc, getDoc } from "firebase/firestore"
 import back from "../assets/back.png"
 import { useNavigate } from "react-router-dom"
 
-function CRDémonstration({ visitId }) {
+function CRDémonstration({ uid, visitId }) {
 
     const navigate = useNavigate()
 
@@ -74,7 +74,8 @@ function CRDémonstration({ visitId }) {
         precisions: '',
         observationsGenerales: '',
         createdAt: createdAt,
-        typeOfForm: "Compte rendu de RDV de Démonstration"
+        typeOfForm: "Compte rendu de RDV de Démonstration",
+        userId: uid,
     })
     
     const handleChange = (e) => {
@@ -218,7 +219,8 @@ function CRDémonstration({ visitId }) {
                     precisions: '',
                     observationsGenerales: '',
                     createdAt: createdAt,
-                    typeOfForm: "Compte rendu de RDV de Démonstration"
+                    typeOfForm: "Compte rendu de RDV de Démonstration",
+                    userId: uid,
                 })
             }
             else {

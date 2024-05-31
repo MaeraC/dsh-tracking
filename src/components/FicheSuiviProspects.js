@@ -8,7 +8,7 @@ import { db } from "../firebase.config.js"
 import back from "../assets/back.png"
 import { useNavigate } from "react-router-dom"
 
-function FicheSuiviProspects({ visitId }) {
+function FicheSuiviProspects({ uid, visitId }) {
 
     const navigate = useNavigate()
     const [message, setMessage] = useState("")
@@ -55,7 +55,8 @@ function FicheSuiviProspects({ visitId }) {
         rdvPour: "",
         commande: "",
         createdAt: createdAt,
-        typeOfForm: "Fiche de suivi Prospect"
+        typeOfForm: "Fiche de suivi Prospect",
+        userId: uid,
     })
 
     // gestion des inputs
@@ -119,7 +120,8 @@ function FicheSuiviProspects({ visitId }) {
                     rdvPour: "",
                     commande: "",
                     createdAt: createdAt,
-                    typeOfForm: "Fiche de suivi Prospect"
+                    typeOfForm: "Fiche de suivi Prospect",
+                    userId: uid,
                 })
             } 
             else {

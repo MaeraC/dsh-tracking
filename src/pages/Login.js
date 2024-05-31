@@ -41,7 +41,7 @@ function Login() {
             } 
             else if (userData.role === "administrateur") {
                 setTimeout(() => {
-                    navigate("/tableau-de-bord-commercial", { state : { uid : user.uid } })
+                    navigate("/tableau-de-bord-administrateur", { state : { uid : user.uid } })
                 }, "2000")
             }
 

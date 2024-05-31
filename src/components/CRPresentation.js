@@ -8,7 +8,7 @@ import { db } from '../firebase.config'
 import back from "../assets/back.png"
 import { useNavigate } from "react-router-dom"
 
-const CRPresentation = ({ visitId }) => {
+const CRPresentation = ({ uid , visitId }) => {
 
     const navigate = useNavigate()
     const [message, setMessage] = useState("")
@@ -53,7 +53,8 @@ const CRPresentation = ({ visitId }) => {
         observationPreparation: '',
         motifRefus: '',
         createdAt: createdAt,
-        typeOfForm: "Compte rendu de RDV de Présentation"
+        typeOfForm: "Compte rendu de RDV de Présentation",
+        userId: uid,
     })
 
     const handleChange = (e) => {
@@ -138,7 +139,8 @@ const CRPresentation = ({ visitId }) => {
                     observationPreparation: '',
                     motifRefus: '',
                     createdAt: createdAt,
-                    typeOfForm: "Compte rendu de RDV de Présentation"
+                    typeOfForm: "Compte rendu de RDV de Présentation",
+                    userId: uid,
                 })
             }
             else {

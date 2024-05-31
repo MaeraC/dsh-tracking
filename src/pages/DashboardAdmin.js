@@ -17,6 +17,8 @@ function DashboardAdmin() {
     const navigate = useNavigate()
 
     const [firstname, setFirstname] = useState("")
+    const [lastname, setLastname] = useState("")
+    const [email, setEmail] = useState("")
     const [loading, setLoading] = useState(true)
     const [uid, setUid] = useState(null)
     const [role, setRole] = useState("")
@@ -33,6 +35,8 @@ function DashboardAdmin() {
                     if (userDoc.exists()) {
                         setFirstname(userDoc.data().firstname)
                         setRole(userDoc.data().role)
+                        setLastname(userDoc.data().lastname)
+                        setEmail(userDoc.data().email)
                     }
                 } 
                 catch (error) {
@@ -61,7 +65,7 @@ function DashboardAdmin() {
         <Routes>
             <Route path="/" element={<Navigate to="apercu-admin" replace />} />
             <Route path="apercu-admin" element={<PreviewAdmin firstname={firstname} uid={uid}  />} />
-            <Route path="mon-compte-admin" element={<Account />} />
+            <Route path="mon-compte-admin" element={<Account firstname={firstname} lastname={lastname} email={email} />} />
             <Route path="recherche-visites-admin" element={<SearchVisitsAdmin uid={uid} role={role} />} />
         </Routes>
         </>

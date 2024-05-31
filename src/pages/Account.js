@@ -7,7 +7,7 @@ import { logout } from "../auth/AuthUtils"
 import { auth } from "../firebase.config"
 import { sendPasswordResetEmail } from "firebase/auth"
 
-function Account() {
+function Account({ email, firstname, lastname }) {
     
     const [message, setMessage] = useState("")
 
@@ -41,8 +41,21 @@ function Account() {
             </header>
             
             <div className="content">
-                <button onClick={handleLogout}>Déconnexion</button>
+                <div>
+                    <span>Prénom</span>
+                    <p>{firstname}</p>
+                </div>
+                <div>
+                    <span>Nom</span>
+                    <p>{lastname}</p>
+                </div>
+                <div>
+                    <span>E-mail</span>
+                    <p>{email}</p>
+                </div>
+                
                 <button onClick={handleResetPassword}>Réinitialiser mon mot de passe</button>
+                <button onClick={handleLogout}>Déconnexion</button>
             </div>
             
             <p className="success">{message}</p>

@@ -17,6 +17,8 @@ import Geolocation from "../components/Geolocation.js"
 function DashboardCom() {
 
     const [firstname, setFirstname] = useState("")
+    const [lastname, setLastname] = useState("")
+    const [email, setEmail] = useState("")
     const [loading, setLoading] = useState(true)
     const [uid, setUid] = useState(null)
     const navigate = useNavigate() 
@@ -32,6 +34,8 @@ function DashboardCom() {
 
                     if (userDoc.exists()) {
                         setFirstname(userDoc.data().firstname)
+                        setLastname(userDoc.data().lastname)
+                        setEmail(userDoc.data().email)
                     }
                 } 
                 catch (error) {
@@ -60,7 +64,7 @@ function DashboardCom() {
                 <Route path="apercu" element={<Preview firstname={firstname} uid={uid} />} />
                 <Route path="map" element={<Geolocation />} />
                 <Route path="questionnaires/*" element={<FDRSemaine uid={uid} />} />
-                <Route path="mon-compte" element={<Account />} />
+                <Route path="mon-compte" element={<Account firstname={firstname} lastname={lastname} email={email}  />} />
                 <Route path="recherche-visites" element={<SearchVisits />} />
             </Routes>
        

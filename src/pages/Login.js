@@ -4,9 +4,9 @@
 import "../index.css" 
 import { Link, useNavigate } from "react-router-dom"
 import { useState } from "react"
-import { signInWithEmailAndPassword } from "firebase/auth"
+import { signInWithEmailAndPassword , signOut } from "firebase/auth"
 import { auth, db } from "../firebase.config.js"
-import { doc, getDoc } from "firebase/firestore"
+import { doc, getDoc, query, getDocs, collection, where, Timestamp } from "firebase/firestore"
 import emailImg from "../assets/email.png"
 import mdpImg from "../assets/mdp.png"
 import { browserLocalPersistence, setPersistence } from "firebase/auth"
@@ -24,11 +24,32 @@ function Login() {
 
         try {
             await setPersistence(auth, browserLocalPersistence)
+
+            if (isHolidayOrWeekend()) {
+                setMessage("Impossible de se connecter durant les week-ends et jours fériés.")
+                setMessageType("error")
+                return
+            }
             
             const userCredential = await signInWithEmailAndPassword(auth, email, password)
             const user = userCredential.user
             const userDoc = await getDoc(doc(db, "users", user.uid))
             const userData = userDoc.data()
+
+            const unavailabilityQuery = query(
+                collection(db, "unavailabilities"),
+                where("userId", "==", user.uid),
+                where("startDate", "<=", Timestamp.now()),
+                where("endDate", ">=", Timestamp.now())
+            )
+            const unavailabilitySnapshot = await getDocs(unavailabilityQuery)
+    
+            if (!unavailabilitySnapshot.empty) {
+                setMessage("Vous êtes actuellement indisponible et ne pouvez pas vous connecter.")
+                setMessageType("error");
+                await signOut(auth);
+                return;
+            }
     
             setMessage("Connexion réussie avec succès !")
             setMessageType("success") 
@@ -50,6 +71,19 @@ function Login() {
             setMessage("Erreur de connexion. Veuillez vérifier votre adresse e-mail et votre mot de passe.")
             setMessageType("error")
         }
+    }
+
+    const isHolidayOrWeekend = () => {
+        const today = new Date();
+        const day = today.getDay();
+        const holidays = ["2024-01-01", "2024-12-25"]; // Liste des jours fériés (à adapter)
+    
+        const todayString = today.toISOString().split("T")[0];
+    
+        if (day === 6 || day === 0 || holidays.includes(todayString)) {
+            return true;
+        }
+        return false;
     }
 
     return (

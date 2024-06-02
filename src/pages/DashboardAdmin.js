@@ -12,6 +12,7 @@ import Loader from "../components/Loader"
 import HeaderAdmin from "../components/HeaderAdmin"
 import SearchVisitsAdmin from "./SearchVisitsAdmin"
 import Account from "./Account"
+import StatisticsAdmin from "../components/StatisticsAdmin"
  
 function DashboardAdmin() {
     const navigate = useNavigate()
@@ -65,6 +66,7 @@ function DashboardAdmin() {
         <Routes>
             <Route path="/" element={<Navigate to="apercu-admin" replace />} />
             <Route path="apercu-admin" element={<PreviewAdmin firstname={firstname} uid={uid}  />} />
+            <Route path="stats-admin" element={<StatisticsAdmin uid={uid} />} />
             <Route path="mon-compte-admin" element={<Account firstname={firstname} lastname={lastname} email={email} />} />
             <Route path="recherche-visites-admin" element={<SearchVisitsAdmin uid={uid} role={role} />} />
         </Routes>

@@ -9,6 +9,8 @@ import user from "../assets/user.png"
 import userB from "../assets/userb.png" 
 import search from "../assets/search.png" 
 import searchB from "../assets/searchb.png" 
+import stats from "../assets/stats.png" 
+import statsb from "../assets/statsb.png" 
 import { useEffect, useState } from "react"
 
 function HeaderAdmin() {
@@ -33,6 +35,14 @@ function HeaderAdmin() {
                     onClick={() => handleTabClick("/tableau-de-bord-administrateur/apercu-admin")}
                 >
                     <img src={activeTab === "/tableau-de-bord-administrateur/apercu-admin" ? homeB : home} alt="Onglet accueil" className="iconHeader" />
+                </NavLink>
+
+                <NavLink
+                    to="/tableau-de-bord-administrateur/stats-admin"
+                    className={activeTab === "/tableau-de-bord-administrateur/stats-admin" ? "active" : ""}
+                    onClick={() => handleTabClick("/tableau-de-bord-administrateur/stats-admin")}
+                >
+                    <img src={activeTab === "/tableau-de-bord-administrateur/stats-admin" ? statsb : stats} alt="Onglet statistiques" className="iconHeader" />
                 </NavLink>
                 
                 <NavLink

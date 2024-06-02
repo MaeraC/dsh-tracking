@@ -287,7 +287,8 @@ textarea {
 .fdr,
 .preview-section,
 .search-section,
-.account {
+.account,
+.stats-section {
     padding: 20px;
     padding-bottom: 150px;
     padding-top: 10px;
@@ -295,7 +296,8 @@ textarea {
 @media screen and (min-width: 600px) {
     .preview-section,
     .fdr,
-    .search-section {
+    .search-section,
+    .stats-section {
         margin-left: 100px;
         margin-right: 100px;
     }
@@ -303,7 +305,8 @@ textarea {
 @media screen and (min-width: 800px) {
     .preview-section,
     .fdr,
-    .search-section {
+    .search-section,
+    .stats-section {
         margin-left: 200px;
         margin-right: 200px;
     }
@@ -311,7 +314,8 @@ textarea {
 @media screen and (min-width: 1000px) {
     .preview-section,
     .fdr,
-    .search-section {
+    .search-section,
+    .stats-section {
         margin-left: 300px;
         margin-right: 300px;
     }
@@ -319,7 +323,8 @@ textarea {
 @media screen and (min-width: 1400px) {
     .preview-section,
     .fdr,
-    .search-section {
+    .search-section,
+    .stats-section {
         margin-left: 400px;
         margin-right: 400px;
     }
@@ -328,7 +333,8 @@ textarea {
 .preview-section header,
 .fdr header,
 .account-header,
-.search-section header {
+.search-section header,
+.stats-section header {
     padding-top: 10px;
     padding-bottom: 20px;
 }
@@ -339,7 +345,8 @@ textarea {
 .geo-header h1,
 .fdr header h1,
 .account-header h1,
-.search-section header h1 {  
+.search-section header h1,
+.stats-section header h1 {  
     font-size: 16px;
     text-align: center;
 }
@@ -352,9 +359,6 @@ textarea {
 }
 .preview-section .hello p {
     margin-top: 5px;
-}
-.stats-section {
-    margin-top: 40px;
 }
 .stats-section .nb {
     box-shadow: 2px 2px 15px #cfcfcf;
@@ -933,6 +937,13 @@ textarea {
     margin-right: 10px;
     width: 60px;
 }
+
+
+
+
+
+
+
 
 
 

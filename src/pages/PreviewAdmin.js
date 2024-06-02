@@ -1,7 +1,7 @@
 
 // Fichier PreviewAdmin
 
-import StatisticsVisitsAdmin from "../components/StatisticsAdmin"
+import ManageAvailability from "../components/ManageAvailability"
 
 function PreviewAdmin({ firstname }) {
 
@@ -15,7 +15,7 @@ function PreviewAdmin({ firstname }) {
                 <p>Voici les statistiques de vos commerciaux.</p>
             </div>
 
-            <StatisticsVisitsAdmin />
+            <ManageAvailability />
         </div>
     )
 }

@@ -109,7 +109,13 @@ function StatisticsAdmin() {
     }, []);
 
     return (
+        <>
+       
         <section className="stats-section">
+            <header className="stats-header">
+                <h1>Statistiques</h1>
+            </header>
+            
             <div className="stats-nb">
                 <div className="nb total">
                     <p>Total des visites</p>
@@ -149,6 +155,8 @@ function StatisticsAdmin() {
                 </div>
             </div>
         </section>
+        </>
+        
     );
 }
 

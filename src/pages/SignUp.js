@@ -45,7 +45,7 @@ function SignUp() {
                 firstname: firstname,
                 lastname: lastname,
                 email: email,
-                role: role
+                role: role,
             }) 
 
             setMessage("Inscription réussie")

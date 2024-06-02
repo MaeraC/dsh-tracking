@@ -40,49 +40,43 @@ function ManageAvailability() {
                 reason: reason,
                 startDate: Timestamp.fromDate(new Date(startDate)),
                 endDate: Timestamp.fromDate(new Date(endDate))
-            });
-            setMessage("Indisponibilité ajoutée avec succès.");
-        } catch (error) {
-            console.error("Erreur lors de l'ajout de l'indisponibilité: ", error);
-            setMessage("Erreur lors de l'ajout de l'indisponibilité.");
+            })
+
+            setMessage("Indisponibilité ajoutée avec succès. L'utilisateur ne pourra pas se connecter durant la période saisie.");
+        } 
+        catch (error) {
+            console.error("Erreur lors de l'ajout de l'indisponibilité: ", error)
+            setMessage("Erreur lors de l'ajout de l'indisponibilité.")
         }
     };
 
     return (
-        <div>
-            <h2>Gérer les indisponibilités</h2>
+        <section className="available-section">
+            <h2>Rendre indisponible un commercial</h2>
             <form onSubmit={handleSubmit}>
-                <label>
-                    Commercial:
-                    <select value={selectedUser} onChange={(e) => setSelectedUser(e.target.value)}>
-                        <option value="">Sélectionnez un commercial</option>
-                        {users.map(user => (
-                            <option key={user.id} value={user.id}>
-                                {user.firstname} {user.lastname}
-                            </option>
-                        ))}
-                    </select>
-                </label>
-                <label>
-                    Raison:
-                    <select value={reason} onChange={(e) => setReason(e.target.value)}>
-                        <option value="">Sélectionnez une raison</option>
-                        <option value="Arrêt maladie">Arrêt maladie</option>
-                        <option value="Congé vacances">Congé vacances</option>
-                    </select>
-                </label>
-                <label>
-                    Date de début:
-                    <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
-                </label>
-                <label>
-                    Date de fin:
-                    <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
-                </label>
-                <button className="button-colored" type="submit">Ajouter</button>
+
+                <select value={selectedUser} onChange={(e) => setSelectedUser(e.target.value)}>
+                    <option value="">Sélectionnez un commercial</option>
+                    {users.map(user => (
+                        <option key={user.id} value={user.id}>{user.firstname} {user.lastname}</option>
+                    ))}
+                </select>
+
+                <select value={reason} onChange={(e) => setReason(e.target.value)}>
+                    <option value="">Sélectionnez une raison</option>
+                    <option value="Arrêt maladie">Arrêt maladie</option>
+                    <option value="Congé vacances">Congés vacances</option>
+                </select>
+
+                <label>Date de début</label>
+                <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
+                <label>Date de fin</label>
+                <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
+
+                <button className="button-colored" type="submit">Déconnecter le commercial</button>
             </form>
-            {message && <p>{message}</p>}
-        </div>
+            {message && <p className="success">{message}</p>}
+        </section>
     );
 }
 

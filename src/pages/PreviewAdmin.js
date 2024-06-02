@@ -12,7 +12,7 @@ function PreviewAdmin({ firstname }) {
             </header>
             <div className="hello">
                 <h2>Bonjour, <span className="name">{firstname}</span> !</h2>
-                <p>Voici les statistiques de vos commerciaux.</p>
+                <p>Voici votre tableau de gestion administrateur</p>
             </div>
 
             <ManageAvailability />

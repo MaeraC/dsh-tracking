@@ -76,7 +76,7 @@ function Login() {
     const isHolidayOrWeekend = () => {
         const today = new Date();
         const day = today.getDay();
-        const holidays = ["2024-01-01", "2024-12-25"]; // Liste des jours fériés (à adapter)
+        const holidays = ["2024-01-01", "2024-12-25", "2024-05-09", "2024-11-1", "2024-04-01", "2024-05-20", "2024-11-11", "2024-05-01", "2024-07-14", "2024-05-08", "2024-08-15", "2025-01-01", "2025-05-29", "2025-11-01", "2025-04-21", "2025-06-09", "2025-11-11", "2025-05-01", "2025-07-14", "2025-12-25", "2025-05-08", "2025-08-15"]; // Liste des jours fériés (à adapter)
     
         const todayString = today.toISOString().split("T")[0];
     

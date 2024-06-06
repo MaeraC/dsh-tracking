@@ -8,7 +8,6 @@ import ReactModal from "react-modal"
 import startIcon from "../assets/start.png" 
 import { db } from "../firebase.config"
 import { collection, addDoc, setDoc, doc, getDoc, updateDoc } from "firebase/firestore"
-import formIcon from "../assets/form.png"
 
 const mapContainerStyle = {
     width: '96vw',
@@ -312,18 +311,25 @@ function Geolocation({ uid }) {
                 return { name: stop.name, distance: distanceInKm.toFixed(2) };
             }
             return stop;
-        });
-    
-        // Enregistrer les données dans la base de données
-        const routeData = {
-            date: new Date(),
-            totalDistance: totalDistanceCovered,
-            stops: stopsWithDistance
-        };
+        })
     
         try {
-            if (currentRouteId) {
-                await setDoc(doc(db, "feuillesDeRoute", currentRouteId), routeData);
+            if (currentRouteId) {   
+                const routeDocRef = doc(db, "feuillesDeRoute", currentRouteId)
+
+                await updateDoc(routeDocRef, {
+                    date: new Date(),
+                    isVisitsStarted: hasVisitsToday === true,
+                    motifNoVisits: hasVisitsToday === false ? noVisitsReason : "", 
+                    departureAddress: startAddress,
+                    city: startCity,
+                    userId: uid,
+                    totalDistance: totalDistanceCovered,
+                    stops: stopsWithDistance
+                })
+
+                
+
                 console.log("Feuille de route mise à jour avec succès !");
             } else {
                 console.error("L'identifiant de la route actuelle est null.");

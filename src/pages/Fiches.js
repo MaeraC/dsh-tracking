@@ -1,22 +1,37 @@
 
 // Fichier Fiches.js 
 
-import { useNavigate } from "react-router-dom"
+import FeuillesDeRouteSemaine from "../components/FeuillesDeRouteSemaine"
+import { useState } from "react"
 
 
 function Fiches({ uid }) {
 
-    const navigate = useNavigate()
+    const [isFDROpen, setisFDROpen] = useState(false)
+
+    const openFDR = () => {
+        setisFDROpen(true)
+        console.log(isFDROpen)
+    }
+
+    const returnBack = () => {
+        setisFDROpen(false)
+    }
 
     return (
         <div className="fiches-section">
             <header>
                 <h1>Mes fiches</h1>
-            </header>
+            </header> 
 
             <div className="content">
-                <button onClick={() => navigate('/tableau-de-bord-commercial/feuilles-de-route-de-la-semaine')}>Feuilles de route de la semaine</button>
+                <button onClick={openFDR}>Feuilles de route de la semaine</button>
             </div>
+
+            {isFDROpen && (
+                <FeuillesDeRouteSemaine uid={uid} onReturn={returnBack} />
+            )}
+            
         </div>
     )
 }

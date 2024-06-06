@@ -3,12 +3,11 @@
 
 import { useState, useEffect } from "react";
 import Preview from "./Preview";
-import FDRSemaine from "../components/FDRSemaine";
 import Account from "./Account";
 import SearchVisits from "./SearchVisits";
 import Loader from "../components/Loader";
 import Fiches from "./Fiches";
-import FeuillesDeRouteSemaine from "./FeuillesDeRouteSemaine";
+import FeuillesDeRouteSemaine from "../components/FeuillesDeRouteSemaine.js";
 import Geolocation from "../components/Geolocation";
 import { useNavigate } from "react-router-dom";
 import { doc, getDoc } from "firebase/firestore"
@@ -66,9 +65,6 @@ function DashboardComm () {
         </div>
         <div style={{ display: activeTab === "map" ? "block" : "none" }}>
             <Geolocation uid={uid} />
-        </div>
-        <div style={{ display: activeTab === "questionnaires" ? "block" : "none" }}>
-            <FDRSemaine uid={uid} />
         </div>
         <div style={{ display: activeTab === "mon-compte" ? "block" : "none" }}>
             <Account firstname={firstname} lastname={lastname} email={email} />

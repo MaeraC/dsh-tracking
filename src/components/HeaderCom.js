@@ -47,10 +47,6 @@ function HeaderCom ({ activeTab, onTabChange }) {
                     <img src={getIcon("map")} alt="Map" />
                 </button>
 
-                <button className={activeTab === "questionnaires" ? "active" : ""} onClick={() => handleTabClick("questionnaires")} >
-                    <img src={getIcon("questionnaires")} alt="Questionnaires" />
-                </button>
-
                 <button className={activeTab === "fiches" ? "active" : ""}  onClick={() => handleTabClick("fiches")} >
                     <img src={getIcon("questionnaires")} alt="Questionnaires" />
                 </button>

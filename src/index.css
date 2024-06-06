@@ -676,6 +676,20 @@ textarea {
 
 
 
+.feuille-jj {
+    margin: 20px 0;
+    border-radius: 20px;
+    padding: 20px;
+    box-shadow: 2px 2px 15px #cfcfcf;
+}
+.feuille-jj p,
+.feuille-jj li {
+    margin-bottom: 10px;
+}
+
+
+
+
 
 .fdr-survey {
     box-shadow: 2px 2px 15px #cfcfcf;

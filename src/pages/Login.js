@@ -4,9 +4,11 @@
 import "../index.css" 
 import { Link, useNavigate } from "react-router-dom"
 import { useState } from "react"
-import { signInWithEmailAndPassword , signOut } from "firebase/auth"
+import { signInWithEmailAndPassword } from "firebase/auth"
+//import { signOut } from "firebase/auth"
 import { auth, db } from "../firebase.config.js"
-import { doc, getDoc, query, getDocs, collection, where, Timestamp } from "firebase/firestore"
+import { doc, getDoc } from "firebase/firestore"
+//import {  query, getDocs, collection, where, Timestamp } from "firebase/firestore"
 import emailImg from "../assets/email.png"
 import mdpImg from "../assets/mdp.png"
 import { browserLocalPersistence, setPersistence } from "firebase/auth"
@@ -25,17 +27,19 @@ function Login() {
         try {
             await setPersistence(auth, browserLocalPersistence)
 
+            /*
             if (isHolidayOrWeekend()) {
                 setMessage("Impossible de se connecter durant les week-ends et jours fériés.")
                 setMessageType("error")
                 return
-            }
+            }*/
             
             const userCredential = await signInWithEmailAndPassword(auth, email, password)
             const user = userCredential.user
             const userDoc = await getDoc(doc(db, "users", user.uid))
             const userData = userDoc.data()
 
+            /*
             const unavailabilityQuery = query(
                 collection(db, "unavailabilities"),
                 where("userId", "==", user.uid),
@@ -50,7 +54,7 @@ function Login() {
                 await signOut(auth);
                 return;
             }
-    
+    */
             setMessage("Connexion réussie avec succès !")
             setMessageType("success") 
 
@@ -73,6 +77,7 @@ function Login() {
         }
     }
 
+    /*
     const isHolidayOrWeekend = () => {
         const today = new Date();
         const day = today.getDay();
@@ -80,11 +85,12 @@ function Login() {
     
         const todayString = today.toISOString().split("T")[0];
     
+        
         if (day === 6 || day === 0 || holidays.includes(todayString)) {
             return true;
         }
-        return false;
-    }
+        return false; 
+    }*/
 
     return (
         <div className="login-page">

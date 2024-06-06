@@ -287,7 +287,9 @@ textarea {
 .preview-section,
 .search-section,
 .account,
-.stats-section {
+.stats-section,
+.fiches-section,
+.feuilles-de-route-section {
     padding: 20px;
     padding-bottom: 150px;
     padding-top: 10px;
@@ -296,7 +298,9 @@ textarea {
     .preview-section,
     .fdr,
     .search-section,
-    .stats-section {
+    .stats-section,
+    .fiches-section,
+    .feuilles-de-route-section {
         margin-left: 100px;
         margin-right: 100px;
     }
@@ -305,7 +309,9 @@ textarea {
     .preview-section,
     .fdr,
     .search-section,
-    .stats-section {
+    .stats-section,
+    .fiches-section,
+    .feuilles-de-route-section {
         margin-left: 200px;
         margin-right: 200px;
     }
@@ -314,7 +320,9 @@ textarea {
     .preview-section,
     .fdr,
     .search-section,
-    .stats-section {
+    .stats-section,
+    .fiches-section,
+    .feuilles-de-route-section {
         margin-left: 300px;
         margin-right: 300px;
     }
@@ -323,7 +331,9 @@ textarea {
     .preview-section,
     .fdr,
     .search-section,
-    .stats-section {
+    .stats-section,
+    .fiches-section,
+    .feuilles-de-route-section {
         margin-left: 400px;
         margin-right: 400px;
     }
@@ -333,7 +343,9 @@ textarea {
 .fdr header,
 .account-header,
 .search-section header,
-.stats-section header {
+.stats-section header,
+.fiches-section header,
+.feuilles-de-route-section header {
     padding-top: 10px;
     padding-bottom: 20px;
 }
@@ -345,11 +357,14 @@ textarea {
 .fdr header h1,
 .account-header h1,
 .search-section header h1,
-.stats-section header h1 {  
+.stats-section header h1,
+.fiches-section header h1,
+.feuilles-de-route-section header h1 {  
     font-size: 16px;
     text-align: center;
 }
 .preview-section .hello {
+    margin: 0 20px;
     margin-top: 10px;
 }
 .preview-section .name {
@@ -421,15 +436,29 @@ textarea {
 }
 .geoloc-results li span {
     font-size: 17px;
-    display: inline-block;
-    margin-bottom: 10px;
 }
 .geoloc-results li p {
     color: grey;
     font-size: 15px;
-}
-.geoloc-results li .distance {
     margin-bottom: 5px;
+}
+.geoloc-results .distance {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+.geoloc-results .distance p {
+    margin-bottom: 0;
+    margin-left: 5px;
+    font-size: 14px;
+}
+.geoloc-results .open {
+    font-size: 15px;
+    color: #4caf50;
+}
+.geoloc-results .close {
+    font-size: 15px;
+    color: red;
 }
 .modale {
     height: 100vh;
@@ -538,6 +567,109 @@ textarea {
     line-height: 25px;
     margin: 10px 20px;
 }
+.start-tour {
+    padding: 20px 0;
+}
+.start-tour div {
+    display: flex;
+    justify-content: center;
+}
+.start-tour button {
+    padding: 5px;
+    width: 70px;
+    background-color: #3D9B9B;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-family: "Roboto";
+    font-size: 16px;
+}
+.start-tour button:nth-child(1) {
+    margin-right: 20px;
+}
+.motif {
+    padding: 20px 0;
+}
+.motif button,
+.start-adress button {
+    margin: 0;
+}
+.motif input,
+.start-adress input {
+    margin-top: 10px;
+}
+.start-adress {
+    padding: 20px;
+
+}
+.btn-end-parcours {
+    padding: 0 20px ;
+    width: 100%;
+    position: relative;
+}
+.btn-end-parcours button:nth-child(2) {
+    margin-bottom: 0 !important;
+}
+.update-btn {
+    position: absolute;
+    top: -55px;
+    background: #3D9B9B;
+    color: white;
+    font-family: "Roboto";
+    border: none;
+    border-radius: 5px;
+    padding: 5px 10px;
+    font-size: 16px;
+}
+.start-adress input:nth-child(1) {
+    margin-bottom: 10px;
+}
+.start-adress .info {
+    color: grey;
+    font-size: 13px;
+    font-style: italic;
+    margin-bottom: 10px;
+}
+.btn-cancel {
+    text-align: center;
+    text-decoration: underline;
+    width: 100%;
+    border: none;
+    background: none;
+    font-family: "Roboto";
+    font-size: 15px;
+    color: #3D9B9B;
+    margin-top: 20px;
+}
+.new-salon .button-colored {
+    margin-top: 0 !important;
+}
+.new-salon h2 {
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 20px;
+}
+
+
+
+
+
+.fiches-section {
+    padding: 20px 0;
+}
+.fiches-section .content {
+    border-top: 5px #e9e9e9 solid;
+}
+.fiches-section .content button {
+    padding: 20px;
+    border: none;
+    font-family: "Roboto";
+    border-bottom: 5px #e9e9e9 solid;
+    font-size: 16px;
+    width: 100%;
+    background: white;
+}
+
 
 
 
@@ -941,10 +1073,16 @@ textarea {
 
 
 
-
+.preview-admin {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}
 .available-section {
-    margin: 20px 10px;
     margin-top: 30px;
+}
+.available-section form {
+    padding: 20px;
+    border-bottom: 5px #e9e9e9 solid;
 }
 .available-section h2 {
     font-size: 18px;
@@ -960,6 +1098,46 @@ textarea {
 .available-section p {
     margin-top: 20px;
 }
+.available-section .button {
+    width: 100%;
+    padding: 20px;
+    text-align: center;
+    font-family: "Roboto";
+    font-size: 17px;
+    background-color: white;
+    border: none;
+    border-bottom: 5px #e9e9e9 solid;
+}
+
+
+.tableau-indispo {
+    padding: 20px;
+    position: relative;
+}
+.tableau-indispo h2 {
+    margin-bottom: 30px;
+    text-align: center;
+}
+.tableau-indispo table {
+    background: #cfcfcf;
+}
+.tableau-indispo th {
+    padding: 5px;
+    background: #3D9B9B;
+    color: white;
+    font-weight: normal;
+}
+.tableau-indispo td {
+    border: 1px solid #cfcfcf;
+    padding: 5px 10px;
+    background-color: white;
+}
+.tableau-indispo .button-back {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+}
+
 
 
 

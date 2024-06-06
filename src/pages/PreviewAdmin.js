@@ -6,7 +6,7 @@ import ManageAvailability from "../components/ManageAvailability"
 function PreviewAdmin({ firstname }) {
 
     return (
-        <div className="preview-section">
+        <div className="preview-section preview-admin">
             <header>
                 <h1>Tableau de bord</h1>
             </header>

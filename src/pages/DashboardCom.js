@@ -13,6 +13,8 @@ import SearchVisits from "./SearchVisits"
 import Loader from "../components/Loader.js"
 import FDRSemaine from "../components/FDRSemaine.js"
 import Geolocation from "../components/Geolocation.js"
+import Fiches from "./Fiches.js"
+import FeuillesDeRouteSemaine from "./FeuillesDeRouteSemaine.js"
 
 function DashboardCom() {
 
@@ -62,10 +64,12 @@ function DashboardCom() {
             <Routes>
                 <Route path="/" element={<Navigate to="apercu" replace />} />
                 <Route path="apercu" element={<Preview firstname={firstname} uid={uid} />} />
-                <Route path="map" element={<Geolocation />} />
+                <Route path="map" element={<Geolocation uid={uid} />} />
                 <Route path="questionnaires/*" element={<FDRSemaine uid={uid} />} />
                 <Route path="mon-compte" element={<Account firstname={firstname} lastname={lastname} email={email}  />} />
                 <Route path="recherche-visites" element={<SearchVisits />} />
+                <Route path="fiches" element={<Fiches uid={uid} />} />
+                <Route path="feuilles-de-route-de-la-semaine" element={<FeuillesDeRouteSemaine uid={uid} />} />
             </Routes>
        
         </>

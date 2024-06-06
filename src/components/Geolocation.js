@@ -3,11 +3,12 @@
 // Fichier Geolocation.js
 
 import { GoogleMap } from "@react-google-maps/api"
-import { useState, useEffect, useRef } from "react"
+import {  useState, useEffect, useRef } from "react"
 import ReactModal from "react-modal"
 import startIcon from "../assets/start.png" 
 import { db } from "../firebase.config"
 import { collection, addDoc, setDoc, doc, getDoc, updateDoc } from "firebase/firestore"
+import formIcon from "../assets/form.png"
 
 const mapContainerStyle = {
     width: '96vw',
@@ -23,10 +24,9 @@ const options = {
 ReactModal.setAppElement('#root')
 
 function Geolocation({ uid }) {
+    
     const [currentPosition, setCurrentPosition] = useState({ lat: 0, lng: 0 })
     const [isLoaded, setIsLoaded] = useState(false)
-    const mapRef = useRef(null)
-    const markerRef = useRef(null)
     const [salons, setSalons] = useState([])
     const [selectedSalon, setSelectedSalon] = useState(null)
     const [isModalOpen, setIsModalOpen] = useState(false)
@@ -47,6 +47,8 @@ function Geolocation({ uid }) {
     const [newSalonCity, setNewSalonCity] = useState("");
     const [newSalonAddress, setNewSalonAddress] = useState("");
     const [isModalSalonOpen, setIsModalSalonOpen] = useState(false)
+    const mapRef = useRef(null)
+    const markerRef = useRef(null)
 
     // Charge Google Maps
     useEffect(() => {
@@ -61,7 +63,7 @@ function Geolocation({ uid }) {
             window.addEventListener('load', handleScriptLoad)
             return () => window.removeEventListener('load', handleScriptLoad)
         }
-    }, [])
+    }, [setIsLoaded])
 
     // Met à jour la position du user 
     useEffect(() => {
@@ -86,7 +88,7 @@ function Geolocation({ uid }) {
         return () => {
             navigator.geolocation.clearWatch(watchId)
         }
-    }, [isTracking])
+    }, [isTracking, setCurrentPosition]) 
 
     useEffect(() => {
         if (isLoaded && mapRef.current && currentPosition.lat !== 0 && currentPosition.lng !== 0) {
@@ -128,7 +130,7 @@ function Geolocation({ uid }) {
             const updatedDistanceToSalon = distanceToSalon - distanceInKm; // Mettre à jour la distance au salon
             setDistanceToSalon(updatedDistanceToSalon);
         }
-    }, [currentPosition, distanceToSalon, isTracking, startPosition]);
+    }, [currentPosition, distanceToSalon, isTracking, startPosition, setDistanceToSalon]);
 
     const getCityFromCoords = async (lat, lng) => {
         return new Promise((resolve, reject) => {
@@ -489,34 +491,35 @@ function Geolocation({ uid }) {
     }
 
     const handleAddSalon = async () => {
-        const newSalon = { name: newSalonName, address: newSalonAddress, city: newSalonCity };
-        setSalons([...salons, newSalon]);
-        setIsModalOpen(false);
-    
+        setStops(prevStops => [...prevStops, {
+            name: newSalonName,
+            position: {
+                lat: null,
+                lng: null
+            },
+            address: newSalonAddress,
+            distance: 0
+        }])
+
+        setIsModalSalonOpen(false)
+
         try {
-            if (selectedSalon && selectedSalon.geometry && selectedSalon.geometry.location) {
-                await addDoc(collection(db, "salons"), {
-                    name: newSalonName,
-                    address: newSalonAddress,
-                    city: newSalonCity
-                });
-            } 
-            else {
-                // Gérer le cas où selectedSalon n'est pas défini ou n'a pas de géométrie définie
-                console.error("Le salon sélectionné n'a pas de géométrie définie.");
-            }
+            await addDoc(collection(db, "salons"), {
+                name: newSalonName,
+                address: newSalonAddress,
+                city: newSalonCity,
+            })
         } catch (error) {
             console.error("Erreur lors de l'ajout du salon: ", error);
         }
-    };
+    }
     
-
     if (!isLoaded) return <div>Loading Maps...</div>
 
     return (
         <>
             <header className="geo-header">
-                <h1>Map Salons de coiffure</h1>
+                <h1>Map Salons de coiffure</h1>  
             </header>
 
             <div className="geoloc-section">
@@ -618,6 +621,7 @@ function Geolocation({ uid }) {
 
                             {isTracking ? (
                                 <div>
+                                    <p>Calcul en cours...</p> 
                                     <button className="button-colored" onClick={handleStopTracking}>Arrivé à destination</button>
                                 </div>
                             ) : (
@@ -628,8 +632,7 @@ function Geolocation({ uid }) {
                     </ReactModal>
                 )}
 
-                <ReactModal isOpen={isModalSalonOpen} onRequestClose={() => setIsModalSalonOpen(false)} contentLabel="Ajouter un nouveau salon" className="modale" >
-                    
+                <ReactModal isOpen={isModalSalonOpen} onRequestClose={() => setIsModalSalonOpen(false)} contentLabel="Ajouter un nouveau salon" className="modale" >    
                     <div className="new-salon content">
                         <h2>Ajouter un nouveau salon</h2>
                         <input type="text" placeholder="Nom du salon" value={newSalonName} onChange={(e) => setNewSalonName(e.target.value)} />
@@ -644,4 +647,12 @@ function Geolocation({ uid }) {
     )
 }
 
-export default Geolocation 
+export default Geolocation
+
+
+
+
+/**
+ * 
+ * //
+ */

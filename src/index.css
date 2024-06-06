@@ -265,7 +265,7 @@ textarea {
     display: flex;
     justify-content: space-between;
 }
-.header nav a {
+.header nav button {
     text-align: center;
     width: 100%;
     padding: 10px;
@@ -408,6 +408,9 @@ textarea {
     flex-direction: column;
     align-items: center;
     padding-bottom: 120px;
+}
+.geoloc-section header {
+    position: relative;
 }
 .geoloc-button {
     width: 90%;
@@ -1169,4 +1172,18 @@ textarea {
     margin-top: 10px !important;
     display: inline-block;
     width: 100%;
+}
+.geo-header {
+    position: relative;
+}
+.btn-circle {
+    background: #3D9B9B;
+    padding: 8px 10px;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    position: absolute;
+    z-index: 2;
+    bottom: -55px;
+    left: 20px;
 }

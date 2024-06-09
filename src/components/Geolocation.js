@@ -1,7 +1,6 @@
 
 // Fichier Geolocation.js
 
-/*
 import { GoogleMap } from "@react-google-maps/api"
 import {  useState, useEffect, useRef } from "react"
 import ReactModal from "react-modal"
@@ -20,10 +19,10 @@ const options = {
     mapId: "b3f2841793c037a8"
 }
 
-ReactModal.setAppElement('#root')*/
+ReactModal.setAppElement('#root')
 
 function Geolocation({ uid }) {
-    /*
+    
     const [currentPosition, setCurrentPosition] = useState({ lat: 0, lng: 0 })
     const [isLoaded, setIsLoaded] = useState(false)
     const [salons, setSalons] = useState([])
@@ -40,7 +39,7 @@ function Geolocation({ uid }) {
     const [noVisitsReason, setNoVisitsReason] = useState("")
     const [message, setMessage] = useState("")
     const [currentRouteId, setCurrentRouteId] = useState(null)
-    const [startPosition, setStartPosition] = useState(null);
+
     const [distanceToSalon, setDistanceToSalon] = useState(null);
     const [newSalonName, setNewSalonName] = useState("");
     const [newSalonCity, setNewSalonCity] = useState("");
@@ -49,6 +48,8 @@ function Geolocation({ uid }) {
     const [status, setStatus] = useState("")
     const mapRef = useRef(null)
     const markerRef = useRef(null)
+
+    const [startPosition, setStartPosition] = useState(null);
 
     // Charge la map
     useEffect(() => {
@@ -91,13 +92,13 @@ function Geolocation({ uid }) {
                 console.error('Erreur lors de la récupération de votre position')
             },
             {
-                enableHighAccuracy: true, maximumAge: 0, timeout: 5000
+                enableHighAccuracy: true, maximumAge: 0, timeout: 2000
             }
         )
         return () => {
             navigator.geolocation.clearWatch(watchId)
         }
-    }, [isTracking, startPosition, currentPosition.lat, currentPosition.lng, setCurrentPosition, setTotalDistance]) 
+    }, [isTracking, startPosition, currentPosition.lat, currentPosition.lng]) 
 
     useEffect(() => {
         if (isLoaded && mapRef.current && currentPosition.lat !== 0 && currentPosition.lng !== 0) {
@@ -128,9 +129,10 @@ function Geolocation({ uid }) {
             );
             const distanceInKm = distanceCovered / 1000;
             const updatedDistanceToSalon = distanceToSalon - distanceInKm; // Mettre à jour la distance au salon
-            setDistanceToSalon(updatedDistanceToSalon)    
+            setDistanceToSalon(updatedDistanceToSalon)  
+              
         }
-    }, [currentPosition, distanceToSalon, isTracking, startPosition, setDistanceToSalon, totalDistance])
+    }, [currentPosition, isTracking, startPosition, distanceToSalon])
 
     const handleStatusChange = (e) => {
         setStatus(e.target.value)
@@ -253,7 +255,7 @@ function Geolocation({ uid }) {
             console.error("Selected salon has no valid location", salon)
         }
     }
-
+    
     const handleStartTour = async () => {
         handleSalonsNearBy()
         setIsTourStarted(true)
@@ -627,10 +629,7 @@ function Geolocation({ uid }) {
             </div>
         </>
     )
-    */ 
-   return (
-    <div>geolocation real </div>
-   )
+    
 }
 
 export default Geolocation

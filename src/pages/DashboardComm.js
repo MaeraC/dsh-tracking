@@ -14,7 +14,6 @@ import { doc, getDoc } from "firebase/firestore"
 import { auth, db } from "../firebase.config.js"
 import { onAuthStateChanged } from "firebase/auth"
 import HeaderCom from "../components/HeaderCom.js";
-import Geo from "../components/Geo.js";
 
 function DashboardComm () {
     const [activeTab, setActiveTab] = useState("apercu")
@@ -67,9 +66,7 @@ function DashboardComm () {
         <div style={{ display: activeTab === "map" ? "block" : "none" }}>
             <Geolocation uid={uid} />
         </div>
-        <div style={{ display: activeTab === "map" ? "block" : "none" }}>
-            <Geo uid={uid} />
-        </div>
+
         <div style={{ display: activeTab === "mon-compte" ? "block" : "none" }}>
             <Account firstname={firstname} lastname={lastname} email={email} />
         </div>

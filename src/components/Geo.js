@@ -230,7 +230,7 @@ function Geo({ uid }) {
         return (
             <div className="modal">
                 <h3>{selectedSalon.name}</h3>
-                <p>Distance parcourue: {selectedSalon.distance.toFixed(2)} mètres</p>
+                <p>Distance parcourue: {distance.toFixed(2)} mètres</p>
                 {!counterStarted ? (
                     <button onClick={startCounter}>Démarrer le compteur de km</button>
                 ) : (

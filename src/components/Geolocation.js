@@ -32,6 +32,7 @@ function Geolocation({ uid }) {
     const [isTracking, setIsTracking] = useState(false)
     const [stops, setStops] = useState([]);
     const [totalDistance, setTotalDistance] = useState(0)
+    const [distanceCovered, setDistanceCovered] = useState(0);
     const [isTourStarted, setIsTourStarted] = useState(false)
     const [congratulations, setCongratulations] = useState("")
     const [hasVisitsToday, setHasVisitsToday] = useState(null)
@@ -130,7 +131,20 @@ function Geolocation({ uid }) {
             const updatedDistanceToSalon = distanceToSalon - distanceInKm; // Mettre à jour la distance au salon
             setDistanceToSalon(updatedDistanceToSalon);
         }
-    }, [currentPosition, distanceToSalon, isTracking, startPosition, setDistanceToSalon]);
+    }, [currentPosition, distanceToSalon, isTracking, startPosition, setDistanceToSalon])
+
+    // Mettez à jour la distance parcourue à chaque changement de position du user
+    useEffect(() => {
+        if (isTracking && startPosition) {
+            const distanceCovered = window.google.maps.geometry.spherical.computeDistanceBetween(
+                new window.google.maps.LatLng(startPosition.lat, startPosition.lng),
+                new window.google.maps.LatLng(currentPosition.lat, currentPosition.lng)
+            );
+            // Convertir la distance en km
+            const distanceInKm = distanceCovered / 1000;
+            setDistanceCovered(distanceInKm);
+        }
+    }, [currentPosition, isTracking, startPosition]);
 
     const handleStatusChange = (e) => {
         setStatus(e.target.value)
@@ -648,6 +662,7 @@ function Geolocation({ uid }) {
                             {isTracking ? (
                                 <div>
                                     <p>Calcul en cours...</p> 
+                                    <p className="total"><strong>{formatDistance(distanceCovered)}</strong></p>
                                     <button className="button-colored" onClick={handleStopTracking}>Arrivé à destination</button>
                                 </div>
                             ) : (

@@ -5,7 +5,6 @@ import { GoogleMap } from "@react-google-maps/api"
 import {  useState, useEffect, useRef } from "react"
 import { collection, addDoc } from "firebase/firestore"
 import { db } from "../firebase.config"
-import { formatDistance } from "date-fns"
 
 const mapContainerStyle = {
     width: '96vw',
@@ -355,6 +354,15 @@ function Geo({ uid }) {
         setIsCounting(!isCounting);
       };
 
+      const formatDistance2 = () => {
+        if (distance2 >= 1000) {
+          const km = (distance2 / 1000).toFixed(0);
+          return `${km} km`;
+        } else {
+          return `${distance2.toFixed(0)} m`;
+        }
+      };
+
     if (!isLoaded) return <div>La map se charge...</div>
 
     return (
@@ -362,11 +370,11 @@ function Geo({ uid }) {
             <GoogleMap mapContainerStyle={mapContainerStyle} zoom={16} center={currentPosition} options={options} onLoad={(map) => (mapRef.current = map)}></GoogleMap>
 
             <div>
-                <h1>Distance parcourue : {formatDistance(distance2)} mètres</h1>
+                <h1>Distance parcourue : {formatDistance2()} mètres</h1>
                 <button onClick={toggleCounting}>
                     {isCounting ? 'Arrêter le compteur' : 'Démarrer le compteur de km'}
                 </button>
-            </div>
+            </div>  
 
             {hasVisitsToday === null && (
                     <div className="start-tour">

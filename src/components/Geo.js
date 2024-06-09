@@ -285,11 +285,49 @@ function Geo({ uid }) {
         }
     };
 
+    const [isCounting, setIsCounting] = useState(false);
+    const [distance2, setDistance2] = useState(0);
+
+    useEffect(() => {
+        let intervalId;
+    
+        // Fonction pour calculer la distance parcourue
+        const calculateDistance = () => {
+          // Ici, tu peux ajouter ta logique pour calculer la distance, par exemple avec la géolocalisation
+          // Pour l'exemple, je vais simplement simuler une valeur aléatoire entre 0 et 10000
+          const randomDistance = Math.floor(Math.random() * 10000);
+          setDistance2(randomDistance);
+        };
+    
+        // Si le compteur est activé, démarrer le calcul de la distance toutes les secondes
+        if (isCounting) {
+          intervalId = setInterval(() => {
+            calculateDistance();
+          }, 1000);
+        } else {
+          clearInterval(intervalId);
+        }
+    
+        // Nettoyer l'intervalle lors du démontage du composant
+        return () => clearInterval(intervalId);
+      }, [isCounting]);
+
+      const toggleCounting = () => {
+        setIsCounting(!isCounting);
+      };
+
     if (!isLoaded) return <div>La map se charge...</div>
 
     return (
         <div className="geoloc-section">
             <GoogleMap mapContainerStyle={mapContainerStyle} zoom={16} center={currentPosition} options={options} onLoad={(map) => (mapRef.current = map)}></GoogleMap>
+
+            <div>
+      <h1>Distance parcourue : {distance2} mètres</h1>
+      <button onClick={toggleCounting}>
+        {isCounting ? 'Arrêter le compteur' : 'Démarrer le compteur de km'}
+      </button>
+    </div>
 
             {hasVisitsToday === null && (
                     <div className="start-tour">

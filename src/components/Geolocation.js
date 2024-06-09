@@ -908,6 +908,7 @@ function Geolocation({ uid }) {
     // Désactive le suivi de la position 
     const handleStopTracking = () => {
         setIsTracking(false);
+        setIsModalCounterOpen(false)
     };
 
     const formatDistance = (distance) => {
@@ -1106,7 +1107,7 @@ function Geolocation({ uid }) {
                             {isTracking ? (
                                 <div>
                                     <p>Calcul en cours...</p> 
-                                    <p className="total"><strong>{distance.toFixed(2)}</strong></p>
+                                    <p className="total"><strong>{formatDistance(distance)}</strong></p>
                                     <button className="button-colored" onClick={handleStopTracking}>Arrivé à destination</button>
                                 </div>
                             ) : (

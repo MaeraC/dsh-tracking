@@ -167,6 +167,23 @@ function Geo({ uid }) {
         }
     }
 
+    const startWatchingPosition = () => {
+        const watchId = navigator.geolocation.watchPosition(
+            (position) => {
+                const newPosition = { lat: position.coords.latitude, lng: position.coords.longitude }
+                setCurrentPosition(newPosition)
+                updateDistance();
+            },
+            () => {
+                console.error('Erreur lors de la récupération de votre position')
+            },
+            {
+                enableHighAccuracy: true, maximumAge: 0, timeout: 3000
+            }
+        );
+        return watchId;
+    };
+
     const handleStartTour = async () => {
         setTourStarted(true);
         await handleSalonsNearBy()
@@ -179,7 +196,8 @@ function Geo({ uid }) {
     // Fonction pour démarrer le compteur
     const startCounter = () => {
         setCounterStarted(true);
-        setTimer(setInterval(updateDistance, 1000)); // Mettre à jour la distance toutes les secondes
+        const watch = startWatchingPosition();
+        setTimer(watch);
     };
 
     // Fonction pour mettre à jour la distance
@@ -198,10 +216,11 @@ function Geo({ uid }) {
         clearInterval(timer); // Arrêter le minuteur
         setCounterStarted(false);
         setDistance(0);
-        setTimer(null);
+        navigator.geolocation.clearWatch(timer);
         // Code pour fermer la modale et afficher la distance parcourue
     };
 
+    
     // Fonction pour calculer la distance entre deux points géographiques
     const calculateDistance = (pointA, pointB) => {
         const lat1 = pointA.lat;
@@ -230,7 +249,7 @@ function Geo({ uid }) {
         return (
             <div className="modal">
                 <h3>{selectedSalon.name}</h3>
-                <p>Distance parcourue: {distance.toFixed(2)} mètres</p>
+                <p>Calcul en cours : {distance.toFixed(2)} mètres</p>
                 {!counterStarted ? (
                     <button onClick={startCounter}>Démarrer le compteur de km</button>
                 ) : (

@@ -287,30 +287,68 @@ function Geo({ uid }) {
 
     const [isCounting, setIsCounting] = useState(false);
     const [distance2, setDistance2] = useState(0);
+    const [previousCoords, setPreviousCoords] = useState(null);
 
     useEffect(() => {
-        let intervalId;
-    
-        // Fonction pour calculer la distance parcourue
-        const calculateDistance = () => {
-          // Ici, tu peux ajouter ta logique pour calculer la distance, par exemple avec la géolocalisation
-          // Pour l'exemple, je vais simplement simuler une valeur aléatoire entre 0 et 10000
-          const randomDistance = Math.floor(Math.random() * 10000);
-          setDistance2(randomDistance);
-        };
-    
-        // Si le compteur est activé, démarrer le calcul de la distance toutes les secondes
-        if (isCounting) {
-          intervalId = setInterval(() => {
-            calculateDistance();
-          }, 1000);
-        } else {
-          clearInterval(intervalId);
-        }
+        let watchId;
+
+    const startTracking = () => {
+      watchId = navigator.geolocation.watchPosition(
+        handlePositionUpdate,
+        handlePositionError
+      );
+    };
+
+    const handlePositionUpdate = position => {
+      const currentCoords = {
+        latitude: position.coords.latitude,
+        longitude: position.coords.longitude
+      };
+
+      if (previousCoords) {
+        const newDistance = calculateDistance(
+          previousCoords.latitude,
+          previousCoords.longitude,
+          currentCoords.latitude,
+          currentCoords.longitude
+        );
+        setDistance2(distance => distance + newDistance);
+      }
+
+      setPreviousCoords(currentCoords);
+    };
+
+    const handlePositionError = error => {
+      console.error('Error getting position:', error);
+    };
+
+    const calculateDistance = (lat1, lon1, lat2, lon2) => {
+      const earthRadius = 6371; // Earth's radius in km
+      const dLat = toRadians(lat2 - lat1);
+      const dLon = toRadians(lon2 - lon1);
+      const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(toRadians(lat1)) * Math.cos(toRadians(lat2)) *
+        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      const distance = earthRadius * c; // Distance in km
+      return distance * 1000; // Convert to meters
+    };
+
+    const toRadians = angle => {
+      return angle * (Math.PI / 180);
+    };
+
+    if (isCounting) {
+      startTracking();
+    } else {
+      navigator.geolocation.clearWatch(watchId);
+      setPreviousCoords(null);
+    }
     
         // Nettoyer l'intervalle lors du démontage du composant
-        return () => clearInterval(intervalId);
-      }, [isCounting]);
+        return () => navigator.geolocation.clearWatch(watchId);
+      }, [isCounting, previousCoords]);
 
       const toggleCounting = () => {
         setIsCounting(!isCounting);
@@ -323,11 +361,11 @@ function Geo({ uid }) {
             <GoogleMap mapContainerStyle={mapContainerStyle} zoom={16} center={currentPosition} options={options} onLoad={(map) => (mapRef.current = map)}></GoogleMap>
 
             <div>
-      <h1>Distance parcourue : {distance2} mètres</h1>
-      <button onClick={toggleCounting}>
-        {isCounting ? 'Arrêter le compteur' : 'Démarrer le compteur de km'}
-      </button>
-    </div>
+                <h1>Distance parcourue : {distance2.toFixed(2)} mètres</h1>
+                <button onClick={toggleCounting}>
+                    {isCounting ? 'Arrêter le compteur' : 'Démarrer le compteur de km'}
+                </button>
+            </div>
 
             {hasVisitsToday === null && (
                     <div className="start-tour">

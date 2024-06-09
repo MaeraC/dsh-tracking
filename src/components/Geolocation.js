@@ -693,6 +693,22 @@ function Geolocation({ uid }) {
         };
     }, [isTracking]);
 
+    // met à jour la distance en temps réel 
+    useEffect(() => {
+            const updateDistanceInterval = setInterval(() => {
+              if (previousPosition.current && isTracking) {
+                const distanceCovered = window.google.maps.geometry.spherical.computeDistanceBetween(
+                  new window.google.maps.LatLng(currentPosition.lat, currentPosition.lng),
+                  new window.google.maps.LatLng(previousPosition.current.lat, previousPosition.current.lng)
+                );
+                setDistance((prevDistance) => prevDistance + distanceCovered);
+              }
+              previousPosition.current = currentPosition;
+            }, 1000);
+          
+            return () => clearInterval(updateDistanceInterval);
+    }, [currentPosition, isTracking]);
+
     // Gère la réponse OUI/NON du user 
     const handleVisitsToday = async (response) => {
         setHasVisitsToday(response)
@@ -977,21 +993,7 @@ function Geolocation({ uid }) {
         return "Fermé";
     }
 
-    // met à jour la distance en temps réel 
-    useEffect(() => {
-        const updateDistanceInterval = setInterval(() => {
-          if (previousPosition.current && isTracking) {
-            const distanceCovered = window.google.maps.geometry.spherical.computeDistanceBetween(
-              new window.google.maps.LatLng(currentPosition.lat, currentPosition.lng),
-              new window.google.maps.LatLng(previousPosition.current.lat, previousPosition.current.lng)
-            );
-            setDistance((prevDistance) => prevDistance + distanceCovered);
-          }
-          previousPosition.current = currentPosition;
-        }, 1000);
-      
-        return () => clearInterval(updateDistanceInterval);
-      }, [currentPosition, isTracking]);
+
 
     if (!isLoaded) return <div>Loading Maps...</div>
 
@@ -1108,6 +1110,7 @@ function Geolocation({ uid }) {
                                 <div>
                                     <p>Calcul en cours...</p> 
                                     <p className="total"><strong>{formatDistance(distance)}</strong></p>
+                                    <p className="total"><strong>{distance.toFixed(2)}</strong>km</p>
                                     <button className="button-colored" onClick={handleStopTracking}>Arrivé à destination</button>
                                 </div>
                             ) : (

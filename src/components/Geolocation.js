@@ -142,7 +142,7 @@ function Geolocation({ uid }) {
             const distanceInKm = distanceCovered / 1000;
             const updatedDistanceToSalon = distanceToSalon - distanceInKm; // Mettre à jour la distance au salon
             setDistanceToSalon(updatedDistanceToSalon)
-            setTotalDistance(totalDistance + distanceInKm)
+            
         }
     }, [currentPosition, distanceToSalon, isTracking, startPosition, setDistanceToSalon, totalDistance])
 
@@ -665,6 +665,7 @@ function Geolocation({ uid }) {
                                 <div>
                                     <p>Calcul en cours...</p> 
                                     <p className="total"><strong>{formatDistance(totalDistance)}</strong></p>
+                                    <p>Distance parcourue : {totalDistance.toFixed(2)} km</p>
                                     <button className="button-colored" onClick={handleStopTracking}>Arrivé à destination</button>
                                 </div>
                             ) : (

@@ -50,6 +50,7 @@ function Geolocation({ uid }) {
     const markerRef = useRef(null)
 
     const [startPosition, setStartPosition] = useState(null);
+    //const [distanceToSalonModal, setDistanceToSalonModal] = useState(null);
 
     // Charge la map
     useEffect(() => {
@@ -76,6 +77,10 @@ function Geolocation({ uid }) {
                 );
                 const distanceInKm = distanceCovered / 1000;
                 setTotalDistance(prevDistance => prevDistance + distanceInKm); // Utilisez une mise à jour fonctionnelle de l'état
+                if (selectedSalon) {
+                    const updatedDistanceToSalon = distanceToSalon - distanceInKm;
+                    setDistanceToSalon(updatedDistanceToSalon);
+                  }
             }
         };
 
@@ -98,7 +103,7 @@ function Geolocation({ uid }) {
         return () => {
             navigator.geolocation.clearWatch(watchId)
         }
-    }, [isTracking, startPosition, currentPosition.lat, currentPosition.lng]) 
+    }, [isTracking, startPosition, currentPosition.lat, currentPosition.lng, distanceToSalon, selectedSalon]) 
 
     useEffect(() => {
         if (isLoaded && mapRef.current && currentPosition.lat !== 0 && currentPosition.lng !== 0) {
@@ -255,7 +260,7 @@ function Geolocation({ uid }) {
             console.error("Selected salon has no valid location", salon)
         }
     }
-    
+
     const handleStartTour = async () => {
         handleSalonsNearBy()
         setIsTourStarted(true)
@@ -604,7 +609,7 @@ function Geolocation({ uid }) {
                             {isTracking ? (
                                 <div>
                                     <p>Calcul en cours...</p> 
-                                    <p className="total"><strong>{formatDistance(totalDistance)}</strong></p>
+                                    <p className="total"><strong>{formatDistance(distanceToSalon)}</strong></p>
                                     <p>Distance parcourue : {totalDistance.toFixed(2)} km</p>
                                     <button className="button-colored" onClick={handleStopTracking}>Arrivé à destination</button>
                                 </div>

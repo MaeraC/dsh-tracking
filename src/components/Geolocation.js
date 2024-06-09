@@ -67,6 +67,18 @@ function Geolocation({ uid }) {
 
     // Met à jour la position du user 
     useEffect(() => {
+        // Déclarez une fonction pour calculer la distance parcourue en temps réel
+        const calculateRealTimeDistance = () => {
+            if (isTracking && startPosition && currentPosition.lat && currentPosition.lng) {
+                const distanceCovered = window.google.maps.geometry.spherical.computeDistanceBetween(
+                    new window.google.maps.LatLng(startPosition.lat, startPosition.lng),
+                    new window.google.maps.LatLng(currentPosition.lat, currentPosition.lng)
+                );
+                const distanceInKm = distanceCovered / 1000;
+                setTotalDistance(prevDistance => prevDistance + distanceInKm); // Utilisez une mise à jour fonctionnelle de l'état
+            }
+        };
+
         const watchId = navigator.geolocation.watchPosition(
             (position) => {
                 const newPosition = {
@@ -74,6 +86,7 @@ function Geolocation({ uid }) {
                     lng: position.coords.longitude,
                 }
                 setCurrentPosition(newPosition)
+                calculateRealTimeDistance()
             },
             () => {
                 console.error('Erreur lors de la récupération de votre position')
@@ -88,7 +101,7 @@ function Geolocation({ uid }) {
         return () => {
             navigator.geolocation.clearWatch(watchId)
         }
-    }, [isTracking, setCurrentPosition]) 
+    }, [isTracking, startPosition, currentPosition.lat, currentPosition.lng, setCurrentPosition, setTotalDistance]) 
 
     useEffect(() => {
         if (isLoaded && mapRef.current && currentPosition.lat !== 0 && currentPosition.lng !== 0) {
@@ -431,7 +444,7 @@ function Geolocation({ uid }) {
         setIsModalOpen(false)
         setDistanceToSalon(null)
         setStartPosition(null)
-   }
+    }
 
     const getNextCloseTime = (openingHours) => {
         const now = new Date();
@@ -534,6 +547,8 @@ function Geolocation({ uid }) {
         });
     } 
     
+ 
+
     if (!isLoaded) return <div>Loading Maps...</div>
 
     return (

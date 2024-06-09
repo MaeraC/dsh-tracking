@@ -64,23 +64,6 @@ const CRPresentation = ({ uid , visitId, onReturn }) => {
         })
     }
 
-    const handleRadioChange = (e) => {
-        const { name, value } = e.target
-
-        setFormData({
-            ...formData,
-            [name]: value
-        })
-    }
-
-    const handleCheckboxChange = (e) => {
-        const { name, checked } = e.target
-
-        setFormData({
-            ...formData,
-            [name]: checked
-        })
-    }
 
     const handleSubmit = async (e) => {
         e.preventDefault()

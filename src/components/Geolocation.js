@@ -46,6 +46,7 @@ function Geolocation({ uid }) {
     const [newSalonCity, setNewSalonCity] = useState("");
     const [newSalonAddress, setNewSalonAddress] = useState("");
     const [isModalSalonOpen, setIsModalSalonOpen] = useState(false)
+    const [status, setStatus] = useState("")
     const mapRef = useRef(null)
     const markerRef = useRef(null)
 
@@ -130,6 +131,10 @@ function Geolocation({ uid }) {
             setDistanceToSalon(updatedDistanceToSalon);
         }
     }, [currentPosition, distanceToSalon, isTracking, startPosition, setDistanceToSalon]);
+
+    const handleStatusChange = (e) => {
+        setStatus(e.target.value)
+    }
 
     const getCityFromCoords = async (lat, lng) => {
         return new Promise((resolve, reject) => {
@@ -278,6 +283,7 @@ function Geolocation({ uid }) {
                         motifNoVisits: hasVisitsToday === false ? noVisitsReason : "",
                         departureAddress: startAddress,
                         city: startCity,
+                        status: "",
                         userId: uid
                     })
                 }
@@ -354,6 +360,7 @@ function Geolocation({ uid }) {
                 departureAddress: startAddress,
                 city: startCity,
                 stops: [],
+                status: "",
                 userId: uid
             }
 
@@ -392,14 +399,13 @@ function Geolocation({ uid }) {
 
     const handleStartTracking = () => {
         setIsTracking(true)
-        //trackingRef.current.startPos = currentPosition
-
-        setStartPosition(currentPosition); // Capturer la position actuelle
+        setStartPosition(currentPosition)
         const distanceToSalon = window.google.maps.geometry.spherical.computeDistanceBetween(
             new window.google.maps.LatLng(currentPosition.lat, currentPosition.lng),
             new window.google.maps.LatLng(selectedSalon.geometry.location.lat(), selectedSalon.geometry.location.lng())
         ) / 1000;
-        setDistanceToSalon(distanceToSalon); // Calculer la distance au salon
+        setDistanceToSalon(distanceToSalon)
+        updateSalonStatus(selectedSalon.place_id, status)
     }
 
     const handleStopTracking = () => {
@@ -519,6 +525,13 @@ function Geolocation({ uid }) {
             console.error("Erreur lors de l'ajout du salon: ", error);
         }
     }
+
+    const updateSalonStatus = async (salonId, status) => {
+        const salonRef = doc(db, "salons", salonId);
+        await updateDoc(salonRef, {
+            status: status,
+        });
+    } 
     
     if (!isLoaded) return <div>Loading Maps...</div>
 
@@ -624,6 +637,13 @@ function Geolocation({ uid }) {
                         <div className="content">
                             <h2>{selectedSalon.name}</h2>
                             <p className="city">{selectedSalon.vicinity}</p>
+                            <div>
+                                <input type="radio" id="prospect" name="status" value="prospect" checked={status === "prospect"} onChange={handleStatusChange} />
+                                <label htmlFor="prospect">Prospect</label>
+
+                                <input type="radio" id="client" name="status" value="client" checked={status === "client"} onChange={handleStatusChange} />
+                                <label htmlFor="client">Client</label>
+                            </div>
 
                             {isTracking ? (
                                 <div>

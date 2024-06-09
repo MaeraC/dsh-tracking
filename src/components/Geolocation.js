@@ -1,7 +1,7 @@
 
-
 // Fichier Geolocation.js
 
+/*
 import { GoogleMap } from "@react-google-maps/api"
 import {  useState, useEffect, useRef } from "react"
 import ReactModal from "react-modal"
@@ -20,10 +20,10 @@ const options = {
     mapId: "b3f2841793c037a8"
 }
 
-ReactModal.setAppElement('#root')
+ReactModal.setAppElement('#root')*/
 
 function Geolocation({ uid }) {
-    
+    /*
     const [currentPosition, setCurrentPosition] = useState({ lat: 0, lng: 0 })
     const [isLoaded, setIsLoaded] = useState(false)
     const [salons, setSalons] = useState([])
@@ -50,7 +50,7 @@ function Geolocation({ uid }) {
     const mapRef = useRef(null)
     const markerRef = useRef(null)
 
-    // Charge Google Maps
+    // Charge la map
     useEffect(() => {
         if (window.google && window.google.maps && window.google.maps.marker && window.google.maps.geometry) {
             setIsLoaded(true)
@@ -59,7 +59,6 @@ function Geolocation({ uid }) {
             const handleScriptLoad = () => {
                 setIsLoaded(true)
             }
-
             window.addEventListener('load', handleScriptLoad)
             return () => window.removeEventListener('load', handleScriptLoad)
         }
@@ -92,12 +91,9 @@ function Geolocation({ uid }) {
                 console.error('Erreur lors de la récupération de votre position')
             },
             {
-                enableHighAccuracy: true,
-                maximumAge: 0,
-                timeout: 5000
+                enableHighAccuracy: true, maximumAge: 0, timeout: 5000
             }
         )
-
         return () => {
             navigator.geolocation.clearWatch(watchId)
         }
@@ -105,14 +101,11 @@ function Geolocation({ uid }) {
 
     useEffect(() => {
         if (isLoaded && mapRef.current && currentPosition.lat !== 0 && currentPosition.lng !== 0) {
-
             const { AdvancedMarkerElement } = window.google.maps.marker
-
             // Supprime l'ancien marqueur s'il existe
             if (markerRef.current) {
                 markerRef.current.setMap(null)
             }
-
             // Marker personnalisé
             const markerIcon = document.createElement('div')
             markerIcon.style.width = '32px'
@@ -120,14 +113,8 @@ function Geolocation({ uid }) {
             markerIcon.style.backgroundImage = 'url("/assets/marker.png")'
             markerIcon.style.backgroundSize = 'contain'
             markerIcon.style.backgroundRepeat = 'no-repeat'
-
             // Créer un nouveau marqueur
-            markerRef.current = new AdvancedMarkerElement({
-                position: currentPosition,
-                map: mapRef.current,
-                content: markerIcon,
-            })
-
+            markerRef.current = new AdvancedMarkerElement({ position: currentPosition, map: mapRef.current, content: markerIcon })
             // Centre la carte sur la nouvelle position
             mapRef.current.setCenter(currentPosition)
         }
@@ -141,8 +128,7 @@ function Geolocation({ uid }) {
             );
             const distanceInKm = distanceCovered / 1000;
             const updatedDistanceToSalon = distanceToSalon - distanceInKm; // Mettre à jour la distance au salon
-            setDistanceToSalon(updatedDistanceToSalon)
-            
+            setDistanceToSalon(updatedDistanceToSalon)    
         }
     }, [currentPosition, distanceToSalon, isTracking, startPosition, setDistanceToSalon, totalDistance])
 
@@ -153,8 +139,7 @@ function Geolocation({ uid }) {
     const getCityFromCoords = async (lat, lng) => {
         return new Promise((resolve, reject) => {
             const geocoder = new window.google.maps.Geocoder()
-            const latlng = { lat, lng }
-    
+            const latlng = { lat, lng }  
             geocoder.geocode({ location: latlng }, (results, status) => {
                 if (status === "OK" && results[0]) {
                     const addressComponents = results[0].address_components
@@ -174,8 +159,7 @@ function Geolocation({ uid }) {
   
     const handleSalonsNearBy = async () => {
         try {
-            const service = new window.google.maps.places.PlacesService(mapRef.current)
-    
+            const service = new window.google.maps.places.PlacesService(mapRef.current)   
             service.nearbySearch({
                 location: currentPosition,
                 type: 'hair_care',
@@ -203,13 +187,7 @@ function Geolocation({ uid }) {
                             });
 
                             if (placeDetails.opening_hours) {
-                                /*
-                                salonsWithOpeningHours.push({
-                                    ...results[i],
-                                    opening_hours: placeDetails.opening_hours,
-                                })*/
-                                const city = await getCityFromCoords(placeDetails.geometry.location.lat(), placeDetails.geometry.location.lng())
-                            
+                                const city = await getCityFromCoords(placeDetails.geometry.location.lat(), placeDetails.geometry.location.lng())                    
                                 if (city && city.toLowerCase() === startCity.toLowerCase()) {
                                     salonsWithOpeningHours.push({
                                         ...results[i],
@@ -256,16 +234,13 @@ function Geolocation({ uid }) {
         }
     }
 
-    const handleSelectSalon = async (salon) => {
-        
+    const handleSelectSalon = async (salon) => {       
         if (salon.geometry && salon.geometry.location) {
             setSelectedSalon(salon)
             setIsModalOpen(true)
-
             // Vérifie si le salon est déjà dans la base de données
             const salonRef = doc(db, "salons", salon.place_id)
             const salonSnapshot = await getDoc(salonRef)
- 
             if (!salonSnapshot.exists()) {
                 // Ajoute le salon à la base de données
                 await setDoc(salonRef, {
@@ -285,12 +260,10 @@ function Geolocation({ uid }) {
         setTotalDistance(0)
         setStops([])
         setIsTracking(false)
-
         if (startAddress) {
             try {
                 if (currentRouteId) {
                     const routeDocRef = doc(db, "feuillesDeRoute", currentRouteId)
-
                     await updateDoc(routeDocRef, {
                         date: new Date(),
                         isVisitsStarted: hasVisitsToday === true,
@@ -314,10 +287,8 @@ function Geolocation({ uid }) {
     const handleEndTour = async () => {
         setIsTourStarted(false);
         setIsTracking(false);
-        setCongratulations("Félicitations, Vous avez terminé votre tournée de la journée ! À bientôt !")
-    
+        setCongratulations("Félicitations, Vous avez terminé votre tournée de la journée ! À bientôt !")    
         let totalDistanceCovered = 0;
-    
         // Calculer les distances entre les arrêts
         const stopsWithDistance = stops.map((stop, index) => {
             if (index > 0) {
@@ -332,11 +303,9 @@ function Geolocation({ uid }) {
             }
             return stop;
         })
-    
         try {
             if (currentRouteId) {   
                 const routeDocRef = doc(db, "feuillesDeRoute", currentRouteId)
-
                 await updateDoc(routeDocRef, {
                     date: new Date(),
                     isVisitsStarted: hasVisitsToday === true,
@@ -347,10 +316,6 @@ function Geolocation({ uid }) {
                     totalDistance: totalDistanceCovered,
                     stops: stopsWithDistance
                 })
-
-                
-
-                console.log("Feuille de route mise à jour avec succès !");
             } else {
                 console.error("L'identifiant de la route actuelle est null.");
             }
@@ -361,11 +326,9 @@ function Geolocation({ uid }) {
 
     const handleVisitsToday = async (response) => {
         setHasVisitsToday(response)
-
         if (response === false) {
             setIsTourStarted(false)
         }
-
         try {
             const newDocumentData = {
                 date: new Date(),
@@ -377,7 +340,6 @@ function Geolocation({ uid }) {
                 status: "",
                 userId: uid
             }
-
             const docRef = await addDoc(collection(db, "feuillesDeRoute"), newDocumentData)
             setCurrentRouteId(docRef.id)
         } 
@@ -389,14 +351,12 @@ function Geolocation({ uid }) {
     const handleNoVisitsReason = async () => {
         try {
             const docRef = doc(db, "feuillesDeRoute", currentRouteId) 
-
             await updateDoc(docRef, {
                 date: new Date(),
                 isVisitsStarted: false,
                 motifNoVisits: noVisitsReason,
                 userId: uid
-            })
-        
+            })       
             setMessage("Enregistré avec succès.  À bientôt !")
         } 
         catch (e) {
@@ -424,13 +384,11 @@ function Geolocation({ uid }) {
 
     const handleStopTracking = () => {
         setIsTracking(false)
-
         const distanceCovered = window.google.maps.geometry.spherical.computeDistanceBetween(
             new window.google.maps.LatLng(startPosition.lat, startPosition.lng),
             new window.google.maps.LatLng(currentPosition.lat, currentPosition.lng)
         );
         const distanceInKm = distanceCovered / 1000;
-
         setStops(prevStops => [...prevStops, {
             name: selectedSalon.name,
             position: {
@@ -439,8 +397,7 @@ function Geolocation({ uid }) {
             },
             address: selectedSalon.vicinity,
             distance: distanceInKm.toFixed(2)
-        }])
-        
+        }])       
         setIsModalOpen(false)
         setDistanceToSalon(null)
         setStartPosition(null)
@@ -451,33 +408,26 @@ function Geolocation({ uid }) {
         const today = now.getDay(); // Jour de la semaine actuel (0 pour dimanche, 1 pour lundi, etc.)
         const currentHour = now.getHours();
         const currentMinute = now.getMinutes();
-
         // Récupérer les heures de fermeture pour aujourd'hui
         const todayClosingTimes = openingHours.periods.filter(period => period.close && period.close.day === today);
-
         // Trier les heures de fermeture pour aujourd'hui par heure croissante
         const sortedClosingTimes = todayClosingTimes.sort((a, b) => {
             const hourA = a.close.time.slice(0, 2);
             const minuteA = a.close.time.slice(2);
             const hourB = b.close.time.slice(0, 2);
             const minuteB = b.close.time.slice(2);
-
             const timeA = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hourA, minuteA);
             const timeB = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hourB, minuteB);
-
             return timeA - timeB;
         });
-
         // Trouver la première heure de fermeture après l'heure actuelle
         for (const closingTime of sortedClosingTimes) {
             const hour = parseInt(closingTime.close.time.slice(0, 2));
             const minute = parseInt(closingTime.close.time.slice(2));
-
             if (hour > currentHour || (hour === currentHour && minute > currentMinute)) {
                 return `${hour}:${minute < 10 ? '0' + minute : minute}`;
             }
         }
-
         return "Fermé";
     }
 
@@ -486,20 +436,16 @@ function Geolocation({ uid }) {
         const today = now.getDay(); // Jour de la semaine actuel (0 pour dimanche, 1 pour lundi, etc.)
         const currentHour = now.getHours();
         const currentMinute = now.getMinutes();
-
         // Récupérer les heures d'ouverture pour aujourd'hui
         const todayOpeningTimes = openingHours.periods.filter(period => period.open && period.open.day === today);
-
         // Trier les heures d'ouverture pour aujourd'hui par heure croissante
         const sortedOpeningTimes = todayOpeningTimes.sort((a, b) => {
             const hourA = a.open.time.slice(0, 2);
             const minuteA = a.open.time.slice(2);
             const hourB = b.open.time.slice(0, 2);
             const minuteB = b.open.time.slice(2);
-
             const timeA = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hourA, minuteA);
             const timeB = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hourB, minuteB);
-
             return timeA - timeB;
         });
 
@@ -526,15 +472,9 @@ function Geolocation({ uid }) {
             address: newSalonAddress,
             distance: 0
         }])
-
         setIsModalSalonOpen(false)
-
         try {
-            await addDoc(collection(db, "salons"), {
-                name: newSalonName,
-                address: newSalonAddress,
-                city: newSalonCity,
-            })
+            await addDoc(collection(db, "salons"), { name: newSalonName, address: newSalonAddress, city: newSalonCity })
         } catch (error) {
             console.error("Erreur lors de l'ajout du salon: ", error);
         }
@@ -546,8 +486,6 @@ function Geolocation({ uid }) {
             status: status,
         });
     } 
-    
- 
 
     if (!isLoaded) return <div>Loading Maps...</div>
 
@@ -689,14 +627,10 @@ function Geolocation({ uid }) {
             </div>
         </>
     )
+    */ 
+   return (
+    <div>geolocation real </div>
+   )
 }
 
 export default Geolocation
-
-
-
-
-/**
- * 
- * //
- */

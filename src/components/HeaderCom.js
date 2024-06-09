@@ -23,6 +23,8 @@ function HeaderCom ({ activeTab, onTabChange }) {
                 return activeTab === "apercu" ? homeB : home
             case "map":
                 return activeTab === "map" ? markerB : markerG
+            case "map2":
+                return activeTab === "map2" ? markerB : markerG
             case "questionnaires":
                 return activeTab === "questionnaires" ? surveyB : survey
             case "fiches":
@@ -41,6 +43,10 @@ function HeaderCom ({ activeTab, onTabChange }) {
             <nav>
                 <button className={activeTab === "apercu" ? "active" : ""} onClick={() => handleTabClick("apercu")}>
                     <img src={getIcon("apercu")} alt="Aperçu" /> 
+                </button>
+
+                <button className={activeTab === "map" ? "active" : ""} onClick={() => handleTabClick("map")} >
+                    <img src={getIcon("map")} alt="Map" />
                 </button>
 
                 <button className={activeTab === "map" ? "active" : ""} onClick={() => handleTabClick("map")} >

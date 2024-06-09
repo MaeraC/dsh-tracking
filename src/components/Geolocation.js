@@ -596,6 +596,7 @@ function Geolocation({ uid }) {
     const mapRef = useRef(null)
     const markerRef = useRef(null)
     const previousPosition = useRef(null)
+    const updateIntervalRef = useRef(null);
 
     // Charge la map
     useEffect(() => {
@@ -611,6 +612,7 @@ function Geolocation({ uid }) {
         }
     }, [setIsLoaded])
 
+    
     // récupère la position actuelle
     useEffect(() => {
         if (navigator.geolocation) {
@@ -624,7 +626,7 @@ function Geolocation({ uid }) {
           console.error('Geolocation is not supported by this browser.');
         }
     }, []);
-
+    
     // affiche le marqueur 
     useEffect(() => {
         if (isLoaded && mapRef.current && currentPosition.lat !== 0 && currentPosition.lng !== 0) {
@@ -647,12 +649,14 @@ function Geolocation({ uid }) {
         }
     }, [isLoaded, currentPosition])
 
+    /*
     // Suit la position du user et executer a chaque fois que isTracking ou currentPosition change
     useEffect(() => {
         if (isTracking) {
             if (navigator.geolocation) {
                 watchId.current = navigator.geolocation.watchPosition(
                 (position) => {
+                    console.log(position.coords.latitude, position.coords.longitude)
                     const newPosition = {
                         lat: position.coords.latitude,
                         lng: position.coords.longitude,
@@ -701,6 +705,7 @@ function Geolocation({ uid }) {
                   new window.google.maps.LatLng(currentPosition.lat, currentPosition.lng),
                   new window.google.maps.LatLng(previousPosition.current.lat, previousPosition.current.lng)
                 );
+                console.log('Distance parcourue:', distanceCovered);
                 setDistance((prevDistance) => prevDistance + distanceCovered);
               }
               previousPosition.current = currentPosition;
@@ -708,6 +713,40 @@ function Geolocation({ uid }) {
           
             return () => clearInterval(updateDistanceInterval);
     }, [currentPosition, isTracking]);
+*/
+
+    useEffect(() => {
+        const handlePositionUpdate = (position) => {
+            const newPosition = {
+                lat: position.coords.latitude,
+                lng: position.coords.longitude,
+            };
+            if (previousPosition.current && isTracking) {
+                const distanceCovered = window.google.maps.geometry.spherical.computeDistanceBetween(
+                    new window.google.maps.LatLng(newPosition.lat, newPosition.lng),
+                    new window.google.maps.LatLng(previousPosition.current.lat, previousPosition.current.lng)
+                );
+                setDistance((prevDistance) => prevDistance + distanceCovered);
+            }
+            setCurrentPosition(newPosition);
+            previousPosition.current = newPosition;
+        };
+
+        if (isTracking && navigator.geolocation) {
+            watchId.current = navigator.geolocation.watchPosition(
+                handlePositionUpdate,
+                () => console.error('Erreur lors de la récupération de votre position'),
+                { enableHighAccuracy: true, maximumAge: 0, timeout: 2000 }
+            );
+        }
+
+        return () => {
+            if (watchId.current) {
+                navigator.geolocation.clearWatch(watchId.current);
+            }
+        };
+    }, [isTracking]);
+
 
     // Gère la réponse OUI/NON du user 
     const handleVisitsToday = async (response) => {
@@ -919,12 +958,23 @@ function Geolocation({ uid }) {
         setDistance(0);
         setIsTracking(true);
         previousPosition.current = currentPosition;
+        updateIntervalRef.current = setInterval(() => {
+            if (previousPosition.current && isTracking) {
+                const distanceCovered = window.google.maps.geometry.spherical.computeDistanceBetween(
+                    new window.google.maps.LatLng(currentPosition.lat, currentPosition.lng),
+                    new window.google.maps.LatLng(previousPosition.current.lat, previousPosition.current.lng)
+                );
+                setDistance((prevDistance) => prevDistance + distanceCovered);
+            }
+            previousPosition.current = currentPosition;
+        }, 1000);
     };
     
     // Désactive le suivi de la position 
     const handleStopTracking = () => {
         setIsTracking(false);
         setIsModalCounterOpen(false)
+        clearInterval(updateIntervalRef.current)
     };
 
     const formatDistance = (distance) => {

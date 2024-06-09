@@ -32,8 +32,7 @@ function Geo({ uid }) {
     const [tourStarted, setTourStarted] = useState(false);
     //const [distanceTraveled, setDistanceTraveled] = useState(0);
     const [counterStarted, setCounterStarted] = useState(false);
-    const [distance, setDistance] = useState(0);
-    const [timer, setTimer] = useState(null);
+    const [distance, setDistance] = useState(0)
 
     // Charge la map
     useEffect(() => {
@@ -167,23 +166,6 @@ function Geo({ uid }) {
         }
     }
 
-    const startWatchingPosition = () => {
-        const watchId = navigator.geolocation.watchPosition(
-            (position) => {
-                const newPosition = { lat: position.coords.latitude, lng: position.coords.longitude }
-                setCurrentPosition(newPosition)
-                updateDistance();
-            },
-            () => {
-                console.error('Erreur lors de la récupération de votre position')
-            },
-            {
-                enableHighAccuracy: true, maximumAge: 0, timeout: 3000
-            }
-        );
-        return watchId;
-    };
-
     const handleStartTour = async () => {
         setTourStarted(true);
         await handleSalonsNearBy()
@@ -196,60 +178,38 @@ function Geo({ uid }) {
     // Fonction pour démarrer le compteur
     const startCounter = () => {
         setCounterStarted(true);
-        const watch = startWatchingPosition();
-        setTimer(watch);
-    };
-
-    // Fonction pour mettre à jour la distance
-    const updateDistance = () => {
-        if (selectedSalon && currentPosition) {
-            const newDistance = calculateDistance(currentPosition, {
-                lat: selectedSalon.geometry.location.lat(),
-                lng: selectedSalon.geometry.location.lng()
-            })
-            setDistance(newDistance)
-        }
     };
 
     // Fonction pour terminer le compteur
     const stopCounter = () => {
-        clearInterval(timer); // Arrêter le minuteur
         setCounterStarted(false);
         setDistance(0);
-        navigator.geolocation.clearWatch(timer);
-        // Code pour fermer la modale et afficher la distance parcourue
     };
 
-    
-    // Fonction pour calculer la distance entre deux points géographiques
-    const calculateDistance = (pointA, pointB) => {
-        const lat1 = pointA.lat;
-        const lon1 = pointA.lng;
-        const lat2 = pointB.lat;
-        const lon2 = pointB.lng;
-
-        const R = 6371e3; // Rayon de la Terre en mètres
-        const φ1 = (lat1 * Math.PI) / 180; // φ, λ en radians
-        const φ2 = (lat2 * Math.PI) / 180;
-        const Δφ = ((lat2 - lat1) * Math.PI) / 180;
-        const Δλ = ((lon2 - lon1) * Math.PI) / 180;
-
+    const calculateDistance = (lat1, lon1, lat2, lon2) => {
+        const earthRadius = 6371; // Earth's radius in km
+        const dLat = toRadians(lat2 - lat1);
+        const dLon = toRadians(lon2 - lon1);
         const a =
-            Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
-            Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+            Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos(toRadians(lat1)) * Math.cos(toRadians(lat2)) *
+            Math.sin(dLon / 2) * Math.sin(dLon / 2);
         const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        const distance = earthRadius * c; // Distance in km
+        return distance * 1000; // Convert to meters
+    }
 
-        const distance = R * c; // en mètres
-        return distance;
-    };
-
+    const toRadians = angle => {
+        return angle * (Math.PI / 180);
+    }
+    
      // Composant pour afficher la modale du compteur de distance
      const CounterModal = () => {
         // Votre code pour la modale du compteur de distance
         return (
             <div className="modal">
                 <h3>{selectedSalon.name}</h3>
-                <p>Calcul en cours : {distance.toFixed(2)} mètres</p>
+                <p>Calcul en cours : {formatDistance()} mètres</p>
                 {!counterStarted ? (
                     <button onClick={startCounter}>Démarrer le compteur de km</button>
                 ) : (
@@ -283,84 +243,15 @@ function Geo({ uid }) {
         } catch (error) {
             console.error("Erreur lors de l'enregistrement des données du parcours :", error);
         }
-    };
+    }
 
-    const [isCounting, setIsCounting] = useState(false);
-    const [distance2, setDistance2] = useState(0);
-    const [previousCoords, setPreviousCoords] = useState(null);
-
-    useEffect(() => {
-        let watchId;
-
-        const calculateDistance = (lat1, lon1, lat2, lon2) => {
-            const earthRadius = 6371; // Earth's radius in km
-            const dLat = toRadians(lat2 - lat1);
-            const dLon = toRadians(lon2 - lon1);
-            const a =
-                Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-                Math.cos(toRadians(lat1)) * Math.cos(toRadians(lat2)) *
-                Math.sin(dLon / 2) * Math.sin(dLon / 2);
-            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-            const distance = earthRadius * c; // Distance in km
-            return distance * 1000; // Convert to meters
-        }
-
-        const toRadians = angle => {
-            return angle * (Math.PI / 180);
-        }
-
-        const handlePositionUpdate = position => {
-            const currentCoords = {
-                latitude: position.coords.latitude,
-                longitude: position.coords.longitude
-            };
-
-            if (previousCoords) {
-                const newDistance = calculateDistance(
-                    previousCoords.latitude,
-                    previousCoords.longitude,
-                    currentCoords.latitude,
-                    currentCoords.longitude
-                );
-                setDistance2(distance => distance + newDistance);
-            }
-
-            setPreviousCoords(currentCoords);
-        };
-
-        const startTracking = () => {
-            watchId = navigator.geolocation.watchPosition(
-                handlePositionUpdate,
-                handlePositionError
-            );
-        };
-
-        const handlePositionError = error => {
-            console.error('Error getting position:', error);
-        };
-
-        if (isCounting) {
-            startTracking();
-        } else {
-            navigator.geolocation.clearWatch(watchId);
-            setPreviousCoords(null);
-        }
-    
-        // Nettoyer l'intervalle lors du démontage du composant
-        return () => navigator.geolocation.clearWatch(watchId);
-    }, [isCounting, previousCoords]);
-
-    const toggleCounting = () => {
-        setIsCounting(!isCounting);
-    };
-
-    const formatDistance2 = () => {
-        if (distance2 >= 1000) {
-          const km = (distance2 / 1000).toFixed(0);
+    const formatDistance = () => {
+        if (distance >= 1000) {
+          const km = (distance / 1000).toFixed(0);
           return `${km} km`;
         } 
         else {
-          return `${distance2.toFixed(0)} m`;
+          return `${distance.toFixed(0)} m`;
         }
     };
 
@@ -369,13 +260,6 @@ function Geo({ uid }) {
     return (
         <div className="geoloc-section">
             <GoogleMap mapContainerStyle={mapContainerStyle} zoom={16} center={currentPosition} options={options} onLoad={(map) => (mapRef.current = map)}></GoogleMap>
-
-            <div>
-                <h1>Distance parcourue : {formatDistance2()} mètres</h1>
-                <button onClick={toggleCounting}>
-                    {isCounting ? 'Arrêter le compteur' : 'Démarrer le compteur de km'}
-                </button>
-            </div>  
 
             {hasVisitsToday === null && (
                     <div className="start-tour">

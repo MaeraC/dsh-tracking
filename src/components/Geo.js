@@ -292,76 +292,77 @@ function Geo({ uid }) {
     useEffect(() => {
         let watchId;
 
-    const startTracking = () => {
-      watchId = navigator.geolocation.watchPosition(
-        handlePositionUpdate,
-        handlePositionError
-      );
-    };
+        const calculateDistance = (lat1, lon1, lat2, lon2) => {
+            const earthRadius = 6371; // Earth's radius in km
+            const dLat = toRadians(lat2 - lat1);
+            const dLon = toRadians(lon2 - lon1);
+            const a =
+                Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.cos(toRadians(lat1)) * Math.cos(toRadians(lat2)) *
+                Math.sin(dLon / 2) * Math.sin(dLon / 2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            const distance = earthRadius * c; // Distance in km
+            return distance * 1000; // Convert to meters
+        }
 
-    const handlePositionUpdate = position => {
-      const currentCoords = {
-        latitude: position.coords.latitude,
-        longitude: position.coords.longitude
-      };
+        const toRadians = angle => {
+            return angle * (Math.PI / 180);
+        }
 
-      if (previousCoords) {
-        const newDistance = calculateDistance(
-          previousCoords.latitude,
-          previousCoords.longitude,
-          currentCoords.latitude,
-          currentCoords.longitude
-        );
-        setDistance2(distance => distance + newDistance);
-      }
+        const handlePositionUpdate = position => {
+            const currentCoords = {
+                latitude: position.coords.latitude,
+                longitude: position.coords.longitude
+            };
 
-      setPreviousCoords(currentCoords);
-    };
+            if (previousCoords) {
+                const newDistance = calculateDistance(
+                    previousCoords.latitude,
+                    previousCoords.longitude,
+                    currentCoords.latitude,
+                    currentCoords.longitude
+                );
+                setDistance2(distance => distance + newDistance);
+            }
 
-    const handlePositionError = error => {
-      console.error('Error getting position:', error);
-    };
+            setPreviousCoords(currentCoords);
+        };
 
-    const calculateDistance = (lat1, lon1, lat2, lon2) => {
-      const earthRadius = 6371; // Earth's radius in km
-      const dLat = toRadians(lat2 - lat1);
-      const dLon = toRadians(lon2 - lon1);
-      const a =
-        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-        Math.cos(toRadians(lat1)) * Math.cos(toRadians(lat2)) *
-        Math.sin(dLon / 2) * Math.sin(dLon / 2);
-      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-      const distance = earthRadius * c; // Distance in km
-      return distance * 1000; // Convert to meters
-    };
+        const startTracking = () => {
+            watchId = navigator.geolocation.watchPosition(
+                handlePositionUpdate,
+                handlePositionError
+            );
+        };
 
-    const toRadians = angle => {
-      return angle * (Math.PI / 180);
-    };
+        const handlePositionError = error => {
+            console.error('Error getting position:', error);
+        };
 
-    if (isCounting) {
-      startTracking();
-    } else {
-      navigator.geolocation.clearWatch(watchId);
-      setPreviousCoords(null);
-    }
+        if (isCounting) {
+            startTracking();
+        } else {
+            navigator.geolocation.clearWatch(watchId);
+            setPreviousCoords(null);
+        }
     
         // Nettoyer l'intervalle lors du démontage du composant
         return () => navigator.geolocation.clearWatch(watchId);
-      }, [isCounting, previousCoords]);
+    }, [isCounting, previousCoords]);
 
-      const toggleCounting = () => {
+    const toggleCounting = () => {
         setIsCounting(!isCounting);
-      };
+    };
 
-      const formatDistance2 = () => {
+    const formatDistance2 = () => {
         if (distance2 >= 1000) {
           const km = (distance2 / 1000).toFixed(0);
           return `${km} km`;
-        } else {
+        } 
+        else {
           return `${distance2.toFixed(0)} m`;
         }
-      };
+    };
 
     if (!isLoaded) return <div>La map se charge...</div>
 

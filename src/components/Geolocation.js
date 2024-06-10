@@ -603,13 +603,15 @@ function Geolocation({ uid }) {
     const [selectedSalon, setSelectedSalon] = useState(null);
     const [isTracking, setIsTracking] = useState(false);
     const [isParcoursStarted, setIsParcoursStarted] = useState(false)
+    const [totalDistance, setTotalDistance] = useState(0);
+    const [logs, setLogs] = useState([]);
     const [distance, setDistance] = useState(0);
     const [stops, setStops] = useState([])
     const [isModalCounterOpen, setIsModalCounterOpen] = useState(false)
     const [status, setStatus] = useState("") 
     const mapRef = useRef(null)
     const markerRef = useRef(null)
-    const watchId = useRef(null);
+    const previousPosition = useRef(null);
 
     // Charge la map
     useEffect(() => {
@@ -624,21 +626,7 @@ function Geolocation({ uid }) {
             return () => window.removeEventListener('load', handleScriptLoad)
         }
     }, [setIsLoaded])
-   
-    // récupère la position actuelle
-    useEffect(() => {
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition((position) => {
-                setCurrentPosition({
-                    lat: position.coords.latitude,
-                    lng: position.coords.longitude,
-                });
-            });
-        } else {
-          console.error('Geolocation is not supported by this browser.');
-        }
-    }, []);
-    
+
     // affiche le marqueur 
     useEffect(() => {
         if (isLoaded && mapRef.current && currentPosition.lat !== 0 && currentPosition.lng !== 0) {
@@ -660,6 +648,54 @@ function Geolocation({ uid }) {
             mapRef.current.setCenter(currentPosition)
         }
     }, [isLoaded, currentPosition])
+   
+    /*
+    // récupère la position actuelle
+    useEffect(() => {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition((position) => {
+                setCurrentPosition({
+                    lat: position.coords.latitude,
+                    lng: position.coords.longitude,
+                });
+            });
+        } else {
+          console.error('Geolocation is not supported by this browser.');
+        }
+    }, []);
+    */
+
+    useEffect(() => {
+        if (navigator.geolocation) {
+            const watchId = navigator.geolocation.watchPosition(
+                (position) => {
+                    const newPosition = {
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude,
+                    };
+                    setCurrentPosition(newPosition);
+
+                    if (isTracking && previousPosition.current) {
+                        const distance = computeDistance(previousPosition.current, newPosition);
+                        setTotalDistance((prevDistance) => prevDistance + distance);
+                        addLog(`Distance parcourue : ${formatDistance(distance)}`);
+                    }
+
+                    previousPosition.current = newPosition;
+                },
+                (error) => {
+                    addLog(`Erreur de géolocalisation : ${error.message}`);
+                    console.error(error);
+                },
+                { enableHighAccuracy: true }
+            );
+            return () => navigator.geolocation.clearWatch(watchId);
+        } else {
+            addLog("La géolocalisation n'est pas prise en charge par ce navigateur.");
+            console.error("Geolocation is not supported by this browser.");
+        }
+    }, [isTracking]);
+    
 
     // Gère la réponse OUI/NON du user 
     const handleVisitsToday = async (response) => {
@@ -867,8 +903,11 @@ function Geolocation({ uid }) {
     // Active le suivi de la position
     const handleStartTracking = () => {
         setDistance(0);
+        setTotalDistance(0)
         setIsTracking(true); 
+        addLog("Début du suivi de la position.");
 
+        /*
         // Start watching position changes
         watchId.current = navigator.geolocation.watchPosition(
             (position) => {
@@ -883,15 +922,19 @@ function Geolocation({ uid }) {
             (error) => {
                 console.error('Error occurred while watching position:', error);
             }
-        );
+        );*/
     };
     
     // Désactive le suivi de la position 
     const handleStopTracking = () => {
         setIsTracking(false);
         setIsModalCounterOpen(false)
-        // Stop watching position changes
-        navigator.geolocation.clearWatch(watchId.current);
+        addLog("Fin du suivi de la position.");
+        //navigator.geolocation.clearWatch(watchId.current);
+    };
+
+    const addLog = (message) => {
+        setLogs((prevLogs) => [...prevLogs, { message, timestamp: new Date().toLocaleTimeString() }]);
     };
 
     const formatDistance = (distance) => {
@@ -1007,7 +1050,7 @@ function Geolocation({ uid }) {
                         </div>
                                                 
                         <div className="distance-results">
-                            <p className="total"><strong>{formatDistance(distance)}</strong> kilomètres parcourus aujourd'hui</p>
+                            <p className="total"><strong>{formatDistance(totalDistance)}</strong> kilomètres parcourus aujourd'hui</p>
                             
                             <div className="arrets">
                                 <p className="point">Distance entre chaque point d'arrêt</p>
@@ -1075,6 +1118,13 @@ function Geolocation({ uid }) {
                                 <div>
                                     <p>Calcul en cours...</p> 
                                     <p className="total"><strong>{formatDistance(distance)}</strong></p>
+                                    <div>
+                                        {logs.map((log, index) => (
+                                            <div key={index}>
+                                                [{log.timestamp}] {log.message}
+                                            </div>
+                                        ))}
+                                    </div>
                                     <button className="button-colored" onClick={handleStopTracking}>Arrivé à destination</button>
                                 </div>
                             ) : (

@@ -1152,9 +1152,10 @@ function Geolocation() {
     const [currentPosition, setCurrentPosition] = useState(null);
     const [totalDistance, setTotalDistance] = useState(0);
     const [tracking, setTracking] = useState(false);
+    const [logs, setLogs] = useState([]);
     const previousPosition = useRef(null);
-    const mapRef = useRef(null)
-    const markerRef = useRef(null) 
+    const mapRef = useRef(null);
+    const markerRef = useRef(null); 
 
     // initailise google maps 
     useEffect(() => {
@@ -1169,34 +1170,6 @@ function Geolocation() {
             return () => window.removeEventListener('load', handleScriptLoad)
         }
     }, [setIsLoaded])
-
-    // récupère la position actuelle
-    // Get the current position
-    useEffect(() => {
-        if (navigator.geolocation) {
-            const watchId = navigator.geolocation.watchPosition(
-                (position) => {
-                    const newPosition = {
-                        lat: position.coords.latitude,
-                        lng: position.coords.longitude,
-                    };
-                    setCurrentPosition(newPosition);
-
-                    if (tracking && previousPosition.current) {
-                        const distance = computeDistance(previousPosition.current, newPosition);
-                        setTotalDistance((prevDistance) => prevDistance + distance);
-                    }
-
-                    previousPosition.current = newPosition;
-                },
-                (error) => console.error(error),
-                { enableHighAccuracy: true }
-            );
-            return () => navigator.geolocation.clearWatch(watchId);
-        } else {
-            console.error('Geolocation is not supported by this browser.');
-        }
-    }, [tracking]);
 
     useEffect(() => {
         if (isLoaded && mapRef.current && currentPosition.lat !== 0 && currentPosition.lng !== 0) {
@@ -1218,6 +1191,37 @@ function Geolocation() {
             mapRef.current.setCenter(currentPosition)
         }
     }, [isLoaded, currentPosition])
+
+    useEffect(() => {
+        if (navigator.geolocation) {
+            const watchId = navigator.geolocation.watchPosition(
+                (position) => {
+                    const newPosition = {
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude,
+                    };
+                    setCurrentPosition(newPosition);
+
+                    if (tracking && previousPosition.current) {
+                        const distance = computeDistance(previousPosition.current, newPosition);
+                        setTotalDistance((prevDistance) => prevDistance + distance);
+                        addLog(`Distance parcourue : ${distance.toFixed(2)} mètres`);
+                    }
+
+                    previousPosition.current = newPosition;
+                },
+                (error) => {
+                    addLog(`Erreur de géolocalisation : ${error.message}`);
+                    console.error(error);
+                },
+                { enableHighAccuracy: true }
+            );
+            return () => navigator.geolocation.clearWatch(watchId);
+        } else {
+            addLog("La géolocalisation n'est pas prise en charge par ce navigateur.");
+            console.error("Geolocation is not supported by this browser.");
+        }
+    }, [tracking]);
 
     // Function to compute the distance between two geographical points
     const computeDistance = (start, end) => {
@@ -1241,19 +1245,19 @@ function Geolocation() {
         setTracking((prev) => !prev);
         if (!tracking) {
             setTotalDistance(0);
+            addLog("Début du suivi de la position.");
+        } else {
+            addLog("Fin du suivi de la position.");
         }
+    };
+
+    const addLog = (message) => {
+        setLogs((prevLogs) => [...prevLogs, { message, timestamp: new Date().toLocaleTimeString() }]);
     };
 
     return (
         <div>
-            <button onClick={handleTrackingToggle}>
-                {tracking ? 'Stop Tracking' : 'Start Tracking'}
-            </button>
-            <div>
-                {totalDistance < 1000
-                    ? `${totalDistance.toFixed(2)} meters`
-                    : `${(totalDistance / 1000).toFixed(2)} kilometers`}
-            </div>
+            
             {isLoaded && currentPosition && (
                 <GoogleMap
                     mapContainerStyle={mapContainerStyle}
@@ -1264,6 +1268,21 @@ function Geolocation() {
                 ></GoogleMap>
                 
             )}
+            <button onClick={handleTrackingToggle}>
+                {tracking ? 'Stop Tracking' : 'Start Tracking'}
+            </button>
+            <div>
+                {totalDistance < 1000
+                    ? `${totalDistance.toFixed(2)} meters`
+                    : `${(totalDistance / 1000).toFixed(2)} kilometers`}
+            </div>
+            <div>
+                {logs.map((log, index) => (
+                    <div key={index}>
+                        [{log.timestamp}] {log.message}
+                    </div>
+                ))}
+            </div>
         </div>
     );
 }

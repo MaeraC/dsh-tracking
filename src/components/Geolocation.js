@@ -1205,7 +1205,7 @@ function Geolocation() {
                     if (tracking && previousPosition.current) {
                         const distance = computeDistance(previousPosition.current, newPosition);
                         setTotalDistance((prevDistance) => prevDistance + distance);
-                        addLog(`Distance parcourue : ${formatDistance(distance)} mètres`);
+                        addLog(`Distance parcourue : ${formatDistance(distance)}`);
                     }
 
                     previousPosition.current = newPosition;

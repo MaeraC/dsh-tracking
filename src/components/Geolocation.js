@@ -604,7 +604,7 @@ function Geolocation({ uid }) {
     const [isTracking, setIsTracking] = useState(false);
     const [isParcoursStarted, setIsParcoursStarted] = useState(false)
     const [totalDistance, setTotalDistance] = useState(0);
-    const [logs, setLogs] = useState([]);
+    //const [logs, setLogs] = useState([]);
     const [distance, setDistance] = useState(0);
     const [stops, setStops] = useState([])
     const [isModalCounterOpen, setIsModalCounterOpen] = useState(false)
@@ -1102,11 +1102,11 @@ function Geolocation({ uid }) {
                                     <p>Calcul en cours...</p> 
                                     <p className="total"><strong>{formatDistance(distance)}</strong></p>
                                     <div>
-                                        {logs.map((log, index) => (
+                                        {/*logs.map((log, index) => (
                                             <div key={index}>
                                                 [{log.timestamp}] {log.message}
                                             </div>
-                                        ))}
+                                        ))*/}
                                     </div>
                                     <button className="button-colored" onClick={handleStopTracking}>Arrivé à destination</button>
                                 </div>

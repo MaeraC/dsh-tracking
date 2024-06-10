@@ -1273,8 +1273,8 @@ function Geolocation() {
             </button>
             <div>
                 {totalDistance < 1000
-                    ? `${totalDistance.toFixed(2)} meters`
-                    : `${(totalDistance / 1000).toFixed(2)} kilometers`}
+                    ? `${Math.round(totalDistance)} mètres`
+                    : `${(totalDistance / 1000).toFixed(2)} kilomètres`}
             </div>
             <div>
                 {logs.map((log, index) => (

@@ -1205,7 +1205,7 @@ function Geolocation() {
                     if (tracking && previousPosition.current) {
                         const distance = computeDistance(previousPosition.current, newPosition);
                         setTotalDistance((prevDistance) => prevDistance + distance);
-                        addLog(`Distance parcourue : ${distance.toFixed(2)} mètres`);
+                        addLog(`Distance parcourue : ${formatDistance(distance)} mètres`);
                     }
 
                     previousPosition.current = newPosition;
@@ -1255,8 +1255,15 @@ function Geolocation() {
         setLogs((prevLogs) => [...prevLogs, { message, timestamp: new Date().toLocaleTimeString() }]);
     };
 
+    const formatDistance = (distance) => {
+        if (distance < 1) {
+            return `${(distance * 1000).toFixed(0)} m`;
+        }
+        return `${distance.toFixed(2)} km`;
+    }
+
     return (
-        <div>
+        <div className="geoloc-section">
             
             {isLoaded && currentPosition && (
                 <GoogleMap
@@ -1272,9 +1279,7 @@ function Geolocation() {
                 {tracking ? 'Stop Tracking' : 'Start Tracking'}
             </button>
             <div>
-                {totalDistance < 1000
-                    ? `${Math.round(totalDistance)} mètres`
-                    : `${(totalDistance / 1000).toFixed(2)} kilomètres`}
+                {formatDistance(totalDistance)}
             </div>
             <div>
                 {logs.map((log, index) => (

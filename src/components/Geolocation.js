@@ -678,25 +678,24 @@ function Geolocation({ uid }) {
                     if (isTracking && previousPosition.current) {
                         const distance = computeDistance(previousPosition.current, newPosition);
                         setTotalDistance((prevDistance) => prevDistance + distance);
-                        addLog(`Distance parcourue : ${formatDistance(distance)}`);
+                        //addLog(`Distance parcourue : ${formatDistance(distance)}`);
                     }
 
                     previousPosition.current = newPosition;
                 },
                 (error) => {
-                    addLog(`Erreur de géolocalisation : ${error.message}`);
+                    //addLog(`Erreur de géolocalisation : ${error.message}`);
                     console.error(error);
                 },
                 { enableHighAccuracy: true }
             );
             return () => navigator.geolocation.clearWatch(watchId);
         } else {
-            addLog("La géolocalisation n'est pas prise en charge par ce navigateur.");
+            //addLog("La géolocalisation n'est pas prise en charge par ce navigateur.");
             console.error("Geolocation is not supported by this browser.");
         }
     }, [isTracking]);
     
-
     // Gère la réponse OUI/NON du user 
     const handleVisitsToday = async (response) => {
         setHasVisitsToday(response)
@@ -905,37 +904,21 @@ function Geolocation({ uid }) {
         setDistance(0);
         setTotalDistance(0)
         setIsTracking(true); 
-        addLog("Début du suivi de la position.");
-
-        /*
-        // Start watching position changes
-        watchId.current = navigator.geolocation.watchPosition(
-            (position) => {
-                const newPosition = {
-                    lat: position.coords.latitude,
-                    lng: position.coords.longitude,
-                };
-                const newDistance = computeDistance(currentPosition, newPosition);
-                setDistance((prevDistance) => prevDistance + newDistance);
-                setCurrentPosition(newPosition);
-            },
-            (error) => {
-                console.error('Error occurred while watching position:', error);
-            }
-        );*/
+        //addLog("Début du suivi de la position.");
     };
     
     // Désactive le suivi de la position 
     const handleStopTracking = () => {
         setIsTracking(false);
         setIsModalCounterOpen(false)
-        addLog("Fin du suivi de la position.");
-        //navigator.geolocation.clearWatch(watchId.current);
+        //addLog("Fin du suivi de la position.");
     };
 
+    /*
     const addLog = (message) => {
         setLogs((prevLogs) => [...prevLogs, { message, timestamp: new Date().toLocaleTimeString() }]);
     };
+    */
 
     const formatDistance = (distance) => {
         if (distance < 1000) {

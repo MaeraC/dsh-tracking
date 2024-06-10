@@ -481,6 +481,7 @@ textarea {
     align-items: center;
     justify-content: center;
     text-align: center;
+    /*overflow: scroll;*/
 }
 .modale .content p {
     margin: 20px 0;

@@ -1153,6 +1153,8 @@ function Geolocation() {
     const [totalDistance, setTotalDistance] = useState(0);
     const [tracking, setTracking] = useState(false);
     const previousPosition = useRef(null);
+    const mapRef = useRef(null)
+    const markerRef = useRef(null) 
 
     // initailise google maps 
     useEffect(() => {
@@ -1196,6 +1198,27 @@ function Geolocation() {
         }
     }, [tracking]);
 
+    useEffect(() => {
+        if (isLoaded && mapRef.current && currentPosition.lat !== 0 && currentPosition.lng !== 0) {
+            const { AdvancedMarkerElement } = window.google.maps.marker
+            // Supprime l'ancien marqueur s'il existe
+            if (markerRef.current) {
+                markerRef.current.setMap(null)
+            }
+            // Marker personnalisé
+            const markerIcon = document.createElement('div')
+            markerIcon.style.width = '32px'
+            markerIcon.style.height = '32px'
+            markerIcon.style.backgroundImage = 'url("/assets/marker.png")'
+            markerIcon.style.backgroundSize = 'contain'
+            markerIcon.style.backgroundRepeat = 'no-repeat'
+            // Créer un nouveau marqueur
+            markerRef.current = new AdvancedMarkerElement({ position: currentPosition, map: mapRef.current, content: markerIcon })
+            // Centre la carte sur la nouvelle position
+            mapRef.current.setCenter(currentPosition)
+        }
+    }, [isLoaded, currentPosition])
+
     // Function to compute the distance between two geographical points
     const computeDistance = (start, end) => {
         const R = 6371e3; // Earth radius in meters
@@ -1237,7 +1260,9 @@ function Geolocation() {
                     zoom={14}
                     center={currentPosition}
                     options={options}
+                    onLoad={(map) => (mapRef.current = map)}
                 ></GoogleMap>
+                
             )}
         </div>
     );

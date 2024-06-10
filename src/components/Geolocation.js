@@ -604,7 +604,7 @@ function Geolocation({ uid }) {
     const [isTracking, setIsTracking] = useState(false);
     const [isParcoursStarted, setIsParcoursStarted] = useState(false)
     const [totalDistance, setTotalDistance] = useState(0);
-    //const [logs, setLogs] = useState([]);
+    const [logs, setLogs] = useState([]);
     const [distance, setDistance] = useState(0);
     const [stops, setStops] = useState([])
     const [isModalCounterOpen, setIsModalCounterOpen] = useState(false)
@@ -678,20 +678,20 @@ function Geolocation({ uid }) {
                     if (isTracking && previousPosition.current) {
                         const distance = computeDistance(previousPosition.current, newPosition);
                         setTotalDistance((prevDistance) => prevDistance + distance);
-                        //addLog(`Distance parcourue : ${formatDistance(distance)}`);
+                        addLog(`Distance parcourue : ${formatDistance(distance)}`);
                     }
 
                     previousPosition.current = newPosition;
                 },
                 (error) => {
-                    //addLog(`Erreur de géolocalisation : ${error.message}`);
+                    addLog(`Erreur de géolocalisation : ${error.message}`);
                     console.error(error);
                 },
                 { enableHighAccuracy: true }
             );
             return () => navigator.geolocation.clearWatch(watchId);
         } else {
-            //addLog("La géolocalisation n'est pas prise en charge par ce navigateur.");
+            addLog("La géolocalisation n'est pas prise en charge par ce navigateur.");
             console.error("Geolocation is not supported by this browser.");
         }
     }, [isTracking]);
@@ -904,21 +904,21 @@ function Geolocation({ uid }) {
         setDistance(0);
         setTotalDistance(0)
         setIsTracking(true); 
-        //addLog("Début du suivi de la position.");
+        addLog("Début du suivi de la position.");
     };
     
     // Désactive le suivi de la position 
     const handleStopTracking = () => {
         setIsTracking(false);
         setIsModalCounterOpen(false)
-        //addLog("Fin du suivi de la position.");
+        addLog("Fin du suivi de la position.");
     };
 
-    /*
+    
     const addLog = (message) => {
         setLogs((prevLogs) => [...prevLogs, { message, timestamp: new Date().toLocaleTimeString() }]);
     };
-    */
+    
 
     const formatDistance = (distance) => {
         if (distance < 1000) {
@@ -1102,11 +1102,11 @@ function Geolocation({ uid }) {
                                     <p>Calcul en cours...</p> 
                                     <p className="total"><strong>{formatDistance(distance)}</strong></p>
                                     <div>
-                                        {/*logs.map((log, index) => (
+                                        {logs.map((log, index) => (
                                             <div key={index}>
                                                 [{log.timestamp}] {log.message}
                                             </div>
-                                        ))*/}
+                                        ))}
                                     </div>
                                     <button className="button-colored" onClick={handleStopTracking}>Arrivé à destination</button>
                                 </div>

@@ -596,7 +596,7 @@ function Geolocation({ uid }) {
     const mapRef = useRef(null)
     const markerRef = useRef(null)
     const previousPosition = useRef(null)
-    const updateIntervalRef = useRef(null);
+    
 
     // Charge la map
     useEffect(() => {
@@ -621,6 +621,10 @@ function Geolocation({ uid }) {
                     lat: position.coords.latitude,
                     lng: position.coords.longitude,
                 });
+                previousPosition.current = {
+                    lat: position.coords.latitude,
+                    lng: position.coords.longitude,
+                };
             });
         } else {
           console.error('Geolocation is not supported by this browser.');
@@ -912,7 +916,9 @@ function Geolocation({ uid }) {
     const handleStopTracking = () => {
         setIsTracking(false);
         setIsModalCounterOpen(false)
-        //clearInterval(updateIntervalRef.current)
+        if (watchId.current) {
+            navigator.geolocation.clearWatch(watchId.current);
+        }
     };
 
     const formatDistance = (distance) => {
@@ -997,14 +1003,11 @@ function Geolocation({ uid }) {
                             new window.google.maps.LatLng(newPosition.lat, newPosition.lng),
                             new window.google.maps.LatLng(previousPosition.current.lat, previousPosition.current.lng)
                         );
-                        setDistance((prevDistance) => {
-                            if (isNaN(distanceCovered)) {
-                              return prevDistance;
-                            }
-                            return prevDistance + distanceCovered;
-                          });
+                        if (!isNaN(distanceCovered) && distanceCovered > 0) {
+                            setDistance((prevDistance) => prevDistance + distanceCovered);
+                        }
                     }
-                    setCurrentPosition(newPosition);
+                    //setCurrentPosition(newPosition);
                     previousPosition.current = newPosition
                 },
                 () => {
@@ -1028,21 +1031,19 @@ function Geolocation({ uid }) {
         };
     }, [isTracking]);
 
-    // met à jour la distance en temps réel 
+    // Vérifie que la distance est mise à jour correctement à chaque changement de position
     useEffect(() => {
-            const updateDistanceInterval = setInterval(() => {
-              if (previousPosition.current && isTracking) {
-                const distanceCovered = window.google.maps.geometry.spherical.computeDistanceBetween(
-                  new window.google.maps.LatLng(currentPosition.lat, currentPosition.lng),
-                  new window.google.maps.LatLng(previousPosition.current.lat, previousPosition.current.lng)
-                );
-                console.log('Distance parcourue:', distanceCovered);
+        if (isTracking && previousPosition.current) {
+            const distanceCovered = window.google.maps.geometry.spherical.computeDistanceBetween(
+                new window.google.maps.LatLng(currentPosition.lat, currentPosition.lng),
+                new window.google.maps.LatLng(previousPosition.current.lat, previousPosition.current.lng)
+            );
+            console.log('Distance interval check:', distanceCovered);
+            if (!isNaN(distanceCovered) && distanceCovered > 0) {
                 setDistance((prevDistance) => prevDistance + distanceCovered);
-              }
-              previousPosition.current = currentPosition;
-            }, 1000);
-          
-            return () => clearInterval(updateDistanceInterval);
+            }
+            previousPosition.current = currentPosition;
+        }
     }, [currentPosition, isTracking]);
 
 

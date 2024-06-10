@@ -8,6 +8,11 @@ import startIcon from "../assets/start.png"
 import { db } from "../firebase.config"
 import { collection, addDoc, setDoc, doc, getDoc, updateDoc } from "firebase/firestore"
 
+
+
+
+
+/*
 const mapContainerStyle = {
     width: '96vw',
     height: '60vh',
@@ -19,7 +24,7 @@ const options = {
     mapId: "b3f2841793c037a8"
 }
 
-ReactModal.setAppElement('#root')
+ReactModal.setAppElement('#root')*/
 
 /*
 function Geolocation({ uid }) {
@@ -576,6 +581,10 @@ function Geolocation({ uid }) {
 export default Geolocation
 */
 
+
+
+
+/*
 function Geolocation({ uid }) {
     const [currentPosition, setCurrentPosition] = useState(null);
     const [isLoaded, setIsLoaded] = useState(false)
@@ -596,7 +605,9 @@ function Geolocation({ uid }) {
     const mapRef = useRef(null)
     const markerRef = useRef(null)
     const previousPosition = useRef(null)
+
     
+
 
     // Charge la map
     useEffect(() => {
@@ -654,48 +665,17 @@ function Geolocation({ uid }) {
     }, [isLoaded, currentPosition])
 
    
-/*
-    useEffect(() => {
-        const handlePositionUpdate = (position) => {
-            const newPosition = {
-                lat: position.coords.latitude,
-                lng: position.coords.longitude,
-            };
-            if (previousPosition.current && isTracking) {
-                const distanceCovered = window.google.maps.geometry.spherical.computeDistanceBetween(
-                    new window.google.maps.LatLng(newPosition.lat, newPosition.lng),
-                    new window.google.maps.LatLng(previousPosition.current.lat, previousPosition.current.lng)
-                );
-                setDistance((prevDistance) => prevDistance + distanceCovered);
-            }
-            setCurrentPosition(newPosition);
-            previousPosition.current = newPosition;
-        };
 
-        if (isTracking && navigator.geolocation) {
-            watchId.current = navigator.geolocation.watchPosition(
-                handlePositionUpdate,
-                () => console.error('Erreur lors de la récupération de votre position'),
-                { enableHighAccuracy: true, maximumAge: 0, timeout: 2000 }
-            );
-        }
 
-        return () => {
-            if (watchId.current) {
-                navigator.geolocation.clearWatch(watchId.current);
-            }
-        };
-    }, [isTracking]);
-*/
 
     // Gère la réponse OUI/NON du user 
     const handleVisitsToday = async (response) => {
         setHasVisitsToday(response)
         // Si la reponse est non on doit 
-        /*
-        if (response === false) {
-            setIsTourStarted(false)
-        }*/
+        
+        //if (response === false) {
+        //    setIsTourStarted(false)
+        //}
         try {
             const newDocumentData = {
                 date: new Date(),
@@ -897,19 +877,7 @@ function Geolocation({ uid }) {
     const handleStartTracking = () => {
         setDistance(0);
         setIsTracking(true);
-        /*
-        previousPosition.current = currentPosition;
-        updateIntervalRef.current = setInterval(() => {
-            if (previousPosition.current && isTracking) {
-                const distanceCovered = window.google.maps.geometry.spherical.computeDistanceBetween(
-                    new window.google.maps.LatLng(currentPosition.lat, currentPosition.lng),
-                    new window.google.maps.LatLng(previousPosition.current.lat, previousPosition.current.lng)
-                );
-                setDistance((prevDistance) => prevDistance + distanceCovered);
-            }
-            previousPosition.current = currentPosition;
-        }, 1000);
-        */
+        
     };
     
     // Désactive le suivi de la position 
@@ -1047,10 +1015,9 @@ function Geolocation({ uid }) {
     }, [currentPosition, isTracking]);
 
 
-
-
     if (!isLoaded) return <div>Loading Maps...</div>
 
+    
     return (
         <>
             <header className="geo-header">
@@ -1075,7 +1042,7 @@ function Geolocation({ uid }) {
                         <input type="text" placeholder="Adresse de départ" value={startAddress} onChange={(e) => setStartAddress(e.target.value)} />
                         <p className="info">Cliquer sur ce bouton lorsque vous êtes arrivé à votre point de départ</p>
                         <button className="button-colored" onClick={startParcours}>Démarrer mon parcours</button>
-                        <p className="congrats">{/*congratulations*/}</p>
+                        <p className="congrats">{congratulations}</p>
                     </div>
                 )}
 
@@ -1083,7 +1050,7 @@ function Geolocation({ uid }) {
                     <div className="motif">
                         <input type="text" placeholder="Motif" value={noVisitsReason} onChange={(e) => setNoVisitsReason(e.target.value)} />
                         <button className="button-colored" onClick={handleNoVisitsReason}>Enregistrer</button>
-                        <p className="congrats success">{/*message*/}</p>
+                        <p className="congrats success">{message}</p>
                     </div>
                 )}
 
@@ -1179,5 +1146,86 @@ function Geolocation({ uid }) {
         </>
     )
 }
+
+export default Geolocation
+*/
+
+function Geolocation() {
+
+    const [isTracking, setIsTracking] = useState(false);
+    const [distance, setDistance] = useState(0);
+    const [lastPosition, setLastPosition] = useState(null);
+  
+    const startTracking = () => {
+      setIsTracking(true);
+      if (navigator.geolocation) {
+        navigator.geolocation.watchPosition(handlePosition, handleError, {
+          enableHighAccuracy: true,
+          maximumAge: 0,
+          timeout: 5000
+        });
+      } else {
+        alert('Geolocation is not supported by your browser');
+      }
+    };
+  
+    const stopTracking = () => {
+      setIsTracking(false);
+    };
+  
+    const handlePosition = (position) => {
+      const { latitude, longitude } = position.coords;
+      const newPosition = { latitude, longitude };
+  
+      if (lastPosition) {
+        const dist = calculateDistance(lastPosition, newPosition);
+        setDistance(prevDistance => prevDistance + dist);
+      }
+  
+      setLastPosition(newPosition);
+    };
+  
+    const handleError = (error) => {
+      console.error('Error obtaining position', error);
+    };
+  
+    const calculateDistance = (pos1, pos2) => {
+      const toRad = (value) => value * Math.PI / 180;
+  
+      const R = 6371e3; // Earth's radius in meters
+      const lat1 = toRad(pos1.latitude);
+      const lat2 = toRad(pos2.latitude);
+      const deltaLat = toRad(pos2.latitude - pos1.latitude);
+      const deltaLon = toRad(pos2.longitude - pos1.longitude);
+  
+      const a = Math.sin(deltaLat / 2) * Math.sin(deltaLat / 2) +
+                Math.cos(lat1) * Math.cos(lat2) *
+                Math.sin(deltaLon / 2) * Math.sin(deltaLon / 2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  
+      return R * c;
+    };
+  
+    useEffect(() => {
+      if (!isTracking) {
+        setLastPosition(null); 
+        setDistance(0);
+      }
+    }, [isTracking]);
+  
+    const displayDistance = distance >= 1000 ? `${(distance / 1000).toFixed(2)} km` : `${Math.floor(distance)} m`;
+  
+    return (
+      <div>
+        <h1>Distance parcourue : {displayDistance}</h1>
+        <button onClick={isTracking ? stopTracking : startTracking}>
+          {isTracking ? 'Arrêter' : 'Démarrer'}
+        </button>
+      </div>
+    );
+  };
+
+ 
+
 
 export default Geolocation

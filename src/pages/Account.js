@@ -52,8 +52,12 @@ function Account({ email, firstname, lastname }) {
         setShowModal(true)
     }
 
+
+
+
     return (
         <div className="account">
+  
             <header className="account-header">
                 <h1>Mon compte</h1>
             </header>

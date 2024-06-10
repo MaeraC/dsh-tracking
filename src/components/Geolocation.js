@@ -1,14 +1,15 @@
 
 // Fichier Geolocation.js
 
-import { GoogleMap } from "@react-google-maps/api"
-import {  useState, useEffect, useRef } from "react"
+//import { GoogleMap } from "@react-google-maps/api"
+import {  useState, useEffect } from "react"
+/*
 import ReactModal from "react-modal"
 import startIcon from "../assets/start.png" 
 import { db } from "../firebase.config"
 import { collection, addDoc, setDoc, doc, getDoc, updateDoc } from "firebase/firestore"
 
-
+*/
 
 
 

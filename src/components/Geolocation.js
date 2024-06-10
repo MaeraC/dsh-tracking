@@ -1154,11 +1154,17 @@ export default Geolocation
 function Geolocation() {
 
     const [isTracking, setIsTracking] = useState(false);
-    const [distance, setDistance] = useState(0);
-    const [lastPosition, setLastPosition] = useState(null);
-    const watchId = useRef(null);
+  const [distance, setDistance] = useState(0);
+  const [lastPosition, setLastPosition] = useState(null);
+  const [logs, setLogs] = useState([]);
+  const watchId = useRef(null);
+
   
-    const startTracking = () => {
+    const addLog = (message) => {
+        setLogs((prevLogs) => [...prevLogs, message]);
+      };
+    
+      const startTracking = () => {
         setIsTracking(true);
         if (navigator.geolocation) {
           watchId.current = navigator.geolocation.watchPosition(handlePosition, handleError, {
@@ -1166,6 +1172,7 @@ function Geolocation() {
             maximumAge: 0,
             timeout: 5000
           });
+          addLog('Tracking started.');
         } else {
           alert('La géolocalisation n\'est pas supportée par votre navigateur');
         }
@@ -1176,6 +1183,7 @@ function Geolocation() {
         if (watchId.current !== null) {
           navigator.geolocation.clearWatch(watchId.current);
           watchId.current = null;
+          addLog('Tracking stopped.');
         }
       };
     
@@ -1183,8 +1191,11 @@ function Geolocation() {
         const { latitude, longitude } = position.coords;
         const newPosition = { latitude, longitude };
     
+        addLog(`Nouvelle position: ${JSON.stringify(newPosition)}`);
+    
         if (lastPosition) {
           const dist = calculateDistance(lastPosition, newPosition);
+          addLog(`Distance calculée: ${dist.toFixed(2)} m`);
           setDistance(prevDistance => prevDistance + dist);
         }
     
@@ -1193,6 +1204,7 @@ function Geolocation() {
     
       const handleError = (error) => {
         console.error('Erreur de géolocalisation:', error);
+        addLog(`Erreur de géolocalisation: ${error.message}`);
       };
     
       const calculateDistance = (pos1, pos2) => {
@@ -1232,9 +1244,17 @@ function Geolocation() {
           <button onClick={isTracking ? stopTracking : startTracking}>
             {isTracking ? 'Arrêter' : 'Démarrer'}
           </button>
+          <div style={{ marginTop: '20px' }}>
+            <h2>Logs:</h2>
+            <div style={{ maxHeight: '200px', overflowY: 'scroll', border: '1px solid black', padding: '10px' }}>
+              {logs.map((log, index) => (
+                <div key={index}>{log}</div>
+              ))}
+            </div>
+          </div>
         </div>
-      );
-  };
+      );  
+};
 
  
 

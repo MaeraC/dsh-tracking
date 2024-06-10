@@ -2,7 +2,7 @@
 // Fichier Geolocation.js
 
 //import { GoogleMap } from "@react-google-maps/api"
-import {  useState, useEffect } from "react"
+import {  useState, useEffect, useRef } from "react"
 /*
 import ReactModal from "react-modal"
 import startIcon from "../assets/start.png" 
@@ -1156,74 +1156,84 @@ function Geolocation() {
     const [isTracking, setIsTracking] = useState(false);
     const [distance, setDistance] = useState(0);
     const [lastPosition, setLastPosition] = useState(null);
+    const watchId = useRef(null);
   
     const startTracking = () => {
-      setIsTracking(true);
-      if (navigator.geolocation) {
-        navigator.geolocation.watchPosition(handlePosition, handleError, {
-          enableHighAccuracy: true,
-          maximumAge: 0,
-          timeout: 5000
-        });
-      } else {
-        alert('Geolocation is not supported by your browser');
-      }
-    };
-  
-    const stopTracking = () => {
-      setIsTracking(false);
-    };
-  
-    const handlePosition = (position) => {
-      const { latitude, longitude } = position.coords;
-      const newPosition = { latitude, longitude };
-  
-      if (lastPosition) {
-        const dist = calculateDistance(lastPosition, newPosition);
-        setDistance(prevDistance => prevDistance + dist);
-      }
-  
-      setLastPosition(newPosition);
-    };
-  
-    const handleError = (error) => {
-      console.error('Error obtaining position', error);
-    };
-  
-    const calculateDistance = (pos1, pos2) => {
-      const toRad = (value) => value * Math.PI / 180;
-  
-      const R = 6371e3; // Earth's radius in meters
-      const lat1 = toRad(pos1.latitude);
-      const lat2 = toRad(pos2.latitude);
-      const deltaLat = toRad(pos2.latitude - pos1.latitude);
-      const deltaLon = toRad(pos2.longitude - pos1.longitude);
-  
-      const a = Math.sin(deltaLat / 2) * Math.sin(deltaLat / 2) +
-                Math.cos(lat1) * Math.cos(lat2) *
-                Math.sin(deltaLon / 2) * Math.sin(deltaLon / 2);
-      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  
-      return R * c;
-    };
-  
-    useEffect(() => {
-      if (!isTracking) {
-        setLastPosition(null); 
-        setDistance(0);
-      }
-    }, [isTracking]);
-  
-    const displayDistance = distance >= 1000 ? `${(distance / 1000).toFixed(2)} km` : `${Math.floor(distance)} m`;
-  
-    return (
-      <div>
-        <h1>Distance parcourue : {displayDistance}</h1>
-        <button onClick={isTracking ? stopTracking : startTracking}>
-          {isTracking ? 'Arrêter' : 'Démarrer'}
-        </button>
-      </div>
-    );
+        setIsTracking(true);
+        if (navigator.geolocation) {
+          watchId.current = navigator.geolocation.watchPosition(handlePosition, handleError, {
+            enableHighAccuracy: true,
+            maximumAge: 0,
+            timeout: 5000
+          });
+        } else {
+          alert('La géolocalisation n\'est pas supportée par votre navigateur');
+        }
+      };
+    
+      const stopTracking = () => {
+        setIsTracking(false);
+        if (watchId.current !== null) {
+          navigator.geolocation.clearWatch(watchId.current);
+          watchId.current = null;
+        }
+      };
+    
+      const handlePosition = (position) => {
+        const { latitude, longitude } = position.coords;
+        const newPosition = { latitude, longitude };
+    
+        if (lastPosition) {
+          const dist = calculateDistance(lastPosition, newPosition);
+          setDistance(prevDistance => prevDistance + dist);
+        }
+    
+        setLastPosition(newPosition);
+      };
+    
+      const handleError = (error) => {
+        console.error('Erreur de géolocalisation:', error);
+      };
+    
+      const calculateDistance = (pos1, pos2) => {
+        const toRad = (value) => value * Math.PI / 180;
+    
+        const R = 6371e3; // Rayon de la Terre en mètres
+        const lat1 = toRad(pos1.latitude);
+        const lat2 = toRad(pos2.latitude);
+        const deltaLat = toRad(pos2.latitude - pos1.latitude);
+        const deltaLon = toRad(pos2.longitude - pos1.longitude);
+    
+        const a = Math.sin(deltaLat / 2) * Math.sin(deltaLat / 2) +
+                  Math.cos(lat1) * Math.cos(lat2) *
+                  Math.sin(deltaLon / 2) * Math.sin(deltaLon / 2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    
+        return R * c;
+      };
+    
+      useEffect(() => {
+        if (!isTracking) {
+          setLastPosition(null);
+          setDistance(0);
+        }
+        return () => {
+          if (watchId.current !== null) {
+            navigator.geolocation.clearWatch(watchId.current);
+          }
+        };
+      }, [isTracking]);
+    
+      const displayDistance = distance >= 1000 ? `${(distance / 1000).toFixed(2)} km` : `${Math.floor(distance)} m`;
+    
+      return (
+        <div>
+          <h1>Distance parcourue : {displayDistance}</h1>
+          <button onClick={isTracking ? stopTracking : startTracking}>
+            {isTracking ? 'Arrêter' : 'Démarrer'}
+          </button>
+        </div>
+      );
   };
 
  

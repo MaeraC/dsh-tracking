@@ -1153,107 +1153,106 @@ export default Geolocation
 
 function Geolocation() {
 
-    const [isTracking, setIsTracking] = useState(false);
+  const [isTracking, setIsTracking] = useState(false);
   const [distance, setDistance] = useState(0);
   const [lastPosition, setLastPosition] = useState(null);
   const [logs, setLogs] = useState([]);
   const watchId = useRef(null);
 
-  
-    const addLog = (message) => {
-        setLogs((prevLogs) => [...prevLogs, message]);
-      };
-    
-      const startTracking = () => {
-        setIsTracking(true);
-        if (navigator.geolocation) {
-          watchId.current = navigator.geolocation.watchPosition(handlePosition, handleError, {
-            enableHighAccuracy: true,
-            maximumAge: 0,
-            timeout: 5000
-          });
-          addLog('Tracking started.');
-        } else {
-          alert('La géolocalisation n\'est pas supportée par votre navigateur');
-        }
-      };
-    
-      const stopTracking = () => {
-        setIsTracking(false);
-        if (watchId.current !== null) {
-          navigator.geolocation.clearWatch(watchId.current);
-          watchId.current = null;
-          addLog('Tracking stopped.');
-        }
-      };
-    
-      const handlePosition = (position) => {
-        const { latitude, longitude } = position.coords;
-        const newPosition = { latitude, longitude };
-    
-        addLog(`Nouvelle position: ${JSON.stringify(newPosition)}`);
-    
-        if (lastPosition) {
-          const dist = calculateDistance(lastPosition, newPosition);
-          addLog(`Distance calculée: ${dist.toFixed(2)} m`);
-          setDistance(prevDistance => prevDistance + dist);
-        }
-    
-        setLastPosition(newPosition);
-      };
-    
-      const handleError = (error) => {
-        console.error('Erreur de géolocalisation:', error);
-        addLog(`Erreur de géolocalisation: ${error.message}`);
-      };
-    
-      const calculateDistance = (pos1, pos2) => {
-        const toRad = (value) => value * Math.PI / 180;
-    
-        const R = 6371e3; // Rayon de la Terre en mètres
-        const lat1 = toRad(pos1.latitude);
-        const lat2 = toRad(pos2.latitude);
-        const deltaLat = toRad(pos2.latitude - pos1.latitude);
-        const deltaLon = toRad(pos2.longitude - pos1.longitude);
-    
-        const a = Math.sin(deltaLat / 2) * Math.sin(deltaLat / 2) +
-                  Math.cos(lat1) * Math.cos(lat2) *
-                  Math.sin(deltaLon / 2) * Math.sin(deltaLon / 2);
-        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    
-        return R * c;
-      };
-    
-      useEffect(() => {
-        if (!isTracking) {
-          setLastPosition(null);
-          setDistance(0);
-        }
-        return () => {
-          if (watchId.current !== null) {
-            navigator.geolocation.clearWatch(watchId.current);
-          }
-        };
-      }, [isTracking]);
-    
-      const displayDistance = distance >= 1000 ? `${(distance / 1000).toFixed(2)} km` : `${Math.floor(distance)} m`;
-    
-      return (
-        <div>
-          <h1>Distance parcourue : {displayDistance}</h1>
-          <button onClick={isTracking ? stopTracking : startTracking}>
-            {isTracking ? 'Arrêter' : 'Démarrer'}
-          </button>
-          <div style={{ marginTop: '20px' }}>
-            <h2>Logs:</h2>
-            <div style={{ maxHeight: '200px', overflowY: 'scroll', border: '1px solid black', padding: '10px' }}>
-              {logs.map((log, index) => (
-                <div key={index}>{log}</div>
-              ))}
-            </div>
-          </div>
+  const addLog = (message) => {
+    setLogs((prevLogs) => [...prevLogs, message]);
+  };
+
+  const startTracking = () => {
+    setIsTracking(true);
+    if (navigator.geolocation) {
+      watchId.current = navigator.geolocation.watchPosition(handlePosition, handleError, {
+        enableHighAccuracy: true,
+        maximumAge: 0,
+        timeout: 5000
+      });
+      addLog('Tracking started.');
+    } else {
+      alert('La géolocalisation n\'est pas supportée par votre navigateur');
+    }
+  };
+
+  const stopTracking = () => {
+    setIsTracking(false);
+    if (watchId.current !== null) {
+      navigator.geolocation.clearWatch(watchId.current);
+      watchId.current = null;
+      addLog('Tracking stopped.');
+    }
+  };
+
+  const handlePosition = (position) => {
+    const { latitude, longitude, accuracy } = position.coords;
+    const newPosition = { latitude, longitude, accuracy };
+
+    addLog(`Nouvelle position: Latitude: ${latitude}, Longitude: ${longitude}, Précision: ${accuracy}m`);
+
+    if (lastPosition) {
+      const dist = calculateDistance(lastPosition, newPosition);
+      addLog(`Distance calculée: ${dist.toFixed(2)} m`);
+      setDistance(prevDistance => prevDistance + dist);
+    }
+
+    setLastPosition(newPosition);
+  };
+
+  const handleError = (error) => {
+    console.error('Erreur de géolocalisation:', error);
+    addLog(`Erreur de géolocalisation: ${error.message}`);
+  };
+
+  const calculateDistance = (pos1, pos2) => {
+    const toRad = (value) => value * Math.PI / 180;
+
+    const R = 6371e3; // Rayon de la Terre en mètres
+    const lat1 = toRad(pos1.latitude);
+    const lat2 = toRad(pos2.latitude);
+    const deltaLat = toRad(pos2.latitude - pos1.latitude);
+    const deltaLon = toRad(pos2.longitude - pos1.longitude);
+
+    const a = Math.sin(deltaLat / 2) * Math.sin(deltaLat / 2) +
+              Math.cos(lat1) * Math.cos(lat2) *
+              Math.sin(deltaLon / 2) * Math.sin(deltaLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+    return R * c;
+  };
+
+  useEffect(() => {
+    if (!isTracking) {
+      setLastPosition(null);
+      setDistance(0);
+    }
+    return () => {
+      if (watchId.current !== null) {
+        navigator.geolocation.clearWatch(watchId.current);
+      }
+    };
+  }, [isTracking]);
+
+  const displayDistance = distance >= 1000 ? `${(distance / 1000).toFixed(2)} km` : `${Math.floor(distance)} m`;
+
+  return (
+    <div>
+      <h1>Distance parcourue : {displayDistance}</h1>
+      <button onClick={isTracking ? stopTracking : startTracking}>
+        {isTracking ? 'Arrêter' : 'Démarrer'}
+      </button>
+      <div style={{ marginTop: '20px' }}>
+        <h2>Logs:</h2>
+        <div style={{ maxHeight: '200px', overflowY: 'scroll', border: '1px solid black', padding: '10px' }}>
+          {logs.map((log, index) => (
+            <div key={index}>{log}</div>
+          ))}
         </div>
-      );  
+      </div>
+    </div>
+  );
 };
 
  

@@ -1223,7 +1223,8 @@ function Geolocation() {
         }
     }, [tracking]);
 
-    // Function to compute the distance between two geographical points
+    // Function pour les plus longues distances 
+    /*
     const computeDistance = (start, end) => {
         const R = 6371e3; // Earth radius in meters
         const φ1 = (start.lat * Math.PI) / 180;
@@ -1239,7 +1240,24 @@ function Geolocation() {
 
         const distance = R * c; // in meters
         return distance;
+    };*/
+
+    // fonctions pour les plus courtes distances 
+    const computeDistance = (start, end) => {
+        const R = 6371e3; // Earth radius in meters
+        const dLat = (end.lat - start.lat) * Math.PI / 180;
+        const dLon = (end.lng - start.lng) * Math.PI / 180;
+        const lat1 = start.lat * Math.PI / 180;
+        const lat2 = end.lat * Math.PI / 180;
+    
+        const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                  Math.sin(dLon / 2) * Math.sin(dLon / 2) * Math.cos(lat1) * Math.cos(lat2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    
+        const distance = R * c; // in meters
+        return distance;
     };
+    
 
     const handleTrackingToggle = () => {
         setTracking((prev) => !prev);

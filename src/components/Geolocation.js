@@ -1256,11 +1256,12 @@ function Geolocation() {
     };
 
     const formatDistance = (distance) => {
-        if (distance < 1) {
-            return `${(distance * 1000).toFixed(0)} m`;
+        if (distance < 1000) {
+            return `${distance.toFixed(0)} m`;
         }
-        return `${distance.toFixed(2)} km`;
+        return `${(distance / 1000).toFixed(2)} km`;
     }
+    
 
     return (
         <div className="geoloc-section">

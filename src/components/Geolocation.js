@@ -607,6 +607,7 @@ function Geolocation({ uid }) {
     const [logs, setLogs] = useState([])
     const [distance, setDistance] = useState(0) 
     const [stops, setStops] = useState([])
+    //const [currentStopDistance, setCurrentStopDistance] = useState(0);
     const [isRadioVisible, setIsRadioVisible] = useState(false)
     const [isModalCounterOpen, setIsModalCounterOpen] = useState(false)
     const [status, setStatus] = useState("") 
@@ -960,9 +961,12 @@ function Geolocation({ uid }) {
                 userId: uid
             })
         })
-
-        setIsTracking(false)
-        setIsModalCounterOpen(false)
+        // Réinitialiser la distance depuis le dernier arrêt
+        //setCurrentStopDistance(0);
+        // Réinitialiser le suivi global de la distance
+        setIsTracking(false);
+        setIsModalCounterOpen(false);
+        setTotalDistance(0);
     }
     
     const addLog = (message) => {
@@ -1090,9 +1094,9 @@ function Geolocation({ uid }) {
                                     {stops.map((stop, index) => (
                                         <li key={index}>
                                             {index === 0 ? (
-                                                <p><strong>{formatDistance(distance)}</strong>De <em>{startAddress}</em> à <em>{stop.name}</em></p>
+                                                <p><strong>{formatDistance(stop.distance)}</strong>De <em>{startAddress}</em> à <em>{stop.name}</em></p>
                                             ) : (
-                                                <p><strong>{formatDistance(distance)}</strong>De <em>{stops[index - 1].name}</em> à <em>{stop.name}</em></p>
+                                                <p><strong>{formatDistance(stop.distance)}</strong>De <em>{stops[index - 1].name}</em> à <em>{stop.name}</em></p>
                                             )}
                                         </li>
                                     ))}

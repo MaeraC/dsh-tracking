@@ -941,14 +941,13 @@ function Geolocation({ uid }) {
     // Désactive le suivi de la position 
     const handleStopTracking = async () => {
         addLog("Fin du suivi de la position.");
-        // ajoute la distance à la liste des arrêts
-        setStops((prevStops) => [
-            ...prevStops,
-            {
-                name: selectedSalon.name, 
-                distance: currentStopDistance, 
-            },
-        ])
+        // Ajouter la distance parcourue jusqu'au dernier salon dans les arrêts
+        const newStop = {
+            name: selectedSalon.name,
+            distance: currentStopDistance,
+        };
+
+        setStops(prevStops => [...prevStops, newStop]);
 
         addLog(`stops : ${stops}`)
 

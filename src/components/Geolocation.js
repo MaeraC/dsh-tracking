@@ -604,6 +604,7 @@ function Geolocation({ uid }) {
     const [isTracking, setIsTracking] = useState(false)
     const [isParcoursStarted, setIsParcoursStarted] = useState(false)
     const [totalDistance, setTotalDistance] = useState(0)
+    const [totalStopDistance, setTotalStopDistance] = useState(0)
     const [logs, setLogs] = useState([])
     const [distance, setDistance] = useState(0) 
     const [stops, setStops] = useState([])
@@ -702,6 +703,16 @@ function Geolocation({ uid }) {
             })
         );
     }
+
+    useEffect(() => {
+        // Calculez le total des distances entre les points d'arrêt à chaque fois que les stops changent
+        let total = 0;
+        for (let i = 0; i < stops.length; i++) {
+            total += stops[i].distance;
+        }
+        // Mettez à jour le total des distances entre les points d'arrêt
+        setTotalStopDistance(total);
+    }, [stops]);
 
      // useEffect to update distances when salons change
      useEffect(() => {
@@ -1102,7 +1113,7 @@ function Geolocation({ uid }) {
                         </div>
                                                 
                         <div className="distance-results">
-                            <p className="total"><strong>{formatDistance(totalDistance)}</strong> kilomètres parcourus aujourd'hui</p>
+                            <p className="total"><strong>{formatDistance(totalStopDistance)}</strong> kilomètres parcourus aujourd'hui</p>
                             
                             <div className="arrets">
                                 <p className="point">Distance entre chaque point d'arrêt</p>
@@ -1169,6 +1180,7 @@ function Geolocation({ uid }) {
                                 <div>
                                     <p>Calcul en cours...</p> 
                                     <p className="total"><strong>{formatDistance(distance)}</strong></p>
+                                    <p className="total"><strong> totalDistance ? {formatDistance(totalDistance)}</strong></p>
                                     <div className="modale-log">
                                         {logs.map((log, index) => (
                                             <div key={index}>

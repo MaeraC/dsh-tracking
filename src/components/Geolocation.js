@@ -945,8 +945,6 @@ function Geolocation({ uid }) {
             },
         ])
 
-        setIsTracking(false) 
-
         const logMessage = `Salon visité`
 
         // Ajoute l'action de visite dans le champ 'historique' du document du salon
@@ -961,6 +959,7 @@ function Geolocation({ uid }) {
 
         setIsTracking(false)
         setIsModalCounterOpen(false)
+        setTotalDistance(0)
     }
     
     const addLog = (message) => {

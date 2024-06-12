@@ -604,7 +604,6 @@ function Geolocation({ uid }) {
     const [isTracking, setIsTracking] = useState(false)
     const [isParcoursStarted, setIsParcoursStarted] = useState(false)
     const [totalDistance, setTotalDistance] = useState(0)
-    const [totalStopDistance, setTotalStopDistance] = useState(0)
     const [logs, setLogs] = useState([])
     const [distance, setDistance] = useState(0) 
     const [stops, setStops] = useState([])
@@ -670,7 +669,6 @@ function Geolocation({ uid }) {
                     }
 
                     previousPosition.current = newPosition;
-                    updateSalonsDistance(newPosition);
                 },
                 (error) => {
                     addLog(`Erreur de géolocalisation : ${error.message}`);
@@ -684,42 +682,6 @@ function Geolocation({ uid }) {
             console.error("Geolocation is not supported by this browser.")
         }
     }, [isTracking]) 
-
-    const updateSalonsDistance = (newPosition) => {
-        setSalons((prevSalons) =>
-            prevSalons.map((salon) => {
-                if (newPosition && salon.geometry && salon.geometry.location) {
-                    const distance = computeDistance(newPosition, {
-                        lat: salon.geometry.location.lat(),
-                        lng: salon.geometry.location.lng(),
-                    });
-
-                    return {
-                        ...salon,
-                        distance: distance,
-                    };
-                }
-                return salon;
-            })
-        );
-    }
-
-    useEffect(() => {
-        // Calculez le total des distances entre les points d'arrêt à chaque fois que les stops changent
-        let total = 0;
-        for (let i = 0; i < stops.length; i++) {
-            total += stops[i].distance;
-        }
-        // Mettez à jour le total des distances entre les points d'arrêt
-        setTotalStopDistance(total);
-    }, [stops]);
-
-     // useEffect to update distances when salons change
-     useEffect(() => {
-        if (currentPosition) {
-            updateSalonsDistance(currentPosition);  // Update distances when salons change
-        }
-    }, [salons, currentPosition]);
     
     // Gère la réponse OUI/NON du user 
     const handleVisitsToday = async (response) => {
@@ -835,9 +797,14 @@ function Geolocation({ uid }) {
                             if (placeDetails.opening_hours) {
                                 const city = await getCityFromCoords(placeDetails.geometry.location.lat(), placeDetails.geometry.location.lng())                    
                                 if (city && city.toLowerCase() === startCity.toLowerCase()) {
+                                    const distance = computeDistance(currentPosition, {
+                                        lat: placeDetails.geometry.location.lat(),
+                                        lng: placeDetails.geometry.location.lng(),
+                                    });
                                     salonsWithOpeningHours.push({
                                         ...results[i],
                                         opening_hours: placeDetails.opening_hours,
+                                        distance: distance
                                     })
                                 }
                             }
@@ -962,8 +929,6 @@ function Geolocation({ uid }) {
     
     // Active le suivi de la position
     const handleStartTracking = () => {
-        //setDistance(0);
-        //setTotalDistance(0)
         setIsTracking(true); 
         addLog("Début du suivi de la position.");
     }
@@ -1113,7 +1078,7 @@ function Geolocation({ uid }) {
                         </div>
                                                 
                         <div className="distance-results">
-                            <p className="total"><strong>{formatDistance(totalStopDistance)}</strong> kilomètres parcourus aujourd'hui</p>
+                            <p className="total"><strong>{formatDistance(distance)}</strong> kilomètres parcourus aujourd'hui</p>
                             
                             <div className="arrets">
                                 <p className="point">Distance entre chaque point d'arrêt</p>

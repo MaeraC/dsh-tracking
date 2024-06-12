@@ -950,6 +950,8 @@ function Geolocation({ uid }) {
             },
         ])
 
+        addLog(`stops : ${stops}`)
+
         const logMessage = `Salon visité`
 
         // Ajoute l'action de visite dans le champ 'historique' du document du salon
@@ -1091,6 +1093,11 @@ function Geolocation({ uid }) {
                             <div className="arrets">
                                 <p className="point">Distance entre chaque point d'arrêt</p>
                                 <ul>
+                                {logs.map((log, index) => (
+                                            <div key={index}>
+                                                [{log.timestamp}] {log.message}
+                                            </div>
+                                        ))}
                                     {stops.map((stop, index) => (
                                         <li key={index}>
                                             {index === 0 ? (

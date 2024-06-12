@@ -3,7 +3,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { db } from '../firebase.config'
-import { collection, query, where, getDocs, orderBy, doc, updateDoc, addDoc } from 'firebase/firestore'
+import { collection, query, where, getDocs, orderBy, doc, updateDoc } from 'firebase/firestore'
 import back from "../assets/back.png"
 import close from "../assets/close.png"
 import ReactSignatureCanvas from 'react-signature-canvas'
@@ -158,6 +158,7 @@ function FeuillesDeRouteSemaine({ uid, onReturn }) {
         setIsFeuilleDuJourOpen(true) 
     }
 
+    /*
     const handleSignFiche = async () => {
         // Vérifier si la signature a été faite
         if (!signatureCanvasRef.current.isEmpty()) {
@@ -174,8 +175,9 @@ function FeuillesDeRouteSemaine({ uid, onReturn }) {
             // Masquer la feuille de route de la semaine
             setisThisWeekOpen(false);
         }
-    }
-    console.log(handleSignFiche)
+    }*/
+
+    //handleSignFiche() 
 
     return (
         <div className="feuilles-de-route-section">

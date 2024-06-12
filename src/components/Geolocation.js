@@ -592,7 +592,7 @@ const computeDistance = (start, end) => {
 };  
 
 function Geolocation({ uid }) {
-    const [currentPosition, setCurrentPosition] = useState(null)
+    const [currentPosition, setCurrentPosition] = useState({ lat: 0, lng: 0 })
     const [isLoaded, setIsLoaded] = useState(false)
     const [hasVisitsToday, setHasVisitsToday] = useState(null) 
     const [noVisitsReason, setNoVisitsReason] = useState("")
@@ -601,7 +601,6 @@ function Geolocation({ uid }) {
     const [currentRouteId, setCurrentRouteId] = useState(null)
     const [salons, setSalons] = useState([])
     const [selectedSalon, setSelectedSalon] = useState(null)
-    const [isCalculatingDistance, setIsCalculatingDistance] = useState(false)
     const [isTracking, setIsTracking] = useState(false)
     const [isParcoursStarted, setIsParcoursStarted] = useState(false)
     const [totalDistance, setTotalDistance] = useState(0)
@@ -652,75 +651,25 @@ function Geolocation({ uid }) {
     }, [isLoaded, currentPosition])
 
     useEffect(() => {
-        let watchId;
-
-        const fetchUserLocation = () => {
-            if (navigator.geolocation) {
-                watchId = navigator.geolocation.watchPosition(
-                    (position) => {
-                        const { latitude, longitude } = position.coords;
-                        setCurrentPosition({ latitude, longitude });
-                    },
-                    (error) => {
-                        console.error('Erreur lors de l\'obtention de la localisation :', error)
-                    },
-                    {
-                        enableHighAccuracy: true,
-                        timeout: 5000,
-                        maximumAge: 0
-                    }
-                );
-            } else {
-                console.error('La géolocalisation n\'est pas supportée par ce navigateur.')
-            }
-        };
-
-        fetchUserLocation();
-
-        // Cleanup the watchPosition when the component unmounts
-        return () => {
-            if (watchId) {
-                navigator.geolocation.clearWatch(watchId);
-            }
-        };
-    }, []);
-
-    
-
-    useEffect(() => {
         if (navigator.geolocation) {
             const watchId = navigator.geolocation.watchPosition(
                 (position) => {
                     const newPosition = {
                         lat: position.coords.latitude,
                         lng: position.coords.longitude,
-                    };
-                    setCurrentPosition(newPosition);
+                    }
+
+                    setCurrentPosition(newPosition)
 
                     if (isTracking && previousPosition.current) {
                         const distance = computeDistance(previousPosition.current, newPosition);
+                        console.log("Distance:", distance);
                         setTotalDistance((prevDistance) => prevDistance + distance);
                         addLog(`Distance parcourue : ${formatDistance(distance)}`);
                     }
 
                     previousPosition.current = newPosition;
-
-                    setSalons((prevSalons) =>
-                        prevSalons.map((salon) => {
-                            if (newPosition && salon.geometry && salon.geometry.location) {
-                                const distance = computeDistance(newPosition, {
-                                    lat: salon.geometry.location.lat(),
-                                    lng: salon.geometry.location.lng(),
-                                });
-                                
-                                return {
-                                    ...salon,
-                                    distance: distance,
-                                };
-                            }
-                            return salon;
-                        })
-                    );
+                    updateSalonsDistance(newPosition);
                 },
                 (error) => {
                     addLog(`Erreur de géolocalisation : ${error.message}`);
@@ -733,7 +682,33 @@ function Geolocation({ uid }) {
             addLog("La géolocalisation n'est pas prise en charge par ce navigateur.");
             console.error("Geolocation is not supported by this browser.")
         }
-    }, [isTracking])
+    }, [isTracking]) 
+
+    const updateSalonsDistance = (newPosition) => {
+        setSalons((prevSalons) =>
+            prevSalons.map((salon) => {
+                if (newPosition && salon.geometry && salon.geometry.location) {
+                    const distance = computeDistance(newPosition, {
+                        lat: salon.geometry.location.lat(),
+                        lng: salon.geometry.location.lng(),
+                    });
+
+                    return {
+                        ...salon,
+                        distance: distance,
+                    };
+                }
+                return salon;
+            })
+        );
+    }
+
+     // useEffect to update distances when salons change
+     useEffect(() => {
+        if (currentPosition) {
+            updateSalonsDistance(currentPosition);  // Update distances when salons change
+        }
+    }, [salons, currentPosition]);
     
     // Gère la réponse OUI/NON du user 
     const handleVisitsToday = async (response) => {
@@ -783,8 +758,9 @@ function Geolocation({ uid }) {
     // Démarre le parcours 
     const startParcours = async () => {
         // recherche les salons à proximité du user
-        handleSalonsNearBy()
+        
         setIsParcoursStarted(true)
+        handleSalonsNearBy()
         setStops([])
         // enregistre l'adresse de départ du user dans la bdd
         if (startAddress) {
@@ -817,7 +793,6 @@ function Geolocation({ uid }) {
   
     // recherche les salons à proximité
     const handleSalonsNearBy = async () => {
-        setIsCalculatingDistance(true)
         try {
             const service = new window.google.maps.places.PlacesService(mapRef.current)   
             service.nearbySearch({
@@ -881,7 +856,6 @@ function Geolocation({ uid }) {
                         });
                     }
                     setSalons(sortedSalons)
-                    setIsCalculatingDistance(false)
                 } 
                 else {
                     console.error('Erreur lors de la recherche des salons de coiffure', status)
@@ -889,7 +863,6 @@ function Geolocation({ uid }) {
             })   
         } catch (error) {
             console.error('Erreur lors de la récupération des coordonnées de la ville de l\'utilisateur :', error)
-            setIsCalculatingDistance(false)
         }
     }
 
@@ -1152,12 +1125,8 @@ function Geolocation({ uid }) {
                                     <li key={index}>
                                         <div>
                                             <div className="distance">
-                                                <span>{salon.name} </span>
-                                                {isCalculatingDistance ? (
-                                                    <p>Calculating distance...</p>
-                                                ) : (
-                                                    <p>{salon.distance ? formatDistance(salon.distance) : 'Distance not available'}</p>
-                                                )}
+                                                <span>{salon.name} </span> 
+                                                <p>{formatDistance(salon.distance)}</p>
                                             </div>
                                             <p>{salon.vicinity}</p> 
 

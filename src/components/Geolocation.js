@@ -868,7 +868,10 @@ function Geolocation({ uid }) {
     
     // Gère le clic d'un salon
     const handleSelectSalon = async (salon) => {
-        
+        setIsTracking(false)
+        setTotalDistance(0)
+        setLogs([])
+
         if (salon.geometry && salon.geometry.location) {
             setSelectedSalon(salon)
             setIsModalCounterOpen(true)
@@ -959,7 +962,6 @@ function Geolocation({ uid }) {
 
         setIsTracking(false)
         setIsModalCounterOpen(false)
-        setTotalDistance(0)
     }
     
     const addLog = (message) => {

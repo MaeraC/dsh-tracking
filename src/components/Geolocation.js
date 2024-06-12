@@ -664,8 +664,10 @@ function Geolocation({ uid }) {
 
                     if (isTracking && previousPosition.current) {
                         const distance = computeDistance(previousPosition.current, newPosition);
-                        setTotalDistance(distance)
-                        setDistance((prevDistance) => prevDistance + distance)
+                        //setTotalDistance(distance)
+                        //setDistance((prevDistance) => prevDistance + distance)
+                        setDistance((prevDistance) => prevDistance + distance); // Cumul de la distance
+                        setTotalDistance((prevTotal) => prevTotal + distance); // Mettre à jour la distance totale parcourue aujourd'hui
                         addLog(`Distance parcourue : ${formatDistance(distance)}`);
                     }
 
@@ -971,6 +973,7 @@ function Geolocation({ uid }) {
         setIsTracking(false);
         setIsModalCounterOpen(false);
         setTotalDistance(0);
+        setDistance(0)
     }
 
     const getTotalStopDistances = () => {

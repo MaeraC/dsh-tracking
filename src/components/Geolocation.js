@@ -663,8 +663,8 @@ function Geolocation({ uid }) {
 
                     if (isTracking && previousPosition.current) {
                         const distance = computeDistance(previousPosition.current, newPosition);
-                        setDistance(distance)
-                        setTotalDistance((prevDistance) => prevDistance + distance);
+                        setTotalDistance(distance)
+                        setDistance((prevDistance) => prevDistance + distance)
                         addLog(`Distance parcourue : ${formatDistance(distance)}`);
                     }
 
@@ -1110,9 +1110,9 @@ function Geolocation({ uid }) {
                                     {stops.map((stop, index) => (
                                         <li key={index}>
                                             {index === 0 ? (
-                                                <p><strong>{stop.distance}</strong>De <em>{startAddress}</em> à <em>{stop.name}</em></p>
+                                                <p><strong>{formatDistance(distance)}</strong>De <em>{startAddress}</em> à <em>{stop.name}</em></p>
                                             ) : (
-                                                <p><strong>{stop.distance}</strong>De <em>{stops[index - 1].name}</em> à <em>{stop.name}</em></p>
+                                                <p><strong>{formatDistance(distance)}</strong>De <em>{stops[index - 1].name}</em> à <em>{stop.name}</em></p>
                                             )}
                                         </li>
                                     ))}

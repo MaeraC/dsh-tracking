@@ -870,6 +870,7 @@ function Geolocation({ uid }) {
     const handleSelectSalon = async (salon) => {
         setIsTracking(false)
         setTotalDistance(0)
+        setDistance(0)
         setLogs([])
 
         if (salon.geometry && salon.geometry.location) {

@@ -1,12 +1,13 @@
 
 // Fichier Fiches.js 
 
-import React, { useState } from "react"
+import { useState } from "react"
 import FeuillesDeRouteSemaine from "../components/FeuillesDeRouteSemaine"
 import FicheClient from "../components/FicheClient"
 import FicheProspect from "../components/FicheProspect"
 import FicheDemonstration from "../components/FicheDemonstration"
 import FichePresentation from "../components/FichePresentation"
+import Historique from "../components/Historique"
 
 function Fiches({ uid }) {
     const [currentComponent, setCurrentComponent] = useState(null)
@@ -31,6 +32,10 @@ function Fiches({ uid }) {
         setCurrentComponent("Présentation")
     }
 
+    const openHistorique = () => {
+        setCurrentComponent("Historique")
+    }
+
     const returnBack = () => {
         setCurrentComponent(null)
     }
@@ -49,6 +54,7 @@ function Fiches({ uid }) {
                         <button onClick={openFicheProspect}>Fiche de suivi Prospect</button>
                         <button onClick={openDemonstration}>CR de RDV de Démonstration</button>
                         <button onClick={openPresentation}>CR de RDV de Présentation</button>
+                        <button onClick={openHistorique}>Historique des salons</button>
                     </>
                 )}
             </div>
@@ -71,6 +77,10 @@ function Fiches({ uid }) {
 
             {currentComponent === "Présentation" && (
                 <FichePresentation uid={uid} onReturn={returnBack} />
+            )}
+
+            {currentComponent === "Historique" && (
+                <Historique uid={uid} onReturn={returnBack} />
             )}
         </div>
     )

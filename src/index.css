@@ -299,7 +299,6 @@ textarea {
     .fdr,
     .search-section,
     .stats-section,
-    .fiches-section,
     .feuilles-de-route-section {
         margin-left: 100px;
         margin-right: 100px;
@@ -310,7 +309,6 @@ textarea {
     .fdr,
     .search-section,
     .stats-section,
-    .fiches-section,
     .feuilles-de-route-section {
         margin-left: 200px;
         margin-right: 200px;
@@ -321,7 +319,6 @@ textarea {
     .fdr,
     .search-section,
     .stats-section,
-    .fiches-section,
     .feuilles-de-route-section {
         margin-left: 300px;
         margin-right: 300px;
@@ -332,7 +329,6 @@ textarea {
     .fdr,
     .search-section,
     .stats-section,
-    .fiches-section,
     .feuilles-de-route-section {
         margin-left: 400px;
         margin-right: 400px;
@@ -481,7 +477,6 @@ textarea {
     align-items: center;
     justify-content: center;
     text-align: center;
-    overflow: scroll;
 }
 .modale .content p {
     margin: 20px 0;
@@ -495,6 +490,11 @@ textarea {
 }
 .modale .content .city {
     color: grey;
+}
+.modale-log {
+    overflow: scroll;
+    height: 40%;
+    font-size: 13px;
 }
 .geoloc-section button {
     text-transform: initial;
@@ -674,19 +674,84 @@ textarea {
     width: 100%;
     background: white;
 }
-
-
-
-
+.feuilles-de-route-section {
+    position: relative;
+}
+.feuilles-de-route-section .button-back {
+    position: absolute;
+}
+.feuilles-de-route-section .search {
+    margin-top: 20px;
+}
+.feuilles-de-route-section .search label {
+    color: grey;
+    font-size: 14px;
+    margin-bottom: 10px;
+    display: inline-block;
+}
+.feuilles-de-route-section .button-colored {
+    margin-bottom: 20px;
+}
+.feuilles-de-route-section .selected-period,
+.feuilles-de-route-section .this-week {
+    background: #DCF1F2;
+    padding: 20px;
+    border-radius: 20px;
+    position: relative;
+}
+.feuilles-de-route-section h2 {
+    font-size: 20px;
+}
+.feuilles-de-route-section .selected-period .close-btn,
+.feuilles-de-route-section .this-week .close-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    border: solid 2px #3D9B9B;
+    border-radius: 50%;
+    background: white;
+    cursor: pointer;
+}
+.feuilles-de-route-section .selected-period .close-btn img,
+.feuilles-de-route-section .this-week .close-btn img {
+    width: 22px;
+    height: 22px;
+    padding: 3px;
+    padding-bottom: 1px;
+}
 .feuille-jj {
     margin: 20px 0;
     border-radius: 20px;
     padding: 20px;
     box-shadow: 2px 2px 15px #cfcfcf;
+    background: white;
 }
 .feuille-jj p,
 .feuille-jj li {
     margin-bottom: 10px;
+}
+.feuille-jj .date {
+    border-bottom: 4px solid #cfcfcf;
+    padding-bottom: 10px;
+    font-weight: bold;
+}
+.form-feuilledj label {
+    color: grey;
+    font-size: 14px;
+    margin-bottom: 10px;
+    display: inline-block;
+}
+.form-feuilledj .status {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+.form-feuilledj .status p {
+    margin-bottom: 0;
+}
+.form-feuilledj .button-colored {
+    margin-bottom: 0;
+    margin-top: 20px;
 }
 
 
@@ -960,6 +1025,9 @@ textarea {
     color: black;
     font-size: 16px;
 }
+.form-FSP .adresse {
+    margin: 20px 0;
+}
 .form-FSC button,
 .form-FSP button,
 .form-crp button,
@@ -978,6 +1046,36 @@ textarea {
 
 
 
+.historique-section {
+    padding: 0 20px;
+}
+.historique-section button {
+    margin: 20px 0;
+}
+.historique-section table {
+    background: #afafaf;
+}
+.historique-section tbody {
+    background-color: white;
+}
+.historique-section td, th {
+    padding: 10px;
+}
+.historique-formdata {
+    background: #cfcfcf;
+    display: flex;
+    flex-direction: column;
+}
+.historique-formdata tbody {
+    background: white;
+    padding: 5px;
+}
+.historique-formdata thead {
+    padding: 5px;
+}
+.formdata-table {
+    padding: 0 !important;
+}
 
 
 

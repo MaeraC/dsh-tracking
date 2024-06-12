@@ -6,7 +6,7 @@ import {  useState, useEffect, useRef } from "react"
 import ReactModal from "react-modal"
 import startIcon from "../assets/start.png" 
 import { db } from "../firebase.config"
-import { collection, addDoc, setDoc, doc, getDoc, updateDoc } from "firebase/firestore"
+import { collection, addDoc, setDoc, doc, getDoc, updateDoc, arrayUnion } from "firebase/firestore"
 
 const mapContainerStyle = {
     width: '96vw',
@@ -578,41 +578,43 @@ export default Geolocation
 
 const computeDistance = (start, end) => {
     const R = 6371e3; 
-    const dLat = (end.lat - start.lat) * Math.PI / 180;
-    const dLon = (end.lng - start.lng) * Math.PI / 180;
-    const lat1 = start.lat * Math.PI / 180;
-    const lat2 = end.lat * Math.PI / 180;
+    const dLat = (end.lat - start.lat) * Math.PI / 180
+    const dLon = (end.lng - start.lng) * Math.PI / 180
+    const lat1 = start.lat * Math.PI / 180
+    const lat2 = end.lat * Math.PI / 180
 
     const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-              Math.sin(dLon / 2) * Math.sin(dLon / 2) * Math.cos(lat1) * Math.cos(lat2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
-    const distance = R * c; 
-    return distance;
-};
+              Math.sin(dLon / 2) * Math.sin(dLon / 2) * Math.cos(lat1) * Math.cos(lat2)
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+ 
+    const distance = R * c
+    return distance
+};  
 
 function Geolocation({ uid }) {
-    const [currentPosition, setCurrentPosition] = useState(null);
+    const [currentPosition, setCurrentPosition] = useState(null)
     const [isLoaded, setIsLoaded] = useState(false)
     const [hasVisitsToday, setHasVisitsToday] = useState(null) 
     const [noVisitsReason, setNoVisitsReason] = useState("")
-    const [startAddress, setStartAddress] = useState('');
-    const [startCity, setStartCity] = useState('');
+    const [startAddress, setStartAddress] = useState('')
+    const [startCity, setStartCity] = useState('')
     const [currentRouteId, setCurrentRouteId] = useState(null)
-    const [salons, setSalons] = useState([]);
-    const [selectedSalon, setSelectedSalon] = useState(null);
-    const [isTracking, setIsTracking] = useState(false);
+    const [salons, setSalons] = useState([])
+    const [selectedSalon, setSelectedSalon] = useState(null)
+    const [isCalculatingDistance, setIsCalculatingDistance] = useState(false)
+    const [isTracking, setIsTracking] = useState(false)
     const [isParcoursStarted, setIsParcoursStarted] = useState(false)
-    const [totalDistance, setTotalDistance] = useState(0);
-    const [logs, setLogs] = useState([]);
-    const [distance, setDistance] = useState(0);
+    const [totalDistance, setTotalDistance] = useState(0)
+    const [logs, setLogs] = useState([])
+    const [distance, setDistance] = useState(0) 
     const [stops, setStops] = useState([])
+    const [isRadioVisible, setIsRadioVisible] = useState(false)
     const [isModalCounterOpen, setIsModalCounterOpen] = useState(false)
     const [status, setStatus] = useState("") 
     const mapRef = useRef(null)
     const markerRef = useRef(null)
-    const previousPosition = useRef(null);
-
+    const previousPosition = useRef(null)
+    
     // Charge la map
     useEffect(() => {
         if (window.google && window.google.maps && window.google.maps.marker && window.google.maps.geometry) {
@@ -648,22 +650,42 @@ function Geolocation({ uid }) {
             mapRef.current.setCenter(currentPosition)
         }
     }, [isLoaded, currentPosition])
-   
-    /*
-    // récupère la position actuelle
+
     useEffect(() => {
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition((position) => {
-                setCurrentPosition({
-                    lat: position.coords.latitude,
-                    lng: position.coords.longitude,
-                });
-            });
-        } else {
-          console.error('Geolocation is not supported by this browser.');
-        }
+        let watchId;
+
+        const fetchUserLocation = () => {
+            if (navigator.geolocation) {
+                watchId = navigator.geolocation.watchPosition(
+                    (position) => {
+                        const { latitude, longitude } = position.coords;
+                        setCurrentPosition({ latitude, longitude });
+                    },
+                    (error) => {
+                        console.error('Erreur lors de l\'obtention de la localisation :', error)
+                    },
+                    {
+                        enableHighAccuracy: true,
+                        timeout: 5000,
+                        maximumAge: 0
+                    }
+                );
+            } else {
+                console.error('La géolocalisation n\'est pas supportée par ce navigateur.')
+            }
+        };
+
+        fetchUserLocation();
+
+        // Cleanup the watchPosition when the component unmounts
+        return () => {
+            if (watchId) {
+                navigator.geolocation.clearWatch(watchId);
+            }
+        };
     }, []);
-    */
+
+    
 
     useEffect(() => {
         if (navigator.geolocation) {
@@ -682,19 +704,36 @@ function Geolocation({ uid }) {
                     }
 
                     previousPosition.current = newPosition;
+
+                    setSalons((prevSalons) =>
+                        prevSalons.map((salon) => {
+                            if (newPosition && salon.geometry && salon.geometry.location) {
+                                const distance = computeDistance(newPosition, {
+                                    lat: salon.geometry.location.lat(),
+                                    lng: salon.geometry.location.lng(),
+                                });
+                                
+                                return {
+                                    ...salon,
+                                    distance: distance,
+                                };
+                            }
+                            return salon;
+                        })
+                    );
                 },
                 (error) => {
                     addLog(`Erreur de géolocalisation : ${error.message}`);
                     console.error(error);
                 },
                 { enableHighAccuracy: true }
-            );
-            return () => navigator.geolocation.clearWatch(watchId);
+            )
+            return () => navigator.geolocation.clearWatch(watchId)
         } else {
             addLog("La géolocalisation n'est pas prise en charge par ce navigateur.");
-            console.error("Geolocation is not supported by this browser.");
+            console.error("Geolocation is not supported by this browser.")
         }
-    }, [isTracking]);
+    }, [isTracking])
     
     // Gère la réponse OUI/NON du user 
     const handleVisitsToday = async (response) => {
@@ -774,10 +813,11 @@ function Geolocation({ uid }) {
 
     const endParcours = () => {
         setIsParcoursStarted(false)
-    }
+    } 
   
     // recherche les salons à proximité
     const handleSalonsNearBy = async () => {
+        setIsCalculatingDistance(true)
         try {
             const service = new window.google.maps.places.PlacesService(mapRef.current)   
             service.nearbySearch({
@@ -841,13 +881,15 @@ function Geolocation({ uid }) {
                         });
                     }
                     setSalons(sortedSalons)
+                    setIsCalculatingDistance(false)
                 } 
                 else {
                     console.error('Erreur lors de la recherche des salons de coiffure', status)
                 }
             })   
         } catch (error) {
-            console.error('Erreur lors de la récupération des coordonnées de la ville de l\'utilisateur :', error);
+            console.error('Erreur lors de la récupération des coordonnées de la ville de l\'utilisateur :', error)
+            setIsCalculatingDistance(false)
         }
     }
 
@@ -882,22 +924,57 @@ function Geolocation({ uid }) {
             // Vérifie si le salon est déjà dans la base de données
             const salonRef = doc(db, "salons", salon.place_id)
             const salonSnapshot = await getDoc(salonRef)
+
             if (!salonSnapshot.exists()) {
-                // Ajoute le salon à la base de données
+                // Ajoute le salon à la base de données s'il n'existe pas
                 await setDoc(salonRef, {
                     name: salon.name,
-                    address: salon.vicinity
-                })
+                    address: salon.vicinity,
+                    status: ""
+                });
+
+                setIsRadioVisible(true);
+            } 
+            else {
+                // Si le salon existe, vérifie s'il a déjà un statut défini
+                const salonData = salonSnapshot.data();
+                
+                if (!salonData.status) {
+                    setIsRadioVisible(true)
+                } else {
+                    setStatus(salonData.status);
+                    setIsRadioVisible(false);
+                }
             }
         } 
         else {
             console.error("Selected salon has no valid location", salon)
         }
-    };
-
-    const handleStatusChange = (e) => {
-        setStatus(e.target.value)
     }
+
+    const handleStatusChange = async (e) => {
+        const selectedStatus = e.target.value;
+    
+        // Met à jour le statut dans l'état local
+        setStatus(selectedStatus);
+
+        // Ajoute l'action d'ajout de statut dans le champ 'historique' du document du salon
+        const logMessage = `Statut mis à jour : ${selectedStatus}`
+    
+        // Met à jour le statut dans la base de données du salon
+        const salonRef = doc(db, "salons", selectedSalon.place_id)
+        await updateDoc(salonRef, {
+            status: selectedStatus,
+            historique: arrayUnion({
+                date: new Date(),
+                action: logMessage,
+                userId: uid
+            })
+        })
+
+        // Masque les boutons radio après avoir choisi un statut
+        setIsRadioVisible(false)
+    };
     
     // Active le suivi de la position
     const handleStartTracking = () => {
@@ -905,20 +982,39 @@ function Geolocation({ uid }) {
         setTotalDistance(0)
         setIsTracking(true); 
         addLog("Début du suivi de la position.");
-    };
+    }
     
     // Désactive le suivi de la position 
-    const handleStopTracking = () => {
-        setIsTracking(false);
-        setIsModalCounterOpen(false)
+    const handleStopTracking = async () => {
         addLog("Fin du suivi de la position.");
-    };
+        // ajoute la distance à la liste des arrêts
+        setStops((prevStops) => [
+            ...prevStops,
+            {
+                name: selectedSalon.name, 
+                distance: formatDistance(distance), 
+            },
+        ])
 
+        const logMessage = `Salon visité`
+
+        // Ajoute l'action de visite dans le champ 'historique' du document du salon
+        const salonRef = doc(db, 'salons', selectedSalon.place_id)
+        await updateDoc(salonRef, {
+            historique: arrayUnion({
+                date: new Date(),
+                action: logMessage,
+                userId: uid
+            })
+        })
+
+        setIsTracking(false)
+        setIsModalCounterOpen(false)
+    }
     
     const addLog = (message) => {
         setLogs((prevLogs) => [...prevLogs, { message, timestamp: new Date().toLocaleTimeString() }]);
-    };
-    
+    }
 
     const formatDistance = (distance) => {
         if (distance < 1000) {
@@ -1041,9 +1137,9 @@ function Geolocation({ uid }) {
                                     {stops.map((stop, index) => (
                                         <li key={index}>
                                             {index === 0 ? (
-                                                <p><strong>{stop.distance} km</strong>De <em>{startAddress}</em> à <em>{stop.name}</em></p>
+                                                <p><strong>{stop.distance}</strong>De <em>{startAddress}</em> à <em>{stop.name}</em></p>
                                             ) : (
-                                                <p><strong>{stop.distance} km</strong>De <em>{stops[index - 1].name}</em> à <em>{stop.name}</em></p>
+                                                <p><strong>{stop.distance}</strong>De <em>{stops[index - 1].name}</em> à <em>{stop.name}</em></p>
                                             )}
                                         </li>
                                     ))}
@@ -1057,12 +1153,11 @@ function Geolocation({ uid }) {
                                         <div>
                                             <div className="distance">
                                                 <span>{salon.name} </span>
-                                                <p>{formatDistance(
-                                                    window.google.maps.geometry.spherical.computeDistanceBetween(
-                                                        new window.google.maps.LatLng(currentPosition.lat, currentPosition.lng),
-                                                        salon.geometry.location
-                                                    ) / 1000
-                                                )}</p>
+                                                {isCalculatingDistance ? (
+                                                    <p>Calculating distance...</p>
+                                                ) : (
+                                                    <p>{salon.distance ? formatDistance(salon.distance) : 'Distance not available'}</p>
+                                                )}
                                             </div>
                                             <p>{salon.vicinity}</p> 
 
@@ -1089,19 +1184,23 @@ function Geolocation({ uid }) {
                         <div className="content">
                             <h2>{selectedSalon.name}</h2>
                             <p className="city">{selectedSalon.vicinity}</p>
-                            <div>
-                                <input className="checkbox" type="radio" id="prospect" name="status" value="prospect" checked={status === "prospect"} onChange={handleStatusChange} />
-                                <label htmlFor="prospect">Prospect</label>
+                            {isRadioVisible ? ( // Afficher les boutons radio uniquement si isRadioVisible est vrai
+                                <div>
+                                    <input className="checkbox" type="checkbox" id="Prospect" name="status" value="Prospect" checked={status === "Prospect"} onChange={handleStatusChange} />
+                                    <label htmlFor="prospect">Prospect</label>
 
-                                <input className="checkbox" type="radio" id="client" name="status" value="client" checked={status === "client"} onChange={handleStatusChange} />
-                                <label htmlFor="client">Client</label>
-                            </div>
+                                    <input className="checkbox" type="checkbox" id="Client" name="status" value="Client" checked={status === "Client"} onChange={handleStatusChange} />
+                                    <label htmlFor="client">Client</label>
+                                </div>
+                            ) : (
+                                <p>Statut : {status}</p>
+                            )}
 
                             {isTracking ? (
                                 <div>
                                     <p>Calcul en cours...</p> 
                                     <p className="total"><strong>{formatDistance(distance)}</strong></p>
-                                    <div>
+                                    <div className="modale-log">
                                         {logs.map((log, index) => (
                                             <div key={index}>
                                                 [{log.timestamp}] {log.message}

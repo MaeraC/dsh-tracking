@@ -5,6 +5,7 @@ import { useState, useEffect, useRef } from 'react'
 import { db } from '../firebase.config'
 import { collection, query, where, getDocs, orderBy, doc, updateDoc, addDoc } from 'firebase/firestore'
 import back from "../assets/back.png"
+import close from "../assets/close.png"
 import ReactSignatureCanvas from 'react-signature-canvas'
 
 function FeuillesDeRouteSemaine({ uid, onReturn }) {
@@ -23,6 +24,7 @@ function FeuillesDeRouteSemaine({ uid, onReturn }) {
     const [confirmNoVisit, setConfirmNoVisit] = useState(false)
     const [otherMotif, setOtherMotif] = useState('')
     const [isSignatureDone, setIsSignatureDone] = useState(false)
+    const [isSelectedPeriodShown, setIsSelectedPeriodShown] = useState(false)
 
     const signatureCanvasRef = useRef() 
 
@@ -107,8 +109,10 @@ function FeuillesDeRouteSemaine({ uid, onReturn }) {
         return `${dayName} ${day} ${month} ${year}`
     }
 
-    // affiche la periode sélectionnée 
+    // affiche les fiches la periode sélectionnée 
     const handleApplyDates = () => {
+        setIsSelectedPeriodShown(true)
+
         if (startDate && endDate) {
             const start = new Date(startDate)
             const end = new Date(endDate)
@@ -151,7 +155,6 @@ function FeuillesDeRouteSemaine({ uid, onReturn }) {
         });
     
         setFeuilleDuJour(feuille || null)  
-        console.log(feuilleDuJour)
         setIsFeuilleDuJourOpen(true) 
     }
 
@@ -172,7 +175,7 @@ function FeuillesDeRouteSemaine({ uid, onReturn }) {
             setisThisWeekOpen(false);
         }
     }
-    
+    console.log(handleSignFiche)
 
     return (
         <div className="feuilles-de-route-section">
@@ -181,7 +184,7 @@ function FeuillesDeRouteSemaine({ uid, onReturn }) {
                 <h1>Feuilles de route de la semaine</h1>
             </header>
 
-            <div>
+            <div className='search'>
                 <label>Date de début</label>
                 <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
                 
@@ -191,16 +194,19 @@ function FeuillesDeRouteSemaine({ uid, onReturn }) {
                 <button className='button-colored' onClick={handleApplyDates}>Appliquer</button>  
             </div>
 
-            <button onClick={displayThisWeek}>Feuille de route de la semaine en cours</button>
+            <button className='button-colored' onClick={displayThisWeek}>Feuille de route de la semaine en cours</button>
 
-            <button onClick={displayFeuilleDuJour}>Feuille de route du jour</button>
+            <button className='button-colored' onClick={displayFeuilleDuJour}>Feuille de route du jour</button>
 
-            {selectedPeriod.length > 0 && (
-                <div>
+            {selectedPeriod.length > 0 && isSelectedPeriodShown === true && (
+                <div className='selected-period'>
                     <h2>Feuilles de route pour la période sélectionnée :</h2>
+                    <button className='close-btn' onClick={() => setIsSelectedPeriodShown(false)} >
+                       <img src={close} alt="fermer" /> 
+                    </button> 
                     {selectedPeriod.map(feuille => (
                         <div className='feuille-jj' key={feuille.id}>
-                            <p>Date: {formatDate(feuille.date)}</p>
+                            <p className='date'>{formatDate(feuille.date)}</p>
                             {feuille.isVisitsStarted ? (
                                 <>
                                     <p>Ville: {feuille.city}</p>
@@ -224,23 +230,18 @@ function FeuillesDeRouteSemaine({ uid, onReturn }) {
             )}
  
             {isThisWeekOpen && (
-                <div>
-                    <h2>Semaine en cours</h2>
+                <div className='this-week'>
+                    <button className='close-btn' onClick={() => setisThisWeekOpen(false)} >
+                       <img src={close} alt="fermer" /> 
+                    </button> 
+                    <h2>Feuille de route de la semaine en cours</h2>
+
                     {showSignButton && (
                         <div>
-                            {/* Bouton pour ouvrir la modale de signature */}
                             <button onClick={() => setIsSignatureDone(true)}>Signer la feuille de route</button>
-                            {/* Modale de signature */}
                             {isSignatureDone && (
                                 <div className="signature-modal">
-                                    {/* Composant ReactSignatureCanvas */}
-                                    <ReactSignatureCanvas
-                                        ref={signatureCanvasRef}
-                                        canvasProps={{ width: 400, height: 200, className: 'sigCanvas' }}
-                                    />
-                                    {/* Bouton pour valider la signature */}
-                                    <button onClick={handleSignFiche}>Valider</button>
-                                    {/* Bouton pour annuler */}
+                                    <ReactSignatureCanvas ref={signatureCanvasRef} canvasProps={{ width: 400, height: 200, className: 'sigCanvas' }} />
                                     <button onClick={() => setIsSignatureDone(false)}>Annuler</button>
                                 </div>
                             )}
@@ -249,7 +250,7 @@ function FeuillesDeRouteSemaine({ uid, onReturn }) {
 
                     {filteredFeuillesDeRoute.map(feuille => (
                         <div className='feuille-jj' key={feuille.id}>
-                            <p>Date: {formatDate(feuille.date)}</p>
+                            <p className='date'>{formatDate(feuille.date)}</p>
                             {feuille.isVisitsStarted ? (
                                 <>
                                     <p>Ville: {feuille.city}</p>
@@ -298,14 +299,8 @@ function FeuillesDeRouteSemaine({ uid, onReturn }) {
                             )}
                         </div>
                     ))}
-
-                    
-                    
                 </div>
             )}
-
-            
-
 
             {isFeuilleDuJourOpen && (
                 <div>
@@ -313,8 +308,8 @@ function FeuillesDeRouteSemaine({ uid, onReturn }) {
                     {feuilleDuJour ? (
                         <>
                             {isFicheCloturee ? (
-                                <div>
-                                    <h3>Informations clôturées :</h3>
+                                <div className='feuille-jj'>
+                                    <h3>Fiche clôturée</h3>
                                     <p>Ville : {feuilleDuJour.city}</p>
                                     <p>Statut : {feuilleDuJour.status}</p>
                                     <p>Adresse de départ : {feuilleDuJour.departureAddress}</p>
@@ -328,20 +323,18 @@ function FeuillesDeRouteSemaine({ uid, onReturn }) {
                                     ))}
                                 </div>
                             ) : (
-                                <form onSubmit={handleCloturerFiche}>   
+                                <form onSubmit={handleCloturerFiche} className='form-feuilledj feuille-jj'>   
                                     <label>Ville</label>
                                     <input type="text" value={feuilleDuJour.city} onChange={(e) => setFeuilleDuJour({...feuilleDuJour, city: e.target.value})} />
 
                                     <label>Statut</label>
-                                    <div>
-                                        <label>
-                                            Prospect
-                                            <input type="radio" value="prospect" checked={status === "prospect"} onChange={() => setStatus("prospect")} />
-                                        </label>
-                                        <label>
-                                            Client
-                                            <input type="radio" value="client" checked={status === "client"} onChange={() => setStatus("client")} />
-                                        </label>
+                                    <div className='status'>
+                                        <input className='checkbox' type="radio" value="prospect" checked={status === "Prospect"} onChange={() => setStatus("prospect")} />
+                                        <p>Prospect</p>
+                                    </div>   
+                                    <div className='status'>   
+                                        <input className='checkbox' type="radio" value="client" checked={status === "Client"} onChange={() => setStatus("client")} /> 
+                                        <p>Client</p>               
                                     </div>
                                     
                                     <label>Adresse de départ</label>
@@ -365,7 +358,7 @@ function FeuillesDeRouteSemaine({ uid, onReturn }) {
                                         </div>
                                     ))}
                                     
-                                    <button type="submit" onClick={handleCloturerFiche}>Clôturer la fiche</button>
+                                    <button type="submit" className='button-colored' onClick={handleCloturerFiche}>Clôturer la fiche</button>
                                 </form>
                             )}
                         </>
@@ -374,7 +367,6 @@ function FeuillesDeRouteSemaine({ uid, onReturn }) {
                     )}
                 </div>
             )}
-
         </div>
     );
 }

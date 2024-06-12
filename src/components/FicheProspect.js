@@ -2,7 +2,7 @@
 // Fichier FicheProspect.js
 
 import back from "../assets/back.png"
-import { useState } from "react"
+import { useState, useCallback } from "react"
 import { db } from "../firebase.config"
 import { collection, query, where, getDocs, doc, updateDoc, getDoc } from "firebase/firestore"
 
@@ -60,7 +60,7 @@ function FicheProspect({uid, onReturn}) {
         userId: uid,
     }
 
-    const [formData, setFormData] = useState(initialFormData)
+    const [formData, setFormData] = useState(initialFormData) 
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -113,14 +113,11 @@ function FicheProspect({uid, onReturn}) {
                 const searchResults = [];
                 querySnapshot.forEach((doc) => {
                     const data = doc.data();
-                    if (data.status === "prospect") {
+                    if (data.status === "Prospect") {
                         searchResults.push({ id: doc.id, ...data });
-
                     }
                 }); 
-
                 setSuggestions(searchResults);
-
                 
             } catch (error) {
                 console.error("Erreur lors de la recherche du salon : ", error);
@@ -131,15 +128,15 @@ function FicheProspect({uid, onReturn}) {
     }
 
     const handleSelectSuggestion = async (salon) => {
-        setSalonInfo(salon);
-        setSuggestions([]);
+        setSalonInfo(salon)
+        setSuggestions([])
 
-        const salonRef = doc(db, "salons", salon.id);
-        const salonSnapshot = await getDoc(salonRef);
+        const salonRef = doc(db, "salons", salon.id)
+        const salonSnapshot = await getDoc(salonRef)
 
         if (salonSnapshot.exists()) {
-            const data = salonSnapshot.data();
-            const suiviProspect = data.suiviProspect ? data.suiviProspect[data.suiviProspect.length - 1] : {};
+            const data = salonSnapshot.data()
+            const suiviProspect = data.suiviProspect ? data.suiviProspect[data.suiviProspect.length - 1] : {}
 
             setFormData({
                 salonName: salon.name || "",
@@ -186,10 +183,37 @@ function FicheProspect({uid, onReturn}) {
                 createdAt: createdAt,
                 typeOfForm: "Fiche de suivi Client",
                 userId: uid,
-            });
+            })
         }
-        
-    };
+    }
+
+    const updateSalonHistory = useCallback(async (updatedData) => {
+        if (salonInfo) {
+            try {
+                const salonRef = doc(db, "salons", salonInfo.id);
+                const salonSnapshot = await getDoc(salonRef);
+    
+                if (salonSnapshot.exists()) {
+                    const salonData = salonSnapshot.data();
+                    const newHistoryEntry = [
+                        ...(salonData.historique || []),
+                        {
+                            date: new Date(),
+                            action: "Mise à jour de la Fiche de suivi Prospect",
+                            formData: updatedData,
+                            userId: uid
+                        }
+                    ];
+    
+                    await updateDoc(salonRef, { historique: newHistoryEntry });
+                } else {
+                    console.error("Document de visite non trouvé.");
+                }
+            } catch (error) {
+                console.error("Erreur lors de la mise à jour de l'historique du salon : ", error);
+            }
+        }
+    }, [salonInfo, uid]); 
 
     // Soumission du formulaire
     const handleSubmit = async (e) => {
@@ -205,8 +229,8 @@ function FicheProspect({uid, onReturn}) {
                 const updatedSuiviProspect = [...(salonData.suiviProspect || []), formData]
                 await updateDoc(salonRef, { suiviProspect: updatedSuiviProspect })   
 
-                // Réinitialise les champs après la soumission du formulaire
-                setFormData(initialFormData)
+                // Met à jour l'historique du salon
+                await updateSalonHistory(formData)
             }
             else {
                 console.error("Document de visite non trouvé.")
@@ -239,7 +263,7 @@ function FicheProspect({uid, onReturn}) {
                     <form onSubmit={handleSubmit}>
                         <div className="form-FSP">
                             <h2>{salonInfo.name}</h2>
-                            <p>{salonInfo.address}</p>
+                            <p className="adresse">{salonInfo.address}</p>
 
                             <input type="text" name="city" placeholder="Ville" value={formData.city} onChange={handleInputChange} required />
                             <input type="text" name="salonTel" placeholder="Téléphone" value={formData.salonTel} onChange={handleInputChange} />
@@ -247,9 +271,9 @@ function FicheProspect({uid, onReturn}) {
                             <div className="space">
                                 <label className="bold margin">Tenue du salon :</label>
                                 <div>
-                                    <label className="margin"><input className="checkbox" type="radio" name="tenueSalon" value="TB" checked={formData.tenueSalon === "TB"} onChange={handleInputChange} />TB</label><br></br>
-                                    <label className="margin" ><input className="checkbox" type="radio" name="tenueSalon" value="moyenne" checked={formData.tenueSalon === "moyenne"} onChange={handleInputChange} />moyenne</label><br></br>
-                                    <label className="margin"><input className="checkbox" type="radio" name="tenueSalon" value="mauvaise" checked={formData.tenueSalon === "mauvaise"} onChange={handleInputChange} />mauvaise</label><br></br>
+                                    <label className="margin"><input className="checkbox" type="radio" name="tenueSalon" value="Très bien" checked={formData.tenueSalon === "Très bien"} onChange={handleInputChange} />Très bien</label><br></br>
+                                    <label className="margin" ><input className="checkbox" type="radio" name="tenueSalon" value="Moyenne" checked={formData.tenueSalon === "Moyenne"} onChange={handleInputChange} />Moyenne</label><br></br>
+                                    <label className="margin"><input className="checkbox" type="radio" name="tenueSalon" value="Mauvaise" checked={formData.tenueSalon === "Mauvaise"} onChange={handleInputChange} />Mauvaise</label><br></br>
                                 </div>
                             </div><br></br>
                 
@@ -261,28 +285,28 @@ function FicheProspect({uid, onReturn}) {
                                 </div>
                             </div>
                     
-                            <input type="text" name="dept" placeholder="Dépt" value={formData.dept} onChange={handleInputChange} /> <br></br>
-                            <input type="text" name="jFture" placeholder="J. Fture" value={formData.jFture} onChange={handleInputChange} /><br></br>
+                            <input type="text" name="dept" placeholder="Département" value={formData.dept} onChange={handleInputChange} /> <br></br>
+                            <input type="text" name="jFture" placeholder="J.Fture" value={formData.jFture} onChange={handleInputChange} /><br></br>
                             <input type="text" name="responsableNom" placeholder="Nom Prénom du responsable" value={formData.responsableNom} onChange={handleInputChange} />
                     
                             <div className="space">
-                                <label className="bold margin">Age du responsable :</label>
+                                <label className="bold margin">Âge du responsable :</label>
                                 <div>
-                                    <label className="margin"><input className="checkbox" type="radio" name="responsableAge" value="moins de 35 ans" checked={formData.responsableAge === "moins de 35 ans"} onChange={handleInputChange} />moins de 35 ans</label><br></br>
-                                    <label className="margin"><input className="checkbox" type="radio" name="responsableAge" value="de 35 ans à 50 ans" checked={formData.responsableAge === "de 35 ans à 50 ans"} onChange={handleInputChange} />entre 35 ans et 50 ans</label><br></br>
-                                    <label className="margin"><input className="checkbox" type="radio" name="responsableAge" value="plus de 50 ans" checked={formData.responsableAge === "plus de 50 ans"} onChange={handleInputChange} />plus de 50 ans</label>
+                                    <label className="margin"><input className="checkbox" type="radio" name="responsableAge" value="Moins de 35 ans" checked={formData.responsableAge === "Moins de 35 ans"} onChange={handleInputChange} />Moins de 35 ans</label><br></br>
+                                    <label className="margin"><input className="checkbox" type="radio" name="responsableAge" value="De 35 ans à 50 ans" checked={formData.responsableAge === "De 35 ans à 50 ans"} onChange={handleInputChange} />De 35 ans à 50 ans</label><br></br>
+                                    <label className="margin"><input className="checkbox" type="radio" name="responsableAge" value="Plus de 50 ans" checked={formData.responsableAge === "Plus de 50 ans"} onChange={handleInputChange} />Plus de 50 ans</label>
                                 </div>
                             </div>
                     
                             <input type="text" name="numeroPortable" placeholder="Numéro de portable" value={formData.numeroPortable} onChange={handleInputChange} /><br></br>
-                            <input type="email" name="adresseEmail" placeholder="Adresse email" value={formData.adresseEmail} onChange={handleInputChange} /><br></br>
+                            <input type="email" name="adresseEmail" placeholder="Adresse e-mail" value={formData.adresseEmail} onChange={handleInputChange} /><br></br>
                             <input type="url" name="facebook" placeholder="Facebook" value={formData.facebook} onChange={handleInputChange} /><br></br>
                             <input type="url" name="instagram" placeholder="Instagram" value={formData.instagram} onChange={handleInputChange} /><br></br>
                     
                             <div className="space">
                                 <label className="bold margin">Origine de la visite :</label>
                                 <div>
-                                    <label className="margin"><input className="checkbox" type="radio" name="origineVisite" value="visite spontanée" checked={formData.origineVisite === "visite spontanée"} onChange={handleInputChange} />visite spontanée </label><br></br>
+                                    <label className="margin"><input className="checkbox" type="radio" name="origineVisite" value="Visite spontanée" checked={formData.origineVisite === "visite spontanée"} onChange={handleInputChange} />Visite spontanée </label><br></br>
                                     <label className="margin"><input className="checkbox" type="radio" name="origineVisite" value="S. recomm." checked={formData.origineVisite === "S. recomm."} onChange={handleInputChange} />S. recomm.</label><br></br>
                                     <label className="margin"><input className="checkbox" type="radio" name="origineVisite" value="Ancien client" checked={formData.origineVisite === "Ancien client"} onChange={handleInputChange} />Ancien client </label><br></br>
                                     <label className="margin"><input className="checkbox" type="radio" name="origineVisite" value="Prospection téléphonique" checked={formData.origineVisite === "Prospection téléphonique"} onChange={handleInputChange} />Prospection téléphonique</label>
@@ -483,25 +507,15 @@ function FicheProspect({uid, onReturn}) {
                             </div>
                             <div>
                                 <label className="bold margin">RDV OK LE :</label>
-                                <input
-                                    type="date"
-                                    name="rdvDate"
-                                    placeholder="RDV OK LE"
-                                    value={formData.rdvDate}
-                                    onChange={handleInputChange}
-                                />
+                                <input type="date" name="rdvDate" placeholder="RDV OK LE" value={formData.rdvDate} onChange={handleInputChange} />
                             </div>
                             <div>
                                 <label className="bold margin">Pour :</label>
-                                <select
-                                    name="rdvPour"
-                                    value={formData.rdvPour}
-                                    onChange={handleInputChange}
-                                >
+                                <select name="rdvPour" value={formData.rdvPour} onChange={handleInputChange}>
                                     <option value="">Choisir</option>
-                                    <option value="presentation">presentation</option>
-                                    <option value="démo">démo</option>
-                                    <option value="formation">formation</option>
+                                    <option value="Présentation">Présentation</option>
+                                    <option value="Démo">Démo</option>
+                                    <option value="Formation">Formation</option>
                                     <option value="Commercial">Commercial</option>
                                 </select>
                             </div>

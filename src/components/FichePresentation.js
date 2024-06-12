@@ -1,7 +1,7 @@
 
 // fichier FichePresentation.js
 
-import { useState } from "react"
+import { useState, useCallback } from "react"
 import { db } from "../firebase.config"
 import { updateDoc, doc, getDoc, getDocs, query, collection, where } from "firebase/firestore"
 import back from "../assets/back.png"
@@ -89,9 +89,8 @@ function FichePresentation({ uid, onReturn }) {
     }
 
     const handleSearch = async (e) => {
-        
-        const searchValue = e.target.value;
-        setSearchSalon(searchValue);
+        const searchValue = e.target.value
+        setSearchSalon(searchValue)
 
         if (searchValue.length > 0) {
             try {
@@ -168,6 +167,34 @@ function FichePresentation({ uid, onReturn }) {
         
     }  
 
+    const updateSalonHistory = useCallback(async (updatedData) => {
+        if (salonInfo) {
+            try {
+                const salonRef = doc(db, "salons", salonInfo.id);
+                const salonSnapshot = await getDoc(salonRef);
+    
+                if (salonSnapshot.exists()) {
+                    const salonData = salonSnapshot.data();
+                    const newHistoryEntry = [
+                        ...(salonData.historique || []),
+                        {
+                            date: new Date(),
+                            action: "Mise à jour du Compte rendu de RDV De Présentation",
+                            formData: updatedData,
+                            userId: uid
+                        }
+                    ];
+    
+                    await updateDoc(salonRef, { historique: newHistoryEntry });
+                } else {
+                    console.error("Document de visite non trouvé.");
+                }
+            } catch (error) {
+                console.error("Erreur lors de la mise à jour de l'historique du salon : ", error);
+            }
+        }
+    }, [salonInfo, uid]); 
+
     const handleSubmit = async (e) => {
         e.preventDefault()
 
@@ -182,7 +209,8 @@ function FichePresentation({ uid, onReturn }) {
                 const updatedcrPresentation = [...(salonData.crPresentation || []), formData]
                 await updateDoc(salonRef, { crPresentation: updatedcrPresentation })   
 
-                setFormData(initialFormData)
+                // Met à jour l'historique du salon
+                await updateSalonHistory(formData)
             }
             else {
                 console.error("Document de visite non trouvé.")

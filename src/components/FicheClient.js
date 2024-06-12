@@ -2,7 +2,7 @@
 // ficheClient.js
 
 import back from "../assets/back.png"
-import { useState } from "react"
+import { useState, useCallback } from "react" 
 import { db } from "../firebase.config"
 import { collection, query, where, getDocs, doc, updateDoc, getDoc } from "firebase/firestore"
 
@@ -97,15 +97,12 @@ function FicheClient({ onReturn, uid }) {
                 const searchResults = [];
                 querySnapshot.forEach((doc) => {
                     const data = doc.data();
-                    if (data.status === "client") {
+                    if (data.status === "Client") {
                         searchResults.push({ id: doc.id, ...data });
-
                     }
                 }); 
-
                 setSuggestions(searchResults);
 
-                
             } catch (error) {
                 console.error("Erreur lors de la recherche du salon : ", error);
             }
@@ -123,40 +120,40 @@ function FicheClient({ onReturn, uid }) {
 
         if (salonSnapshot.exists()) {
             const data = salonSnapshot.data();
-            const suiviProspect = data.suiviProspect ? data.suiviProspect[data.suiviProspect.length - 1] : {};
+            const suiviClient = data.suiviClient ? data.suiviClient[data.suiviClient.length - 1] : {};
 
             setFormData({
                 salonName: salon.name || "",
-                city: suiviProspect.city || "",
+                city: suiviClient.city || "",
                 salonAdresse: salon.address || "",
-                salonTel: suiviProspect.salonTel || "",
-                responsableNomPrenom: suiviProspect.responsableNomPrenom || "",
-                responsablePortable: suiviProspect.responsablePortable || "",
-                responsableEmail: suiviProspect.responsableEmail || "",
+                salonTel: suiviClient.salonTel || "",
+                responsableNomPrenom: suiviClient.responsableNomPrenom || "",
+                responsablePortable: suiviClient.responsablePortable || "",
+                responsableEmail: suiviClient.responsableEmail || "",
                 marquesEnPlace: {
-                    systemeDsh: suiviProspect.marquesEnPlace?.systemeDsh || false,
-                    colorationThalasso: suiviProspect.marquesEnPlace?.colorationThalasso || false,
-                    mechesThalasso: suiviProspect.marquesEnPlace?.mechesThalasso || false,
-                    ondThPerm: suiviProspect.marquesEnPlace?.ondThPerm || false,
-                    laVegetale: suiviProspect.marquesEnPlace?.laVegetale || false,
-                    byDsh: suiviProspect.marquesEnPlace?.byDsh || false,
-                    oyzea: suiviProspect.marquesEnPlace?.oyzea || false,
-                    stylPro: suiviProspect.marquesEnPlace?.stylPro || false,
-                    persTou: suiviProspect.marquesEnPlace?.persTou || false,
+                    systemeDsh: suiviClient.marquesEnPlace?.systemeDsh || false,
+                    colorationThalasso: suiviClient.marquesEnPlace?.colorationThalasso || false,
+                    mechesThalasso: suiviClient.marquesEnPlace?.mechesThalasso || false,
+                    ondThPerm: suiviClient.marquesEnPlace?.ondThPerm || false,
+                    laVegetale: suiviClient.marquesEnPlace?.laVegetale || false,
+                    byDsh: suiviClient.marquesEnPlace?.byDsh || false,
+                    oyzea: suiviClient.marquesEnPlace?.oyzea || false,
+                    stylPro: suiviClient.marquesEnPlace?.stylPro || false,
+                    persTou: suiviClient.marquesEnPlace?.persTou || false,
                 },
-                equipe: suiviProspect.equipe || [],
-                clientEnContrat: suiviProspect.clientEnContrat || "",
-                contratLequel: suiviProspect.contratLequel || "",
-                tarifSpecifique: suiviProspect.tarifSpecifique || "",
-                dateVisite: suiviProspect.dateVisite || "",
-                responsablePresent: suiviProspect.responsablePresent || "",
-                priseDeCommande: suiviProspect.priseDeCommande || "",
-                gammesCommande: suiviProspect.gammesCommande || "",
-                animationProposee: suiviProspect.animationProposee || "",
-                produitsProposes: suiviProspect.produitsProposes || "",
-                autresPointsAbordes: suiviProspect.autresPointsAbordes || "",
-                pointsProchaineVisite: suiviProspect.pointsProchaineVisite || "",
-                observations: suiviProspect.observations || "",
+                equipe: suiviClient.equipe || [],
+                clientEnContrat: suiviClient.clientEnContrat || "",
+                contratLequel: suiviClient.contratLequel || "",
+                tarifSpecifique: suiviClient.tarifSpecifique || "",
+                dateVisite: suiviClient.dateVisite || "",
+                responsablePresent: suiviClient.responsablePresent || "",
+                priseDeCommande: suiviClient.priseDeCommande || "",
+                gammesCommande: suiviClient.gammesCommande || "",
+                animationProposee: suiviClient.animationProposee || "",
+                produitsProposes: suiviClient.produitsProposes || "",
+                autresPointsAbordes: suiviClient.autresPointsAbordes || "",
+                pointsProchaineVisite: suiviClient.pointsProchaineVisite || "",
+                observations: suiviClient.observations || "",
                 createdAt: createdAt,
                 typeOfForm: "Fiche de suivi Client",
                 userId: uid,
@@ -164,6 +161,34 @@ function FicheClient({ onReturn, uid }) {
         }
         
     };
+
+    const updateSalonHistory = useCallback(async (updatedData) => {
+        if (salonInfo) {
+            try {
+                const salonRef = doc(db, "salons", salonInfo.id);
+                const salonSnapshot = await getDoc(salonRef);
+    
+                if (salonSnapshot.exists()) {
+                    const salonData = salonSnapshot.data();
+                    const newHistoryEntry = [
+                        ...(salonData.historique || []),
+                        {
+                            date: new Date(),
+                            action: "Mise à jour de la Fiche de suivi Client",
+                            formData: updatedData,
+                            userId: uid
+                        }
+                    ];
+    
+                    await updateDoc(salonRef, { historique: newHistoryEntry });
+                } else {
+                    console.error("Document de visite non trouvé.");
+                }
+            } catch (error) {
+                console.error("Erreur lors de la mise à jour de l'historique du salon : ", error);
+            }
+        }
+    }, [salonInfo, uid]); 
 
 
     // Soumission du formulaire
@@ -180,8 +205,8 @@ function FicheClient({ onReturn, uid }) {
                 const updatedSuiviClient = [...(salonData.suiviClient || []), formData]
                 await updateDoc(salonRef, { suiviClient: updatedSuiviClient })   
 
-                // Réinitialise les champs après la soumission du formulaire
-                setFormData(initialFormData)
+                // Met à jour l'historique du salon
+                await updateSalonHistory(formData)
             }
             else {
                 console.error("Document de visite non trouvé.")

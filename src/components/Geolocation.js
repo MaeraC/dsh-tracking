@@ -663,7 +663,7 @@ function Geolocation({ uid }) {
 
                     if (isTracking && previousPosition.current) {
                         const distance = computeDistance(previousPosition.current, newPosition);
-                        console.log("Distance:", distance);
+                        setDistance(distance)
                         setTotalDistance((prevDistance) => prevDistance + distance);
                         addLog(`Distance parcourue : ${formatDistance(distance)}`);
                     }
@@ -951,8 +951,8 @@ function Geolocation({ uid }) {
     
     // Active le suivi de la position
     const handleStartTracking = () => {
-        setDistance(0);
-        setTotalDistance(0)
+        //setDistance(0);
+        //setTotalDistance(0)
         setIsTracking(true); 
         addLog("Début du suivi de la position.");
     }

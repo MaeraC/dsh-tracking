@@ -972,6 +972,10 @@ function Geolocation({ uid }) {
         setIsModalCounterOpen(false);
         setTotalDistance(0);
     }
+
+    const getTotalStopDistances = () => {
+        return stops.reduce((total, stop) => total + stop.distance, 0);
+    }; 
     
     const addLog = (message) => {
         setLogs((prevLogs) => [...prevLogs, { message, timestamp: new Date().toLocaleTimeString() }]);
@@ -1090,7 +1094,7 @@ function Geolocation({ uid }) {
                         </div>
                                                 
                         <div className="distance-results">
-                            <p className="total"><strong>{formatDistance(distance)}</strong> kilomètres parcourus aujourd'hui</p>
+                            <p className="total"><strong>{formatDistance(getTotalStopDistances())}</strong> kilomètres parcourus aujourd'hui</p>
                             
                             <div className="arrets">
                                 <p className="point">Distance entre chaque point d'arrêt</p>

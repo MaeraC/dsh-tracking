@@ -607,7 +607,7 @@ function Geolocation({ uid }) {
     const [logs, setLogs] = useState([])
     const [distance, setDistance] = useState(0) 
     const [stops, setStops] = useState([])
-    const [currentStopDistance, setCurrentStopDistance] = useState(0);
+    //const [currentStopDistance, setCurrentStopDistance] = useState(0);
     const [isRadioVisible, setIsRadioVisible] = useState(false)
     const [isModalCounterOpen, setIsModalCounterOpen] = useState(false)
     const [status, setStatus] = useState("") 
@@ -941,13 +941,17 @@ function Geolocation({ uid }) {
     // Désactive le suivi de la position 
     const handleStopTracking = async () => {
         addLog("Fin du suivi de la position.");
-        // Ajouter la distance parcourue jusqu'au dernier salon dans les arrêts
-        const newStop = {
-            name: selectedSalon.name,
-            distance: currentStopDistance,
-        };
+        // Calculer la distance parcourue jusqu'à ce salon
+        const distanceToCurrentSalon = formatDistance(totalDistance);
 
-        setStops(prevStops => [...prevStops, newStop]);
+        // Ajouter la distance à l'arrêt précédent dans stops
+        setStops(prevStops => [
+            ...prevStops,
+            {
+                name: selectedSalon.name,
+                distance: distanceToCurrentSalon,
+            }
+        ]);
 
         addLog(`stops : ${stops}`)
 
@@ -962,8 +966,7 @@ function Geolocation({ uid }) {
                 userId: uid
             })
         })
-        // Réinitialiser la distance depuis le dernier arrêt
-        setCurrentStopDistance(0);
+        
         // Réinitialiser le suivi global de la distance
         setIsTracking(false);
         setIsModalCounterOpen(false);

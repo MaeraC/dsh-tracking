@@ -245,8 +245,10 @@ function Geolocation({ uid }) {
     const updateRouteWithStops = async () => {
         try {
             const routeDocRef = doc(db, "feuillesDeRoute", currentRouteId);
+            const totalKm = getTotalStopDistances();
             await updateDoc(routeDocRef, {
-                stops: stops
+                stops: stops,
+                totalKm: totalKm   
             })
             console.log("Arrêts mis à jour avec succès");
         } catch (e) {

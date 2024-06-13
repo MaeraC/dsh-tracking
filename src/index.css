@@ -822,6 +822,17 @@ textarea {
     padding: 3px;
     padding-bottom: 1px;
 }
+.feuilles-de-route-section .search {
+    padding: 20px;
+    box-shadow: 2px 2px 15px #cfcfcf;
+    background: white;
+    margin-bottom: 20px;
+    border-radius: 20px;
+    padding-bottom: 10px;
+}
+.feuilles-de-route-section .col {
+    background: #a59add;
+}
 .this-day {
     margin-bottom: 20px;
 }
@@ -839,18 +850,33 @@ textarea {
     box-shadow: 2px 2px 15px #cfcfcf;
     background: white;
 }
-.feuille-jj span {
+.feuille-jj td {
+    border: grey solid 1px;
+    padding: 5px;
     font-size: 15px;
-    margin-bottom: 10px;
-    display: inline-block;
 }
 .feuille-jj p,
 .feuille-jj li {
-    margin-bottom: 10px;
+    margin-bottom: 5px;
 }
 .feuille-jj .date {
-    border-bottom: 4px solid #cfcfcf;
+    border-bottom:4px solid #cfcfcf;
     padding-bottom: 10px;
+    margin-bottom: 15px;
+    font-weight: bold;
+    text-align: center;
+}
+.feuille-jj table {
+    background: #afafaf;
+    width: 100%;
+    margin-top: 10px;
+}
+.feuille-jj table td {
+    background: white;
+}
+.feuille-jj thead td {
+    background: #c0c0c0;
+    color: white;
     font-weight: bold;
 }
 .form-feuilledj label {

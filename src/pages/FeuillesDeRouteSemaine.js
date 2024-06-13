@@ -284,19 +284,31 @@ function FeuillesDeRouteSemaine({ uid, onReturn }) {
                             <p className='date'>{formatDate(feuille.date)}</p>
                             {feuille.isVisitsStarted ? (
                                 <>
-                                    <p>Ville : {feuille.city}</p>
-                                    <p>Adresse de départ : {feuille.departureAddress}</p>
-                                    <p>Distance totale : {feuille.totalDistance} km</p>
-                                    <ul>
-                                        <span><strong>Points d'arrêt :</strong></span>
-                                        {feuille.stops.map((stop, index) => (
-                                            <li key={index}>{stop.name} - {stop.distance} km</li>
-                                        ))}
-                                    </ul>
+                                    <p><strong>Ville</strong> : {feuille.city}</p>
+                                    <p><strong>Distance totale</strong> : {feuille.totalDistance} km</p>
+                                    <p><strong>Visites</strong> :</p>
+                                    <table>
+                                        <thead>
+                                            <tr>
+                                                <td>Nom</td> 
+                                                <td>Distance</td>
+                                                <td>Status</td>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {feuille.stops.map((stop, index) => (
+                                            <tr key={index}>
+                                                <td>{stop.name}</td>
+                                                <td>{stop.distance} km</td>
+                                                <td>{stop.status}</td>
+                                            </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
                                 </>
                             ) : (
                                 <>
-                                    <p>Visites effectuées : {feuille.isVisitsStarted ? 'Oui' : 'Non'}</p>
+                                    <p>Visites commencées : {feuille.isVisitsStarted ? 'Oui' : 'Non'}</p>
                                     <p>Motif de non-visite : {feuille.motifNoVisits}</p>
                                 </>
                             )}
@@ -304,7 +316,7 @@ function FeuillesDeRouteSemaine({ uid, onReturn }) {
                     ))}
                 </div>
             )}
- 
+
             {isThisWeekOpen && (
                 <div className='this-week'>
                     <button className='close-btn' onClick={() => setisThisWeekOpen(false)} >
@@ -332,20 +344,32 @@ function FeuillesDeRouteSemaine({ uid, onReturn }) {
                             
                             {feuille.isVisitsStarted ? (
                                 <>
-                                    <p>Ville: {feuille.city}</p>
-                                    <p>Adresse de départ: {feuille.departureAddress}</p>
-                                    <p>Distance totale: {feuille.totalDistance} km</p>
-                                    <ul> 
-                                        <span><strong>Points d'arrêt :</strong></span>
-                                        {feuille.stops.map((stop, index) => (
-                                            <li key={index}>{stop.name} - {stop.distance} km</li>
-                                        ))}
-                                    </ul>
+                                    <p><strong>Ville</strong> : {feuille.city}</p>
+                                    <p><strong>Distance totale</strong> : {feuille.totalDistance} km</p>
+                                    <p><strong>Visites</strong> :</p>
+                                    <table>
+                                        <thead>
+                                            <tr>
+                                                <td>Nom</td> 
+                                                <td>Distance</td>
+                                                <td>Status</td>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {feuille.stops.map((stop, index) => (
+                                            <tr key={index}>
+                                                <td>{stop.name}</td>
+                                                <td>{stop.distance} km</td>
+                                                <td>{stop.status}</td>
+                                            </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
                                 </>
                             ) : (
                                 <>
-                                    <p>Visites commencées: {feuille.isVisitsStarted ? 'Oui' : 'Non'}</p>
-                                    <p>Motif de non-visite: {feuille.motifNoVisits}</p>
+                                    <p>Visites commencées : {feuille.isVisitsStarted ? 'Oui' : 'Non'}</p>
+                                    <p>Motif de non-visite : {feuille.motifNoVisits}</p>
                                 </>
                             )}
                         </div>
@@ -372,15 +396,27 @@ function FeuillesDeRouteSemaine({ uid, onReturn }) {
                             {isFicheCloturee ? (
                                 <div className='feuille-jj'>
                                     <h3>Fiche clôturée</h3>
-                                    <p>Ville : {feuilleDuJour.city}</p>
-                                    <p>Adresse de départ : {feuilleDuJour.departureAddress}</p>
-                                    <p>Distance totale : {feuilleDuJour.totalDistance} km</p>
-                                    <span><strong>Points d'arrêt :</strong></span>
-                                    {feuilleDuJour.stops.map((stop, index) => (
-                                        <div key={index}>
-                                            <p>{stop.name} - {stop.distance} km</p>
-                                        </div>
-                                    ))}
+                                    <p><strong>Ville</strong> : {feuilleDuJour.city}</p>
+                                    <p><strong>Distance totale</strong> : {feuilleDuJour.totalDistance} km</p>
+                                    <p><strong>Visites</strong> :</p>
+                                    <table>
+                                        <thead>
+                                            <tr>
+                                                <td>Nom</td> 
+                                                <td>Distance</td>
+                                                <td>Status</td>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {feuilleDuJour.stops.map((stop, index) => (
+                                            <tr key={index}>
+                                                <td>{stop.name}</td>
+                                                <td>{stop.distance} km</td>
+                                                <td>{stop.status}</td>
+                                            </tr>  
+                                            ))}
+                                        </tbody>
+                                    </table>
                                 </div>
                             ) : (
                                 <form onSubmit={handleCloturerFiche} className='form-feuilledj feuille-jj'>   
@@ -440,20 +476,32 @@ function FeuillesDeRouteSemaine({ uid, onReturn }) {
                             <p className='date'>{formatDate(feuille.date)}</p>
                             {feuille.isVisitsStarted ? (
                                 <>
-                                    <p>Ville: {feuille.city}</p>
-                                    <p>Adresse de départ: {feuille.departureAddress}</p>
-                                    <p>Distance totale: {feuille.totalDistance} km</p>
-                                    <ul>
-                                        <span><strong>Points d'arrêt :</strong></span>
-                                        {feuille.stops.map((stop, index) => (
-                                            <li key={index}>{stop.name} - {stop.distance} km</li>
-                                        ))}
-                                    </ul>
+                                    <p><strong>Ville</strong> : {feuille.city}</p>
+                                    <p><strong>Distance totale</strong> : {feuille.totalDistance} km</p>
+                                    <p><strong>Visites</strong> :</p>
+                                    <table>
+                                        <thead>
+                                            <tr>
+                                                <td>Nom</td> 
+                                                <td>Distance</td>
+                                                <td>Status</td>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {feuille.stops.map((stop, index) => (
+                                            <tr key={index}>
+                                                <td>{stop.name}</td>
+                                                <td>{stop.distance} km</td>
+                                                <td>{stop.status}</td>
+                                            </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
                                 </>
                             ) : (
                                 <>
-                                    <p>Visites commencées: {feuille.isVisitsStarted ? 'Oui' : 'Non'}</p>
-                                    <p>Motif de non-visite: {feuille.motifNoVisits}</p>
+                                    <p>Visites commencées : {feuille.isVisitsStarted ? 'Oui' : 'Non'}</p>
+                                    <p>Motif de non-visite : {feuille.motifNoVisits}</p>
                                 </>
                             )}
                         </div>

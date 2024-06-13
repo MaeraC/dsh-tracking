@@ -1,28 +1,28 @@
 
 // fichier DashboardComm.js
 
-import { useState, useEffect } from "react";
-import Preview from "./Preview";
-import Account from "./Account";
-import SearchVisits from "./SearchVisits";
-import Loader from "../components/Loader";
-import Fiches from "./Fiches";
-import FeuillesDeRouteSemaine from "../components/FeuillesDeRouteSemaine.js";
-import Geolocation from "../components/Geolocation";
-import { useNavigate } from "react-router-dom";
-import { doc, getDoc } from "firebase/firestore"
-import { auth, db } from "../firebase.config.js"
-import { onAuthStateChanged } from "firebase/auth"
-import HeaderCom from "../components/HeaderCom.js";
+import { useState, useEffect }                              from "react"
+import Preview                                              from "./Preview"
+import Account                                              from "./Account"
+import SearchVisits                                         from "./SearchVisits"
+import Loader                                               from "../components/Loader"
+import Fiches                                               from "./Fiches"
+import FeuillesDeRouteSemaine                               from "../components/FeuillesDeRouteSemaine.js"
+import Geolocation                                          from "./Geolocation"
+import { useNavigate }                                      from "react-router-dom"
+import { doc, getDoc }                                      from "firebase/firestore"
+import { auth, db }                                         from "../firebase.config.js"
+import { onAuthStateChanged }                               from "firebase/auth"
+import HeaderCom                                            from "../components/HeaderCom.js"
 
 function DashboardComm () {
-    const [activeTab, setActiveTab] = useState("apercu")
-    const [firstname, setFirstname] = useState("")
-    const [lastname, setLastname] = useState("")
-    const [email, setEmail] = useState("")
-    const [loading, setLoading] = useState(true)
-    const [uid, setUid] = useState(null)
-    const navigate = useNavigate() 
+    const [activeTab, setActiveTab]                         = useState("apercu")
+    const [firstname, setFirstname]                         = useState("")
+    const [lastname, setLastname]                           = useState("")
+    const [email, setEmail]                                 = useState("")
+    const [loading, setLoading]                             = useState(true)
+    const [uid, setUid]                                     = useState(null)
+    const navigate                                          = useNavigate() 
 
    useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, async (user) => {

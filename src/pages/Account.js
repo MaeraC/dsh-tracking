@@ -1,19 +1,19 @@
 
 // Fichier Account
  
-import { useNavigate } from "react-router-dom"
-import { useState } from "react"
-import { logout } from "../auth/AuthUtils"
-import { auth } from "../firebase.config"
-import { sendPasswordResetEmail } from "firebase/auth"
+import { useNavigate }                                  from "react-router-dom"
+import { useState }                                     from "react"
+import { logout }                                       from "../auth/AuthUtils"
+import { auth }                                         from "../firebase.config"
+import { sendPasswordResetEmail }                       from "firebase/auth"
 
 function Account({ email, firstname, lastname }) {
     
-    const [message, setMessage] = useState("")
-    const [showModal, setShowModal] = useState(false)
-    const [action, setAction] = useState(null)
+    const [message, setMessage]                         = useState("")
+    const [showModal, setShowModal]                     = useState(false)
+    const [action, setAction]                           = useState(null)
 
-    const navigate = useNavigate()
+    const navigate                                      = useNavigate()
 
     const handleLogout = async () => {
         await logout()
@@ -51,9 +51,6 @@ function Account({ email, firstname, lastname }) {
         setAction(actionType)
         setShowModal(true)
     }
-
-
-
 
     return (
         <div className="account">

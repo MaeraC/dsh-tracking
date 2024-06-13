@@ -569,7 +569,7 @@ textarea {
 .congrats {
     text-align: center;
     line-height: 25px;
-    margin: 10px 20px;
+    margin: 20px;
 }
 .start-tour {
     padding: 20px 0;
@@ -633,6 +633,7 @@ textarea {
     font-size: 13px;
     font-style: italic;
     margin-bottom: 10px;
+    text-align: center;
 }
 .btn-cancel {
     text-align: center;
@@ -645,6 +646,9 @@ textarea {
     color: #3D9B9B;
     margin-top: 20px;
 }
+.modale .content .status .prospect {
+    margin-right: 20px;
+}
 .new-salon .button-colored {
     margin-top: 0 !important;
 }
@@ -652,6 +656,19 @@ textarea {
     text-align: center;
     margin-bottom: 30px;
     font-size: 20px;
+}
+.ending-btns button {
+    background: #3D9B9B;
+    border: none;
+    color: white;
+    font-size: 16px;
+    border-radius: 5px;
+    padding: 5px;
+    width: 80px;
+    cursor: pointer;
+}
+.ending-btns button:nth-child(1) {
+    margin-right: 20px;
 }
 
 

@@ -1,16 +1,16 @@
 
 // Fichier Fiches.js 
 
-import { useState } from "react"
-import FeuillesDeRouteSemaine from "../components/FeuillesDeRouteSemaine"
-import FicheClient from "../components/FicheClient"
-import FicheProspect from "../components/FicheProspect"
-import FicheDemonstration from "../components/FicheDemonstration"
-import FichePresentation from "../components/FichePresentation"
-import Historique from "../components/Historique"
+import { useState }                                             from "react"
+import FeuillesDeRouteSemaine                                   from "../components/FeuillesDeRouteSemaine"
+import FicheClient                                              from "../components/FicheClient"
+import FicheProspect                                            from "../components/FicheProspect"
+import FicheDemonstration                                       from "../components/FicheDemonstration"
+import FichePresentation                                        from "../components/FichePresentation"
+import Historique                                               from "../components/Historique"
 
 function Fiches({ uid }) {
-    const [currentComponent, setCurrentComponent] = useState(null)
+    const [currentComponent, setCurrentComponent]               = useState(null)
 
     const openFDR = () => {
         setCurrentComponent("FDR")

@@ -222,6 +222,7 @@ textarea {
 .error-message {
     color: red;
     margin-bottom: 20px;
+    font-size: 15px;
 }
 .login-form button,
 .signup-form button {
@@ -370,6 +371,21 @@ textarea {
 .preview-section .hello p {
     margin-top: 5px;
 }
+.stats-section {
+    margin: 20px 0;
+}
+.stats-section .title-stats {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 15px;
+}
+.stats-section h2 {
+    color: grey;
+    font-size: 16px;
+    font-weight: normal;
+    font-style: italic;
+}
 .stats-section .nb {
     box-shadow: 2px 2px 15px #cfcfcf;
     padding: 20px;
@@ -378,7 +394,19 @@ textarea {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    
+}
+.stats-section .title-stats button {
+    background: white;
+    padding: 3px;
+    padding-bottom: 1px;
+    border-radius: 5px;
+    border: 2px solid grey;
+    margin-left: 10px;
+    cursor: pointer;
+}
+.stats-section .title-stats button img {
+    width: 20px;
+    height: 20px;
 }
 .stats-section .total {
     background: #DCF1F2;
@@ -394,6 +422,73 @@ textarea {
     padding: 10px 15px;
     border-radius: 10px;
     font-size: 18px;
+}
+.stats-section .cp {
+    display: flex;
+    justify-content: space-between;
+}
+.stats-section .cp .fr {
+    flex-direction: column-reverse;
+    width: 47%;
+}
+.stats-section .cp .fr p {
+    margin-top: 15px;
+}
+.stats-section .modal-stats {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    background: #b4b4b48a;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    top: 0;
+    left: 0;
+}
+.stats-section .modal-stats .content {
+    background: white;
+    padding: 20px;
+    margin: 30px;
+    border-radius: 20px;
+    position: relative;
+}
+.stats-section .modal-stats .content .h3 {
+    text-align: center;
+    width: 100%;
+    margin-bottom: 30px;
+}
+.stats-section .modal-stats .content label {
+    color: grey;
+    display: inline-block;
+    margin-bottom: 10px;
+    font-size: 14px;
+}
+.stats-section .modal-stats .content img {
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    width: 20px;
+    height: 20px;
+}
+.stats-section .modal-stats .content .input {
+    margin-bottom: 10px;
+}
+.stats-section .modal-stats .content div {
+    border-top: 4px #cecece solid;
+    margin-top: 20px;
+    padding-top: 20px;
+}
+.stats-section .modal-stats .content div p {
+    margin-bottom: 15px;
+}
+.stats-section .modal-stats .content div p span {
+    background-color: #3D9B9B;
+    color: white;
+    font-weight: bold;
+    padding: 5px 10px;
+    border-radius: 5px;
+    margin-left: 10px;
+    margin-right: 10px;
 }
 
 
@@ -602,28 +697,12 @@ textarea {
 .start-adress input {
     margin-top: 10px;
 }
+.start-adress input:nth-child(2) {
+    margin-bottom: 15px;
+}
 .start-adress {
     padding: 20px;
 
-}
-.btn-end-parcours {
-    padding: 0 20px ;
-    width: 100%;
-    position: relative;
-}
-.btn-end-parcours button:nth-child(2) {
-    margin-bottom: 0 !important;
-}
-.update-btn {
-    position: absolute;
-    top: -55px;
-    background: #3D9B9B;
-    color: white;
-    font-family: "Roboto";
-    border: none;
-    border-radius: 5px;
-    padding: 5px 10px;
-    font-size: 16px;
 }
 .start-adress input:nth-child(1) {
     margin-bottom: 10px;
@@ -670,6 +749,9 @@ textarea {
 .ending-btns button:nth-child(1) {
     margin-right: 20px;
 }
+.back-home-btn {
+    width: 90%;
+}
 
 
 
@@ -682,7 +764,7 @@ textarea {
 .fiches-section .content {
     border-top: 5px #e9e9e9 solid;
 }
-.fiches-section .content button {
+.fiches-section .content .button {
     padding: 20px;
     border: none;
     font-family: "Roboto";
@@ -710,7 +792,9 @@ textarea {
     margin-bottom: 20px;
 }
 .feuilles-de-route-section .selected-period,
-.feuilles-de-route-section .this-week {
+.feuilles-de-route-section .this-week,
+.feuilles-de-route-section .this-month,
+.feuilles-de-route-section .this-day {
     background: #DCF1F2;
     padding: 20px;
     border-radius: 20px;
@@ -720,7 +804,8 @@ textarea {
     font-size: 20px;
 }
 .feuilles-de-route-section .selected-period .close-btn,
-.feuilles-de-route-section .this-week .close-btn {
+.feuilles-de-route-section .this-week .close-btn,
+.feuilles-de-route-section .this-month .close-btn {
     position: absolute;
     top: 10px;
     right: 10px;
@@ -730,18 +815,34 @@ textarea {
     cursor: pointer;
 }
 .feuilles-de-route-section .selected-period .close-btn img,
-.feuilles-de-route-section .this-week .close-btn img {
+.feuilles-de-route-section .this-week .close-btn img,
+.feuilles-de-route-section .this-month .close-btn img {
     width: 22px;
     height: 22px;
     padding: 3px;
     padding-bottom: 1px;
 }
+.this-day {
+    margin-bottom: 20px;
+}
+.this-day h3 {
+    border-bottom: 4px solid #cfcfcf;
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
 .feuille-jj {
     margin: 20px 0;
     border-radius: 20px;
     padding: 20px;
     box-shadow: 2px 2px 15px #cfcfcf;
     background: white;
+}
+.feuille-jj span {
+    font-size: 15px;
+    margin-bottom: 10px;
+    display: inline-block;
 }
 .feuille-jj p,
 .feuille-jj li {
@@ -770,7 +871,76 @@ textarea {
     margin-bottom: 0;
     margin-top: 20px;
 }
-
+.this-week h2 {
+    margin-bottom: 20px;
+}
+.no-visit-btn {
+    padding: 10px;
+    font-family: "Roboto";
+    font-size: 15px;
+    line-height: 23px;
+    border: 3px solid #3D9B9B;
+    border-radius: 10px;
+    cursor: pointer;
+}
+.no-visit-txt {
+    color: #3D9B9B;
+    line-height: 23px;
+}
+.confirm-motif {
+    margin-top: 10px;
+}
+.signature {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.signature .sign {
+    margin-bottom: 5px !important;
+}
+.signature-modal {
+    background-color: white;
+    border-radius: 20px;
+    margin-top: 20px;
+}
+.annuler-signature {
+    text-decoration: underline;
+    background: none;
+    color: #3D9B9B;
+    border: none;
+    font-family: "Roboto";
+    font-size: 15px;
+    margin: 15px 0;
+}
+.modal-no-visit {
+    background: #ccccccb0;
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2;
+}
+.modal-no-visit .content {
+    margin: 30px;
+    padding: 20px;
+    background-color: white;
+    border-radius: 20px;
+    border: none !important;
+}
+.modal-no-visit .content p {
+    text-align: center;
+    margin: 20px 0;
+    margin-bottom: 30px;
+    line-height: 25px;
+}
+.modal-no-visit .content label {
+    margin-bottom: 10px;
+    display: inline-block;
+}
 
 
 
@@ -1306,6 +1476,29 @@ textarea {
 }
 .geo-header {
     position: relative;
+}
+.geo-header .btns {
+    position: absolute;
+    z-index: 2;
+    bottom: -100px;
+    right: 20px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.geo-header .btns button {
+    background-color: #3D9B9B;
+    border-radius: 50%;
+    border: none;
+    padding: 7px;
+    padding-bottom: 5px;
+    margin-top: 10px;
+    cursor: pointer;
+}
+.geo-header .btns button img {
+    width: 27px;
+    height: 27px;
 }
 .btn-circle {
     background: #3D9B9B;

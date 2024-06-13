@@ -3,7 +3,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { db } from '../firebase.config'
-import { collection, query, where, getDocs, orderBy, doc, updateDoc } from 'firebase/firestore'
+import { collection, query, where, getDocs, orderBy, doc, updateDoc, addDoc } from 'firebase/firestore'
 import back from "../assets/back.png"
 import close from "../assets/close.png"
 import ReactSignatureCanvas from 'react-signature-canvas'
@@ -21,11 +21,14 @@ function FeuillesDeRouteSemaine({ uid, onReturn }) {
     const [isFicheCloturee, setIsFicheCloturee] = useState(false)
     const [status, setStatus] = useState('')
     const [showSignButton, setShowSignButton] = useState(false)
-    const [confirmNoVisit, setConfirmNoVisit] = useState(false)
     const [otherMotif, setOtherMotif] = useState('')
     const [isSignatureDone, setIsSignatureDone] = useState(false)
     const [isSelectedPeriodShown, setIsSelectedPeriodShown] = useState(false)
-
+    const [missingDays, setMissingDays] = useState([]);
+    const [showMissingDayModal, setShowMissingDayModal] = useState(false);
+    const [currentMissingDay, setCurrentMissingDay] = useState(null)
+    const [isThisMonthOpen, setIsThisMonthOpen] = useState(false);
+    const [monthlyFeuillesDeRoute, setMonthlyFeuillesDeRoute] = useState([]); 
     const signatureCanvasRef = useRef() 
 
     // récupère toutes les feuilles de route du user
@@ -51,7 +54,7 @@ function FeuillesDeRouteSemaine({ uid, onReturn }) {
     // Vérifie si on est vendredi 18h 
     useEffect(() => {
         const currentDate = new Date()
-        const isFridayAfterSix = currentDate.getDay() === 6 && currentDate.getHours() >= 8;
+        const isFridayAfterSix = currentDate.getDay() === 4 && currentDate.getHours() >= 8 // 4 jeudi 
         setShowSignButton(isFridayAfterSix)
     }, [])
 
@@ -70,16 +73,41 @@ function FeuillesDeRouteSemaine({ uid, onReturn }) {
         const week = Math.ceil((((firstDayOfWeek - onejan) / 86400000) + onejan.getDay() + 1) / 7); // Calcul du numéro de semaine
         return week;
     }
+
+    const getMonth = (date) => {
+        return date.getMonth() + 1; // Months are zero-based, so add 1
+    };
+
+    const displayThisMonth = async () => {
+        setIsThisMonthOpen(true); 
+        setisThisWeekOpen(false);
+
+        const today = new Date();
+        const currentMonth = getMonth(today);
+
+        const feuillesDeRouteRef = collection(db, 'feuillesDeRoute');
+        const feuillesDeRouteSnapshot = await getDocs(query(feuillesDeRouteRef, where("userId", "==", uid)));
+        const feuillesDeRouteData = feuillesDeRouteSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+        const filtered = feuillesDeRouteData.filter(feuille => {
+            if (!feuille.date) {
+                return false;
+            }
+            const feuilleDate = new Date(feuille.date.seconds * 1000);
+            const feuilleMonth = getMonth(feuilleDate);
+            return feuilleMonth === currentMonth;
+        }).sort((a, b) => new Date(a.date.seconds * 1000) - new Date(b.date.seconds * 1000));
+
+        setMonthlyFeuillesDeRoute(filtered);
+    };
     
     // affiche la feuille de route de la semaine en cours
     const displayThisWeek = () => {
         setisThisWeekOpen(true)
-
         const today = new Date()
         const currentWeek = getWeek(today)
 
         const filtered = feuillesDeRoute.filter(feuille => {
-
             if (!feuille.date) {
                 return false
             }
@@ -90,7 +118,44 @@ function FeuillesDeRouteSemaine({ uid, onReturn }) {
         })
 
         setFilteredFeuillesDeRoute(filtered)
+
+        // Vérifie s'il y a des jours sans feuille de route
+        const daysOfWeek = [1, 2, 3, 4, 5]
+        const missingDays = daysOfWeek.filter(day => !filtered.some(feuille => new Date(feuille.date.seconds * 1000).getDay() === day))
+
+        if (missingDays.length > 0) {
+            setMissingDays(missingDays)
+            setCurrentMissingDay(missingDays[0])
+            setShowMissingDayModal(true)
+        }
     }
+
+    const handleMissingDayMotifSubmit = async () => {
+        const dayOfWeek = currentMissingDay;
+        const today = new Date();
+        const dateOfMissingDay = new Date(today.setDate(today.getDate() - today.getDay() + dayOfWeek));
+
+        const feuilleDeRouteRef = collection(db, 'feuillesDeRoute');
+        const newFeuilleDeRoute = {
+            date: dateOfMissingDay,
+            isVisitsStarted: false,
+            motifNoVisits: otherMotif,
+            userId: uid,
+        };
+        const docRef = await addDoc(feuilleDeRouteRef, newFeuilleDeRoute);
+
+        setFilteredFeuillesDeRoute([...filteredFeuillesDeRoute, { id: docRef.id, ...newFeuilleDeRoute }])
+
+        // Fermer la modale et passer au jour manquant suivant
+        const remainingMissingDays = missingDays.filter(day => day !== dayOfWeek);
+        if (remainingMissingDays.length > 0) {
+            setCurrentMissingDay(remainingMissingDays[0]);
+        } else {
+            setShowMissingDayModal(false);
+        }
+        setMissingDays(remainingMissingDays);
+        setOtherMotif('');
+    };
 
     // nouveau format
     const formatDate = (date) => {
@@ -108,6 +173,17 @@ function FeuillesDeRouteSemaine({ uid, onReturn }) {
 
         return `${dayName} ${day} ${month} ${year}`
     }
+
+    const formatDate2 = (date) => {
+        return date.toLocaleDateString('fr-FR', { year: 'numeric', month: 'long', day: 'numeric' });
+    };
+  
+    const formatDayAndDate = (dayIndex) => {
+        const daysOfWeek = ["Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi"]
+        const today = new Date();
+        const dateOfMissingDay = new Date(today.setDate(today.getDate() - today.getDay() + dayIndex))
+        return `${daysOfWeek[dayIndex]} ${formatDate2(dateOfMissingDay)}`
+    };
 
     // affiche les fiches la periode sélectionnée 
     const handleApplyDates = () => {
@@ -158,7 +234,6 @@ function FeuillesDeRouteSemaine({ uid, onReturn }) {
         setIsFeuilleDuJourOpen(true) 
     }
 
-    /*
     const handleSignFiche = async () => {
         // Vérifier si la signature a été faite
         if (!signatureCanvasRef.current.isEmpty()) {
@@ -175,9 +250,7 @@ function FeuillesDeRouteSemaine({ uid, onReturn }) {
             // Masquer la feuille de route de la semaine
             setisThisWeekOpen(false);
         }
-    }*/
-
-    //handleSignFiche() 
+    }
 
     return (
         <div className="feuilles-de-route-section">
@@ -197,7 +270,7 @@ function FeuillesDeRouteSemaine({ uid, onReturn }) {
             </div>
 
             <button className='button-colored' onClick={displayThisWeek}>Feuille de route de la semaine en cours</button>
-
+            <button className='button-colored' onClick={displayThisMonth}>Feuille de route du mois en cours</button>
             <button className='button-colored' onClick={displayFeuilleDuJour}>Feuille de route du jour</button>
 
             {selectedPeriod.length > 0 && isSelectedPeriodShown === true && (
@@ -211,10 +284,11 @@ function FeuillesDeRouteSemaine({ uid, onReturn }) {
                             <p className='date'>{formatDate(feuille.date)}</p>
                             {feuille.isVisitsStarted ? (
                                 <>
-                                    <p>Ville: {feuille.city}</p>
-                                    <p>Adresse de départ: {feuille.departureAddress}</p>
-                                    <p>Distance totale: {feuille.totalDistance} km</p>
+                                    <p>Ville : {feuille.city}</p>
+                                    <p>Adresse de départ : {feuille.departureAddress}</p>
+                                    <p>Distance totale : {feuille.totalDistance} km</p>
                                     <ul>
+                                        <span><strong>Points d'arrêt :</strong></span>
                                         {feuille.stops.map((stop, index) => (
                                             <li key={index}>{stop.name} - {stop.distance} km</li>
                                         ))}
@@ -222,8 +296,8 @@ function FeuillesDeRouteSemaine({ uid, onReturn }) {
                                 </>
                             ) : (
                                 <>
-                                    <p>Visites commencées: {feuille.isVisitsStarted ? 'Oui' : 'Non'}</p>
-                                    <p>Motif de non-visite: {feuille.motifNoVisits}</p>
+                                    <p>Visites effectuées : {feuille.isVisitsStarted ? 'Oui' : 'Non'}</p>
+                                    <p>Motif de non-visite : {feuille.motifNoVisits}</p>
                                 </>
                             )}
                         </div>
@@ -239,13 +313,15 @@ function FeuillesDeRouteSemaine({ uid, onReturn }) {
                     <h2>Feuille de route de la semaine en cours</h2>
 
                     {showSignButton && (
-                        <div>
-                            <button onClick={() => setIsSignatureDone(true)}>Signer la feuille de route</button>
+                        <div className='signature'>
+                            <button className='button-colored sign' onClick={() => setIsSignatureDone(true)}>Signer la feuille de route</button>
+                       
                             {isSignatureDone && (
-                                <div className="signature-modal">
-                                    <ReactSignatureCanvas ref={signatureCanvasRef} canvasProps={{ width: 400, height: 200, className: 'sigCanvas' }} />
-                                    <button onClick={() => setIsSignatureDone(false)}>Annuler</button>
-                                </div>
+                                <>
+                                <ReactSignatureCanvas ref={signatureCanvasRef} canvasProps={{ width: 400, height: 200, className: 'signature-modal' }} />
+                                <button className='annuler-signature' onClick={() => setIsSignatureDone(false)}>Annuler</button>
+                                <button className='button-colored' onClick={handleSignFiche}>Valider</button> 
+                                </>
                             )}
                         </div>
                     )}
@@ -253,12 +329,14 @@ function FeuillesDeRouteSemaine({ uid, onReturn }) {
                     {filteredFeuillesDeRoute.map(feuille => (
                         <div className='feuille-jj' key={feuille.id}>
                             <p className='date'>{formatDate(feuille.date)}</p>
+                            
                             {feuille.isVisitsStarted ? (
                                 <>
                                     <p>Ville: {feuille.city}</p>
                                     <p>Adresse de départ: {feuille.departureAddress}</p>
                                     <p>Distance totale: {feuille.totalDistance} km</p>
                                     <ul> 
+                                        <span><strong>Points d'arrêt :</strong></span>
                                         {feuille.stops.map((stop, index) => (
                                             <li key={index}>{stop.name} - {stop.distance} km</li>
                                         ))}
@@ -268,35 +346,6 @@ function FeuillesDeRouteSemaine({ uid, onReturn }) {
                                 <>
                                     <p>Visites commencées: {feuille.isVisitsStarted ? 'Oui' : 'Non'}</p>
                                     <p>Motif de non-visite: {feuille.motifNoVisits}</p>
-
-                                    {confirmNoVisit ? (
-                                        <div>
-                                            <p>Confirmez-vous ne pas avoir effectué de déplacements ce jour là ?</p>
-                                            <div>
-                                                <label>
-                                                    OUI
-                                                    <input type="radio" value="oui" checked={status === "oui"} onChange={() => setStatus("oui")} />
-                                                </label>
-                                                <label>
-                                                    NON
-                                                    <input type="radio" value="non" checked={status === "non"} onChange={() => setStatus("non")} />
-                                                </label>
-                                            </div>
-                                            {status === "non" && (
-                                                <div>
-                                                    <p>Confirmez-vous le motif ?</p>
-                                                    <div>
-                                                        <label>
-                                                            <input type="text" value={otherMotif} onChange={(e) => setOtherMotif(e.target.value)} />
-                                                        </label>
-                                                    </div>
-                                                </div>
-                                            )}
-                                        </div>
-                                    ) : (
-                                        <button onClick={() => setConfirmNoVisit(true)}>Confirmez-vous ne pas avoir effectué de déplacements ce jour là ?</button>
-                                    )}
-                                
                                 </>
                             )}
                         </div>
@@ -304,23 +353,32 @@ function FeuillesDeRouteSemaine({ uid, onReturn }) {
                 </div>
             )}
 
+            {showMissingDayModal && (
+                <div className='modal-no-visit'>
+                    <div className='content'>
+                        <p>Une feuille de route est manquante pour le <br></br> <strong>{formatDayAndDate(currentMissingDay)}</strong></p>
+                        <label>Veuillez fournir un motif :</label>
+                        <input type="text" value={otherMotif} onChange={(e) => setOtherMotif(e.target.value)} />
+                        <button className='button-colored' onClick={handleMissingDayMotifSubmit}>Valider</button>
+                    </div>
+                </div>
+            )}
+
             {isFeuilleDuJourOpen && (
-                <div>
-                    <h2>FDR du {formatDate(feuilleDuJour.date)}</h2>
+                <div className='this-day'>
+                    <h2>Feuille de route du jour</h2>
                     {feuilleDuJour ? (
                         <>
                             {isFicheCloturee ? (
                                 <div className='feuille-jj'>
                                     <h3>Fiche clôturée</h3>
                                     <p>Ville : {feuilleDuJour.city}</p>
-                                    <p>Statut : {feuilleDuJour.status}</p>
                                     <p>Adresse de départ : {feuilleDuJour.departureAddress}</p>
                                     <p>Distance totale : {feuilleDuJour.totalDistance} km</p>
-                                    <h4>Arrêts :</h4>
+                                    <span><strong>Points d'arrêt :</strong></span>
                                     {feuilleDuJour.stops.map((stop, index) => (
                                         <div key={index}>
-                                            <p>Nom de l'arrêt : {stop.name}</p>
-                                            <p>Distance : {stop.distance} km</p>
+                                            <p>{stop.name} - {stop.distance} km</p>
                                         </div>
                                     ))}
                                 </div>
@@ -367,6 +425,39 @@ function FeuillesDeRouteSemaine({ uid, onReturn }) {
                     ) : (
                         <p>Aucune feuille de route trouvée pour aujourd'hui.</p>
                     )}
+                </div>
+            )}
+
+            {isThisMonthOpen && (
+                <div className='this-month'>
+                    <button className='close-btn' onClick={() => setIsThisMonthOpen(false)}>
+                        <img src={close} alt="fermer" />
+                    </button>
+                    <h2>Feuille de route du mois en cours</h2>
+
+                    {monthlyFeuillesDeRoute.map(feuille => (
+                        <div className='feuille-jj' key={feuille.id}>
+                            <p className='date'>{formatDate(feuille.date)}</p>
+                            {feuille.isVisitsStarted ? (
+                                <>
+                                    <p>Ville: {feuille.city}</p>
+                                    <p>Adresse de départ: {feuille.departureAddress}</p>
+                                    <p>Distance totale: {feuille.totalDistance} km</p>
+                                    <ul>
+                                        <span><strong>Points d'arrêt :</strong></span>
+                                        {feuille.stops.map((stop, index) => (
+                                            <li key={index}>{stop.name} - {stop.distance} km</li>
+                                        ))}
+                                    </ul>
+                                </>
+                            ) : (
+                                <>
+                                    <p>Visites commencées: {feuille.isVisitsStarted ? 'Oui' : 'Non'}</p>
+                                    <p>Motif de non-visite: {feuille.motifNoVisits}</p>
+                                </>
+                            )}
+                        </div>
+                    ))}
                 </div>
             )}
         </div>

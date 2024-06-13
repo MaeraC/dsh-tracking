@@ -5,6 +5,8 @@ import { GoogleMap }                                    from "@react-google-maps
 import {  useState, useEffect, useRef }                 from "react"
 import ReactModal                                       from "react-modal"
 import startIcon                                        from "../assets/start.png" 
+import plus                                             from "../assets/plus.png"
+import refresh                                          from "../assets/refresh.png"
 import { db }                                           from "../firebase.config"
 import { collection, addDoc, setDoc, doc, getDoc, updateDoc, arrayUnion } from "firebase/firestore"
 
@@ -40,7 +42,6 @@ function Geolocation({ uid }) {
     const [currentPosition, setCurrentPosition]         = useState({ lat: 0, lng: 0 })
     const [isLoaded, setIsLoaded]                       = useState(false)
     const [hasVisitsToday, setHasVisitsToday]           = useState(null) 
-    const [noVisitsReason, setNoVisitsReason]           = useState("")
     const [startAddress, setStartAddress]               = useState('')
     const [startCity, setStartCity]                     = useState('')
     const [currentRouteId, setCurrentRouteId]           = useState(null)
@@ -52,17 +53,22 @@ function Geolocation({ uid }) {
     const [totalDistance, setTotalDistance]             = useState(0)
     const [distance, setDistance]                       = useState(0) 
     const [stops, setStops]                             = useState([])
-    const [isRadioVisible, setIsRadioVisible]           = useState(false)
     const [isModalCounterOpen, setIsModalCounterOpen]   = useState(false)
+    const [isRadioVisible, setIsRadioVisible]           = useState(true)
     const [status, setStatus]                           = useState("") 
+    const [isChecked, setIsChecked]                     = useState(false)
+    const [statusLoaded, setStatusLoaded]               = useState(false)
     const [newSalonName, setNewSalonName]               = useState("")
-    const [newSalonCity, setNewSalonCity]               = useState("")
     const [newSalonAddress, setNewSalonAddress]         = useState("")
+    const [newSalonCity, setNewSalonCity]               = useState("")
     const [isModalSalonOpen, setIsModalSalonOpen]       = useState(false)
     const [isModalEndingOpen, setIsModalEndingOpen]     = useState(false)
     const [isModalHomeOpen, setIsModalHomeOpen]         = useState(false)
-    const [isHomeTracking, setIsHomeTracking] = useState(false);
-const [homeDistance, setHomeDistance] = useState(0);
+    const [isHomeTracking, setIsHomeTracking]           = useState(false)
+    const [homeDistance, setHomeDistance]               = useState(0)
+    const [isRetourVisible, setIsRetourVisible]         = useState(true)
+    const [isTerminerVisible, setIsTerminerVisible]     = useState(false)
+    const [errorMessage, setErrorMessage]               = useState("")
     const mapRef                                        = useRef(null)
     const markerRef                                     = useRef(null)
     const previousPosition                              = useRef(null)
@@ -139,6 +145,32 @@ const [homeDistance, setHomeDistance] = useState(0);
             console.error("Geolocation is not supported by this browser.")
         }
     }, [isTracking, isHomeTracking]) 
+
+    // Vérifie si le statut est déjà enregistré dans la base de données
+    useEffect(() => {
+        const checkStatusInDatabase = async () => {
+            const salonRef = doc(db, "salons", selectedSalon.place_id)
+            const salonSnapshot = await getDoc(salonRef)
+            const salonData = salonSnapshot.data()
+
+            if (salonData && salonData.status) {
+                setStatus(salonData.status);
+                setIsRadioVisible(false);
+                setIsChecked(salonData.status === 'Prospect' || salonData.status === 'Client')
+            }
+            else {
+                // Si aucun statut enregistré, réinitialiser les états
+                setStatus('');
+                setIsRadioVisible(true);
+                setIsChecked(false);
+            }
+            setStatusLoaded(true)
+        }
+
+        if (selectedSalon) {
+            checkStatusInDatabase()
+        }
+    }, [selectedSalon])
     
     // Gère la réponse OUI/NON du user 
     const handleVisitsToday = async (response) => {
@@ -146,49 +178,36 @@ const [homeDistance, setHomeDistance] = useState(0);
         if (response === false) {
             setIsParcoursStarted(false)
         }
-        try {
-            const newDocumentData = {
-                date: new Date(),
-                isVisitsStarted: response,
-                motifNoVisits: response === false ? noVisitsReason : "",
-                departureAddress: startAddress,
-                city: startCity,
-                stops: [],
-                status: "",
-                userId: uid
+        else {
+            try {
+                const newDocumentData = {
+                    date: new Date(),
+                    isVisitsStarted: response,
+                    departureAddress: startAddress,
+                    city: startCity,
+                    stops: [],
+                    status: "",
+                    userId: uid
+                }
+                const docRef = await addDoc(collection(db, "feuillesDeRoute"), newDocumentData)
+                setCurrentRouteId(docRef.id)
+            } 
+            catch (e) {
+                console.error("Erreur lors de l'enregistrement de la réponse : ", e)
             }
-            const docRef = await addDoc(collection(db, "feuillesDeRoute"), newDocumentData)
-            setCurrentRouteId(docRef.id)
-        } 
-        catch (e) {
-            console.error("Erreur lors de l'enregistrement de la réponse : ", e)
         }
     }
 
-    // Gère la raison du motif Non
-    const handleNoVisitsReason = async () => {
-        setHasVisitsToday(null) // screen de départ
-
-        try {
-            const docRef = doc(db, "feuillesDeRoute", currentRouteId) 
-            await updateDoc(docRef, {
-                date: new Date(),
-                isVisitsStarted: false,
-                motifNoVisits: noVisitsReason,
-                userId: uid
-            })   
-            console.log("Motif enregistré avec succès")    
-            //setMessage("Enregistré avec succès.  À bientôt !")
-        } 
-        catch (e) {
-            console.error("Erreur lors de l'enregistrement du motif de non-visite : ", e)
+    const handleStartParcours = () => {
+        if (!startAddress || !startCity) {
+            setErrorMessage("Veuillez remplir tous les champs avant de démarrer le parcours.");
+        } else {
+            startParcours()
         }
     }
 
     // Démarre le parcours 
     const startParcours = async () => {
-        // recherche les salons à proximité du user
-        
         setIsParcoursStarted(true)
         handleSalonsNearBy()
         setStops([])
@@ -200,7 +219,6 @@ const [homeDistance, setHomeDistance] = useState(0);
                     await updateDoc(routeDocRef, {
                         date: new Date(),
                         isVisitsStarted: hasVisitsToday === true,
-                        motifNoVisits: hasVisitsToday === false ? noVisitsReason : "",
                         departureAddress: startAddress,
                         city: startCity,
                         status: "",
@@ -217,11 +235,24 @@ const [homeDistance, setHomeDistance] = useState(0);
         }
     }
 
-    const endParcours = () => {
+    const endParcours = async () => {
+        setIsModalEndingOpen(false)
         setIsParcoursStarted(false)
         setIsParcoursEnded(true)
-        setIsModalEndingOpen(false)
+        await updateRouteWithStops()
     } 
+
+    const updateRouteWithStops = async () => {
+        try {
+            const routeDocRef = doc(db, "feuillesDeRoute", currentRouteId);
+            await updateDoc(routeDocRef, {
+                stops: stops
+            })
+            console.log("Arrêts mis à jour avec succès");
+        } catch (e) {
+            console.error("Erreur lors de la mise à jour des arrêts : ", e);
+        }
+    }
   
     // recherche les salons à proximité
     const handleSalonsNearBy = async () => {
@@ -366,10 +397,9 @@ const [homeDistance, setHomeDistance] = useState(0);
     }
 
     const handleStatusChange = async (e) => {
-        const selectedStatus = e.target.value;
-    
-        // Met à jour le statut dans l'état local
-        setStatus(selectedStatus);
+        const selectedStatus = e.target.value
+        setStatus(selectedStatus)
+        setIsChecked(selectedStatus === 'Prospect' || selectedStatus === 'Client')
 
         // Ajoute l'action d'ajout de statut dans le champ 'historique' du document du salon
         const logMessage = `Statut mis à jour : ${selectedStatus}`
@@ -389,8 +419,12 @@ const [homeDistance, setHomeDistance] = useState(0);
         setIsRadioVisible(false)
     }
 
-    const isStatusSelected = () => {
-        return status === "Prospect" || status === "Client"
+    const handleModalClose = () => {
+        setIsModalCounterOpen(false);
+        // Réinitialiser les états lorsque la modale se ferme
+        setStatus('');
+        setIsChecked(false);
+        setIsRadioVisible(true);
     }
     
     // Active le suivi de la position
@@ -407,6 +441,7 @@ const [homeDistance, setHomeDistance] = useState(0);
                 name: selectedSalon.name,
                 address: selectedSalon.vicinity,
                 distance: totalDistance, 
+                status: status
             }
         ])
 
@@ -437,7 +472,7 @@ const [homeDistance, setHomeDistance] = useState(0);
         setStops(prevStops => [
             ...prevStops,
             {
-                name: 'Domicile',
+                name: 'Adresse de départ',
                 address: startAddress,
                 distance: homeDistance,
             }
@@ -445,12 +480,12 @@ const [homeDistance, setHomeDistance] = useState(0);
         setIsModalHomeOpen(false);
     }
     
-
     const getTotalStopDistances = () => {
         return stops.reduce((total, stop) => total + stop.distance, 0);
     }
 
     const handleAddSalon = async () => {
+
         setStops(prevStops => [...prevStops, {
             name: newSalonName,
             address: newSalonAddress,
@@ -463,14 +498,22 @@ const [homeDistance, setHomeDistance] = useState(0);
             await addDoc(collection(db, "salons"), 
             { 
                 name: newSalonName, 
-                address: newSalonAddress, 
-                city: newSalonCity,
-                status: "" 
+                address: newSalonAddress + ", " + newSalonCity,  
+                status: status 
             })
         } 
         catch (error) {
             console.error("Erreur lors de l'ajout du salon: ", error);
         }
+
+        setStatus('');
+        setNewSalonAddress("")
+        setNewSalonCity("")
+        setNewSalonName("")
+    }
+
+    const handleStatusChange2 = (e) => {
+        setStatus(e.target.value)
     }
 
     const formatDistance = (distance) => {
@@ -545,6 +588,11 @@ const [homeDistance, setHomeDistance] = useState(0);
         <>
             <header className="geo-header">
                 <h1>Map Salons de coiffure</h1>  
+                <div className="btns">
+                    <img onClick={() => setIsModalSalonOpen(true)} src={plus} alt="Ajouter un salon"/> 
+                    <button><img onClick={handleSalonsNearBy} src={refresh} alt="Actualiser" /></button>
+                </div>
+                
             </header>
             <div className="geoloc-section">
                 <GoogleMap mapContainerStyle={mapContainerStyle} zoom={14} center={currentPosition} options={options} onLoad={(map) => (mapRef.current = map)}></GoogleMap>
@@ -563,28 +611,29 @@ const [homeDistance, setHomeDistance] = useState(0);
                     <div className="start-adress" id="start-adress">
                         <input type="text" placeholder="Dans quelle ville sont prévues vos visites ?" value={startCity} onChange={(e) => setStartCity(e.target.value)} />
                         <input type="text" placeholder="Adresse de départ" value={startAddress} onChange={(e) => setStartAddress(e.target.value)} />
+                        {errorMessage && <p className="error-message">{errorMessage}</p>}
                         <p className="info">Cliquer sur ce bouton lorsque vous êtes arrivé à votre point de départ</p>
-                        <button className="button-colored" onClick={startParcours}>Démarrer mon parcours</button>
-                        <p className="congrats">{/*congratulations*/}</p>
+                        <button className="button-colored" onClick={handleStartParcours}>Démarrer mon parcours</button>
+                        
                     </div>
                 )}
 
                 {hasVisitsToday === false && (
                     <div className="motif">
-                        <input type="text" placeholder="Motif" value={noVisitsReason} onChange={(e) => setNoVisitsReason(e.target.value)} />
-                        <button className="button-colored" onClick={handleNoVisitsReason}>Enregistrer</button>
-                        <p className="congrats success">{/*message*/}</p>
+                        <p className="congrats success">Enregistré avec succès. À bientôt !</p>
                     </div>
                 )}
 
                 {isParcoursStarted === true && (
                     <>
-                    <div className="btn-end-parcours">
-                            <button className="update-btn" onClick={handleSalonsNearBy}>Actualiser</button> 
+                        {isRetourVisible && (
+                            <button className="button-colored back-home-btn" onClick={() => { setIsModalHomeOpen(true); setIsRetourVisible(false); setIsTerminerVisible(true); }}>Retour à mon domicile</button>
+                        )}
+
+                        {isTerminerVisible && (
                             <button className="button-colored" onClick={() => setIsModalEndingOpen(true)}>Terminer mon parcours</button>
-                            <button className="button-colored" onClick={() => setIsModalSalonOpen(true)} >Ajouter un nouveau salon</button>
-                        </div>
-                                                
+                        )}
+                                                  
                         <div className="distance-results">
                             <p className="total"><strong>{formatDistance(getTotalStopDistances())}</strong> kilomètres parcourus aujourd'hui</p>
                             
@@ -601,7 +650,7 @@ const [homeDistance, setHomeDistance] = useState(0);
                                         </li>
                                     ))}
                                 </ul>
-                                <button className="button-colored" onClick={() => setIsModalHomeOpen(true)}>Retour à mon domicile</button>
+                                
                             </div>
                         </div>
 
@@ -617,7 +666,7 @@ const [homeDistance, setHomeDistance] = useState(0);
                                             <button className="button-colored" onClick={handleStopHomeTracking}>Arrivé à destination</button>
                                         </div>
                                     ) : (
-                                        <button className="button-colored" onClick={handleStartHomeTracking}>Démarrer le compteur de km</button>
+                                        <button className="button-colored" onClick={handleStartHomeTracking} >Démarrer le compteur de km</button>
                                     )}
                                 </div>
                             </ReactModal>
@@ -653,11 +702,11 @@ const [homeDistance, setHomeDistance] = useState(0);
                 )}
 
                 {selectedSalon && (
-                    <ReactModal isOpen={isModalCounterOpen} onRequestClose={() => setIsModalCounterOpen(false)} contentLabel="Salon Details" className="modale" >
+                    <ReactModal isOpen={isModalCounterOpen} onRequestClose={handleModalClose} contentLabel="Salon Details" className="modale" >
                         <div className="content">
                             <h2>{selectedSalon.name}</h2>
                             <p className="city">{selectedSalon.vicinity}</p>
-                            {isRadioVisible ? ( // Afficher les boutons radio uniquement si isRadioVisible est vrai
+                            {statusLoaded && isRadioVisible && ( 
                                 <div className="status">
                                     <input className="checkbox" type="checkbox" id="Prospect" name="status" value="Prospect" checked={status === "Prospect"} onChange={handleStatusChange} />
                                     <label htmlFor="prospect" className="prospect">Prospect</label>
@@ -665,7 +714,9 @@ const [homeDistance, setHomeDistance] = useState(0);
                                     <input className="checkbox" type="checkbox" id="Client" name="status" value="Client" checked={status === "Client"} onChange={handleStatusChange} />
                                     <label htmlFor="client">Client</label>
                                 </div>
-                            ) : (
+                            )}
+
+                            {!isRadioVisible && (
                                 <p>Statut : {status}</p>
                             )}
 
@@ -676,7 +727,7 @@ const [homeDistance, setHomeDistance] = useState(0);
                                     <button className="button-colored" onClick={handleStopTracking}>Arrivé à destination</button>
                                 </div>
                             ) : (
-                                <button className="button-colored" onClick={handleStartTracking} disabled={!isStatusSelected()}>Démarrer le compteur de km</button>
+                                <button className="button-colored" onClick={handleStartTracking} disabled={!isChecked}>Démarrer le compteur de km</button>
                             )} 
                             
                         </div>
@@ -689,6 +740,14 @@ const [homeDistance, setHomeDistance] = useState(0);
                         <input type="text" placeholder="Nom du salon" value={newSalonName} onChange={(e) => setNewSalonName(e.target.value)} />
                         <input type="text" placeholder="Adresse du salon" value={newSalonAddress} onChange={(e) => setNewSalonAddress(e.target.value)} />
                         <input type="text" placeholder="Ville du salon" value={newSalonCity} onChange={(e) => setNewSalonCity(e.target.value)} />
+                        
+                        <div className="status"> 
+                            <input className="checkbox" type="checkbox" id="Prospect" name="status" value="Prospect" checked={status === "Prospect"} onChange={handleStatusChange2} />
+                            <label htmlFor="Prospect">Prospect</label>
+
+                            <input className="checkbox" type="checkbox" id="Client" name="status" value="Client" checked={status === "Client"} onChange={handleStatusChange2} />
+                            <label htmlFor="Client">Client</label>
+                        </div>
                         <button onClick={handleAddSalon} className="button-colored">Ajouter</button>
                         <button onClick={() => setIsModalSalonOpen(false)} className="btn-cancel">Annuler</button>  
                     </div>
@@ -714,4 +773,4 @@ const [homeDistance, setHomeDistance] = useState(0);
     )
 }
 
-export default Geolocation
+export default Geolocation 

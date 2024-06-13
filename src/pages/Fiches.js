@@ -49,12 +49,12 @@ function Fiches({ uid }) {
             <div className="content">
                 {!currentComponent && (
                     <>
-                        <button onClick={openFDR}>Feuilles de route de la semaine</button>
-                        <button onClick={openFicheClient}>Fiche de suivi Client</button>
-                        <button onClick={openFicheProspect}>Fiche de suivi Prospect</button>
-                        <button onClick={openDemonstration}>CR de RDV de Démonstration</button>
-                        <button onClick={openPresentation}>CR de RDV de Présentation</button>
-                        <button onClick={openHistorique}>Historique des salons</button>
+                        <button className="button" onClick={openFDR}>Feuilles de route de la semaine</button>
+                        <button className="button" onClick={openFicheClient}>Fiche de suivi Client</button>
+                        <button className="button" onClick={openFicheProspect}>Fiche de suivi Prospect</button>
+                        <button className="button" onClick={openDemonstration}>CR de RDV de Démonstration</button>
+                        <button className="button" onClick={openPresentation}>CR de RDV de Présentation</button>
+                        <button className="button" onClick={openHistorique}>Historique des salons</button>
                     </>
                 )}
             </div>

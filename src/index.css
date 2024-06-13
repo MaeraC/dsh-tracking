@@ -836,6 +836,12 @@ textarea {
 .this-day {
     margin-bottom: 20px;
 }
+.this-day form .info {
+    margin-bottom: 20px;
+    text-align: center;
+    border-bottom: 4px solid #cfcfcf;
+    padding-bottom: 20px;
+}
 .this-day h3 {
     border-bottom: 4px solid #cfcfcf;
     padding-bottom: 10px;

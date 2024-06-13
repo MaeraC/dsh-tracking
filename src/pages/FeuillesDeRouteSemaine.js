@@ -19,7 +19,6 @@ function FeuillesDeRouteSemaine({ uid, onReturn }) {
     const [feuilleDuJour, setFeuilleDuJour] = useState(null)
     const [isFeuilleDuJourOpen, setIsFeuilleDuJourOpen] = useState(false)
     const [isFicheCloturee, setIsFicheCloturee] = useState(false)
-    const [status, setStatus] = useState('')
     const [showSignButton, setShowSignButton] = useState(false)
     const [otherMotif, setOtherMotif] = useState('')
     const [isSignatureDone, setIsSignatureDone] = useState(false)
@@ -212,7 +211,7 @@ function FeuillesDeRouteSemaine({ uid, onReturn }) {
 
         if (feuilleDuJour) {
             const feuilleRef = doc(db, 'feuillesDeRoute', feuilleDuJour.id)
-            await updateDoc(feuilleRef, { ...feuilleDuJour, isClotured: true, status: status })
+            await updateDoc(feuilleRef, { ...feuilleDuJour, isClotured: true, })
             setIsFicheCloturee(true)
         }
     }
@@ -249,8 +248,16 @@ function FeuillesDeRouteSemaine({ uid, onReturn }) {
 
             // Masquer la feuille de route de la semaine
             setisThisWeekOpen(false);
+            // Mettre à jour l'état pour cacher le bouton de signature
+            setShowSignButton(false);
         }
     }
+
+    const handleStopStatusChange = (index, newStatus) => {
+        const newStops = [...feuilleDuJour.stops];
+        newStops[index].status = newStatus;
+        setFeuilleDuJour({ ...feuilleDuJour, stops: newStops });
+    };
 
     return (
         <div className="feuilles-de-route-section">
@@ -420,18 +427,9 @@ function FeuillesDeRouteSemaine({ uid, onReturn }) {
                                 </div>
                             ) : (
                                 <form onSubmit={handleCloturerFiche} className='form-feuilledj feuille-jj'>   
+                                <p className='info'>Si une information est incorrect, modifez-la avant de clôturer la fiche.</p>
                                     <label>Ville</label>
                                     <input type="text" value={feuilleDuJour.city} onChange={(e) => setFeuilleDuJour({...feuilleDuJour, city: e.target.value})} />
-
-                                    <label>Statut</label>
-                                    <div className='status'>
-                                        <input className='checkbox' type="radio" value="prospect" checked={status === "Prospect"} onChange={() => setStatus("prospect")} />
-                                        <p>Prospect</p>
-                                    </div>   
-                                    <div className='status'>   
-                                        <input className='checkbox' type="radio" value="client" checked={status === "Client"} onChange={() => setStatus("client")} /> 
-                                        <p>Client</p>               
-                                    </div>
                                     
                                     <label>Adresse de départ</label>
                                     <input type="text" value={feuilleDuJour.departureAddress} onChange={(e) => setFeuilleDuJour({...feuilleDuJour, departureAddress: e.target.value})}/>
@@ -451,6 +449,15 @@ function FeuillesDeRouteSemaine({ uid, onReturn }) {
                                             />
                                             <label>Distance</label>
                                             <p>{stop.distance} km</p>
+                                            <label>Statut</label>
+                                            <div className='status'>
+                                                <input className='checkbox' type="radio" value="Prospect" checked={stop.status === "Prospect"} onChange={() => handleStopStatusChange(index, "Prospect")} />
+                                                <p>Prospect</p>
+                                            </div>   
+                                            <div className='status'>   
+                                                <input className='checkbox' type="radio" value="Client" checked={stop.status === "Client"} onChange={() => handleStopStatusChange(index, "Client")} /> 
+                                                <p>Client</p>               
+                                            </div>
                                         </div>
                                     ))}
                                     

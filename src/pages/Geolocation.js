@@ -243,12 +243,18 @@ function Geolocation({ uid }) {
     } 
 
     const updateRouteWithStops = async () => {
+        
+
         try {
             const routeDocRef = doc(db, "feuillesDeRoute", currentRouteId);
             const totalKm = getTotalStopDistances();
+            // Déterminez l'unité en fonction de la distance
+            const unit = totalKm < 1000 ? 'm' : 'km';
+
             await updateDoc(routeDocRef, {
-                stops: stops,
-                totalKm: formatDistance(totalKm)   
+                stops: stops, 
+                totalKm: totalKm,
+                unitTotalKm : unit
             })
             console.log("Arrêts mis à jour avec succès");
         } catch (e) {
@@ -436,13 +442,15 @@ function Geolocation({ uid }) {
     
     // Désactive le suivi de la position 
     const handleStopTracking = async () => {
+        const unit = totalDistance < 1000 ? 'm' : 'km';
         // Ajoute cet arrêt à la liste des stops
         setStops(prevStops => [
             ...prevStops,
             {
                 name: selectedSalon.name,
                 address: selectedSalon.vicinity,
-                distance: formatDistance(totalDistance), 
+                distance: totalDistance,
+                unitDistance: unit,
                 status: status
             }
         ])
@@ -471,12 +479,14 @@ function Geolocation({ uid }) {
     
     const handleStopHomeTracking = () => {
         setIsHomeTracking(false);
+        const unit = homeDistance < 1000 ? 'm' : 'km';
         setStops(prevStops => [
             ...prevStops,
             {
                 name: 'Adresse de départ',
                 address: startAddress,
-                distance: formatDistance(homeDistance),
+                distance: homeDistance,
+                unitDistance: unit
             }
         ]);
         setIsModalHomeOpen(false);
@@ -487,11 +497,12 @@ function Geolocation({ uid }) {
     }
 
     const handleAddSalon = async () => {
-
+        const unit = totalDistance < 1000 ? 'm' : 'km';
         setStops(prevStops => [...prevStops, {
             name: newSalonName,
             address: newSalonAddress,
-            distance: formatDistance(totalDistance)
+            distance: totalDistance,
+            unitDistance: unit,
         }])
 
         setIsModalSalonOpen(false)
@@ -519,6 +530,7 @@ function Geolocation({ uid }) {
     }
 
     const formatDistance = (distance) => {
+
         if (distance < 1000) {
             return `${distance.toFixed(0)} m`;
         }

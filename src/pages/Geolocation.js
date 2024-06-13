@@ -248,7 +248,7 @@ function Geolocation({ uid }) {
             const totalKm = getTotalStopDistances();
             await updateDoc(routeDocRef, {
                 stops: stops,
-                totalKm: totalKm   
+                totalKm: formatDistance(totalKm)   
             })
             console.log("Arrêts mis à jour avec succès");
         } catch (e) {
@@ -442,7 +442,7 @@ function Geolocation({ uid }) {
             {
                 name: selectedSalon.name,
                 address: selectedSalon.vicinity,
-                distance: totalDistance, 
+                distance: formatDistance(totalDistance), 
                 status: status
             }
         ])
@@ -476,7 +476,7 @@ function Geolocation({ uid }) {
             {
                 name: 'Adresse de départ',
                 address: startAddress,
-                distance: homeDistance,
+                distance: formatDistance(homeDistance),
             }
         ]);
         setIsModalHomeOpen(false);
@@ -491,7 +491,7 @@ function Geolocation({ uid }) {
         setStops(prevStops => [...prevStops, {
             name: newSalonName,
             address: newSalonAddress,
-            distance: totalDistance
+            distance: formatDistance(totalDistance)
         }])
 
         setIsModalSalonOpen(false)

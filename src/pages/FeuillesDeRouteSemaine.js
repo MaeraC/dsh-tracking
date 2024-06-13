@@ -285,7 +285,7 @@ function FeuillesDeRouteSemaine({ uid, onReturn }) {
                             {feuille.isVisitsStarted ? (
                                 <>
                                     <p><strong>Ville</strong> : {feuille.city}</p>
-                                    <p><strong>Distance totale</strong> : {feuille.totalDistance} km</p>
+                                    <p><strong>Distance totale</strong> : {feuille.totalKm} km</p>
                                     <p><strong>Visites</strong> :</p>
                                     <table>
                                         <thead>
@@ -345,7 +345,7 @@ function FeuillesDeRouteSemaine({ uid, onReturn }) {
                             {feuille.isVisitsStarted ? (
                                 <>
                                     <p><strong>Ville</strong> : {feuille.city}</p>
-                                    <p><strong>Distance totale</strong> : {feuille.totalDistance} km</p>
+                                    <p><strong>Distance totale</strong> : {feuille.totalKm} km</p>
                                     <p><strong>Visites</strong> :</p>
                                     <table>
                                         <thead>
@@ -397,7 +397,7 @@ function FeuillesDeRouteSemaine({ uid, onReturn }) {
                                 <div className='feuille-jj'>
                                     <h3>Fiche clôturée</h3>
                                     <p><strong>Ville</strong> : {feuilleDuJour.city}</p>
-                                    <p><strong>Distance totale</strong> : {feuilleDuJour.totalDistance} km</p>
+                                    <p><strong>Distance totale</strong> : {feuilleDuJour.totalKm} km</p>
                                     <p><strong>Visites</strong> :</p>
                                     <table>
                                         <thead>
@@ -477,7 +477,7 @@ function FeuillesDeRouteSemaine({ uid, onReturn }) {
                             {feuille.isVisitsStarted ? (
                                 <>
                                     <p><strong>Ville</strong> : {feuille.city}</p>
-                                    <p><strong>Distance totale</strong> : {feuille.totalDistance} km</p>
+                                    <p><strong>Distance totale</strong> : {feuille.totalKm} km</p>
                                     <p><strong>Visites</strong> :</p>
                                     <table>
                                         <thead>

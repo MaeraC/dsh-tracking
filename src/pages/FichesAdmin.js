@@ -1,15 +1,15 @@
 
-// Fichier Fiches.js 
+// Fichier FichesAmin.js 
 
 import { useState }                                             from "react"
-import FeuillesDeRouteSemaine                                   from "./FeuillesDeRouteSemaine"
+import FeuillesDeRouteSemaineAdmin                                   from "./FeuillesDeRouteSemaineAdmin"
 import FicheClient                                              from "../components/FicheClient"
 import FicheProspect                                            from "../components/FicheProspect"
 import FicheDemonstration                                       from "../components/FicheDemonstration"
 import FichePresentation                                        from "../components/FichePresentation"
 import Historique                                               from "../components/Historique"
   
-function Fiches({ uid }) {
+function FichesAmin({ uid }) {
     const [currentComponent, setCurrentComponent]               = useState(null)
 
     const openFDR = () => {
@@ -60,7 +60,7 @@ function Fiches({ uid }) {
             </div>
 
             {currentComponent === "FDR" && (
-                <FeuillesDeRouteSemaine uid={uid} onReturn={returnBack} />
+                <FeuillesDeRouteSemaineAdmin uid={uid} onReturn={returnBack} />
             )}
 
             {currentComponent === "Client" && (
@@ -68,7 +68,7 @@ function Fiches({ uid }) {
             )}
 
             {currentComponent === "Prospect" && (
-                <FicheProspect uid={uid} onReturn={returnBack} openFicheClient={openFicheClient} />
+                <FicheProspect uid={uid} onReturn={returnBack} />
             )}
 
             {currentComponent === "Démonstration" && (
@@ -86,4 +86,4 @@ function Fiches({ uid }) {
     )
 }
 
-export default Fiches
+export default FichesAmin

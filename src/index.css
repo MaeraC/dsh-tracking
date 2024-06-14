@@ -261,6 +261,7 @@ textarea {
     padding-bottom: 20px;
     padding-top: 10px;
     background: white;
+    z-index: 99;
 }
 .header nav {
     display: flex;
@@ -836,6 +837,33 @@ textarea {
 .this-day {
     margin-bottom: 20px;
 }
+.this-day h2 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+.this-day .none {
+    text-align: center;
+}
+.feuille-jj .total-dist {
+    background: #3D9B9B;
+    color: white;
+    padding: 5px 10px;
+    font-weight: bold;
+    display: inline;
+    border-radius: 5px ;
+    margin-left: 10px;
+}
+.feuille-jj .inline {
+    display: inline;
+    margin-left: 10px;
+}
+.feuille-jj .title-visit {
+    
+    border-top: 5px #e9e9e9 solid;
+    padding-top: 15px;
+    margin-top: 15px;
+    width: 100%;
+}
 .this-day form .info {
     margin-bottom: 20px;
     text-align: center;
@@ -848,7 +876,31 @@ textarea {
     margin-bottom: 10px;
     text-align: center;
 }
-
+.signature-draw {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.signature-draw p  {
+    margin-top: 20px;
+    width: 100%;
+    text-align: right;
+}
+.feuilles-de-route-list .this-week {
+    margin: 20px 0;
+}
+.date-filters label {
+    color: grey;
+    display: inline-block;
+    margin-bottom: 10px;
+    font-size: 15px;
+}
+.date-filters input:nth-child(1) {
+    margin-bottom: 10px !important;
+}
+.filters select {
+    margin-bottom: 15px;
+}
 .feuille-jj {
     margin: 20px 0;
     border-radius: 20px;
@@ -972,6 +1024,128 @@ textarea {
 .modal-no-visit .content label {
     margin-bottom: 10px;
     display: inline-block;
+}
+.fiche-client-section,
+.fiche-prospect-section,
+.demonstration-section,
+.historique-section  {
+    padding: 0 20px ;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.fiche-client-section .button-back,
+.fiche-prospect-section .button-back ,
+.demonstration-section .button-back{
+    position: absolute;
+    left: 10px;
+    top: 30px;
+}
+.historique-section .button-back {
+    position: absolute;
+    left: 10px;
+    top: 0;
+}
+.filter-historique .select-sugg {
+    width: 100%;
+}
+.imp {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+}
+.imp button {
+   width: initial !important;
+   padding: 10px 20px;
+}
+.nb-visit span {
+    background: #3D9B9B;
+    color: white;
+    border-radius: 5px;
+    padding: 5px 10px;
+    font-weight: bold;
+}
+.fiche-client-section .success,
+.fiche-prospect-section .success,
+.demonstration-section .success {
+    margin-bottom: 0px;
+    margin-top: 20px;
+}
+.sugg {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.input-sugg  {
+    width: 85%;
+    margin-top: 20px;
+    margin-bottom: 0;
+}
+.select-sugg {
+    background: white;
+    width: 85%;
+    box-shadow: 2px 2Px 10px #cfcfcf;
+}
+form {
+    width: 100%;
+    margin-top: 20px;
+}
+form h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 23px;
+}
+form .adress {
+    margin-bottom: 20px;
+    text-align: center;
+}
+.historique-section h3 {
+    margin: 20px 0;
+    font-size: 20px;
+}
+.filter-historique label {
+    display: inline-block;
+    font-size: 14px;
+    color: grey;
+    margin-bottom: 10px;
+}
+.filter-historique input {
+    margin-bottom: 15px !important;
+}
+.history-form {
+    background: #dbdbdb;
+    padding: 0 !important;
+}
+.data {
+    width: 100%;
+}
+.sous-champs {
+    display: flex;
+    width: 100%;
+}
+.sous-champs-key {
+    padding-bottom: 1px !important;
+    width: 100%;
+}
+.sous-champs-value {
+    padding-bottom: 1px !important;
+    width: 100%;
+}
+.history-form .key{
+    padding: 5px;
+    font-size: 15px;
+    width: 100%;
+    display: inline-block;
+}
+.key-value {
+    padding: 5px;
+    font-size: 15px;
+    width: 100%;
+    display: block;
+    background: white;
 }
 
 

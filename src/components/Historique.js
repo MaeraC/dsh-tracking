@@ -2,7 +2,7 @@
 // fichier Historique.js
 
 import back from "../assets/back.png"
-import { useState } from "react"
+import { useState, useEffect } from "react" 
 import { db } from "../firebase.config"
 import { query, collection, where, getDocs, getDoc, doc } from 'firebase/firestore'
 
@@ -12,6 +12,27 @@ function Historique({ onReturn }) {
     const [selectedSalon, setSelectedSalon] = useState(null)
     const [historique, setHistorique] = useState([])
     const [loading, setLoading] = useState(false)
+    const [nombreVisites, setNombreVisites] = useState(0)
+    const [startDate, setStartDate] = useState("");
+    const [endDate, setEndDate] = useState("");
+    const [usersMap, setUsersMap] = useState({})
+
+   // Récupère les nom et prénom des users
+    useEffect(() => {
+        const fetchUsersData = async () => {
+            const usersData = {};
+            try {
+                const usersSnapshot = await getDocs(collection(db, 'users'));
+                usersSnapshot.forEach((doc) => {
+                    usersData[doc.id] = doc.data();
+                });
+                setUsersMap(usersData);
+            } catch (error) {
+                console.error("Erreur lors de la récupération des utilisateurs : ", error);
+            }
+        }; 
+        fetchUsersData();
+    }, []);
 
     // Recherche un salon dans la collection salons de la bdd 
     const handleSearch = async (e) => {
@@ -52,15 +73,22 @@ function Historique({ onReturn }) {
 
             if (salonDoc.exists()) {
                 const data = salonDoc.data()
-                setHistorique(data.historique || [])
+                const historiqueData = data.historique || [];
+                setHistorique(historiqueData);
+
+                // Calculer le nombre de visites
+                const visitesCount = historiqueData.filter(entry => entry.action === "Nouvelle visite").length;
+                setNombreVisites(visitesCount);
             } 
             else {
                 setHistorique([])
+                setNombreVisites(0);
             }
         } 
         catch (error) {
             console.error("Erreur lors de la récupération de l'historique du salon : ", error)
             setHistorique([])
+            setNombreVisites(0);
         }
         setLoading(false)
     }
@@ -69,174 +97,136 @@ function Historique({ onReturn }) {
         window.print()
     }
 
-    const renderFormData = (formData, userIdToNameMap) => {
-        if (!formData) {
-            return null;
+    const handleDateChange = () => {
+        if (!startDate || !endDate) {
+            return;
         }
-    
-        // Fonction récursive pour rendre les champs de formData
-        const renderFields = (data, prefix = '') => {
-            return Object.entries(data).map(([key, value], index) => {
-                const fieldName = prefix ? `${prefix}.${key}` : key;
-                if (key === 'createdAt' || key === 'userId') {
-                    return null; // Exclure les champs createdAt et userId
-                } 
-                else if (value && typeof value === 'object') {
-                    const renderedFields = renderFields(value, fieldName);
-                    return renderedFields.length ? (
-                        <div key={fieldName}>
-                            {renderedFields}
-                        </div>
-                    ) : null;
-                } 
-                else {
-                    return value ? (
-                        <div className="historique-formdata" key={fieldName}>
-                           <thead><strong>{translateFieldName(fieldName)}</strong></thead> 
-                           <tbody>{formatValue(fieldName, value, userIdToNameMap)}</tbody>
-                             
-                        </div>
-                    ) : null;
-                }
-            });
-        };
-    
-        // Fonction pour traduire les noms des champs
-        const translateFieldName = (fieldName) => {
-            switch (fieldName) {
-                case 'salonName':
-                    return 'Nom du salon';
-                case 'city':
-                    return 'Ville';
-                case 'salonAdresse':
-                    return 'Adresse';
-                case 'salonTel':
-                    return 'Numéro du salon';
-                case 'tenueSalon':
-                    return 'Tenue du salon';
-                case 'tenuPar':
-                    return 'Tenu par';
-                case 'dept':
-                    return 'Département';
-                case 'responsableNom':
-                    return 'Nom du responsable';
-                case 'responsableNomPrenom':
-                    return 'Nom du responsable';
-                case 'responsableAge':
-                    return 'Âge du responsable';
-                case 'numeroPortable':
-                    return 'N° du responsable';
-                case 'responsablePortable':
-                    return 'N° du responsable';
-                case 'responsableEmail':
-                    return 'E-mail du responsable';
-                case 'adresseEmail':
-                    return 'Adresse e-mail';
-                case 'origineVisite':
-                    return 'Origine de la visite';
-                case 'colorationsAmmoniaque':
-                    return 'Colorations avec ammoniaque';
-                case 'colorationsSansAmmoniaque':
-                    return 'Colorations sans ammoniaque';
-                case 'colorationsVegetale':
-                    return 'Colorations végétales';
-                case 'autresMarques':
-                    return 'Autres marques';
-                case 'autresMarques.poudre':
-                    return 'Autres marques / Poudre';
-                case 'autresMarques.permanente':
-                    return 'Autres marques / Permanente';
-                case 'autresMarques.bac':
-                    return 'Autres marques / BAC';
-                case 'autresMarques.revente':
-                    return 'Autres marques / Revente';
-                case 'marquesEnPlace.systemeDsh':
-                        return 'Marque en place / Système Dsh';
-                case 'dateVisite':
-                    return 'Date de visite';
-                case 'equipe':
-                    return 'Equipe';
-                case 'clientEnContrat':
-                    return 'Client en contrat';
-                case 'contratLequel':
-                    return 'Quel contrat';
-                case 'tarifSpecifique':
-                    return 'Tarif spécifique';
-                case 'priseDeCommande':
-                    return 'Prise de commande';
-                case 'gammesCommande':
-                    return 'Gammes commande';
-                case 'responsablePresent':
-                    return 'Responsable présent';
-                case 'conceptsProposes':
-                    return 'Concepts proposés';
-                case 'animationProposee':
-                    return 'Animation proposée';
-                case 'produitsProposes':
-                    return 'Produits proposés';
-                case 'interessesPar':
-                    return 'Intéressé par';
-                case 'autresPoints':
-                    return 'Autres points';
-                case 'autresPointsAbordes':
-                    return 'Autres points abordés';
-                case 'statut':
-                    return 'Statut';
-                case 'rdvDate':
-                    return 'RDV Date';
-                case 'rdvPour':
-                    return 'RDV Pour';
-                case 'commande':
-                    return 'Commande';
-                case 'pointsProchaineVisite':
-                    return 'Points pour la prochaine visite';
-                case 'observations':
-                    return 'Observations';
-                case 'typeOfForm':
-                    return 'Type de fiche';
-                
-                default:
-                    return fieldName;
-            }
-        };
-    
-        // Fonction pour formater les valeurs des champs
-        const formatValue = (fieldName, value, userIdToNameMap) => {
-            if (fieldName === 'dateVisite' && value) {
-                // Formater la date de visite
-                return new Date(value).toLocaleDateString('fr-FR');
-            } else if (fieldName === 'userId' && userIdToNameMap[value]) {
-                // Remplacer l'ID utilisateur par son nom
-                return userIdToNameMap[value];
+
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+        end.setHours(23, 59, 59, 999);
+
+        if (start > end) {
+            alert("La date de début doit être antérieure à la date de fin.");
+            return;
+        }
+
+        const filteredHistorique = historique.filter(entry => {
+            const entryDate = new Date(entry.date.seconds * 1000);
+            return entryDate >= start && entryDate <= end;
+        });
+
+        const visitesCount = filteredHistorique.filter(entry => entry.action === "Nouvelle visite").length;
+        setNombreVisites(visitesCount);
+    }
+
+    // Fonction pour formater les clés
+    const formatKey = (key) => {
+        // Convertir camelCase en texte lisible avec une majuscule au début et des espaces
+        const formattedKey = key.replace(/([a-z])([A-Z])/g, '$1 $2'); // Ajouter un espace avant chaque lettre majuscule
+        return formattedKey.charAt(0).toUpperCase() + formattedKey.slice(1); // Mettre la première lettre en majuscule
+    };
+
+    // Fonction pour afficher la valeur du champ
+    const renderFieldValue = (value) => {
+        if (typeof value === 'object' && !Array.isArray(value)) {
+            // Si la valeur est un objet (potentiellement un sous-champ)
+            return (
+                <div>
+                    {Object.keys(value).map((subKey, i) => (
+                        value[subKey] !== null && value[subKey] !== undefined && value[subKey] !== '' && (
+                            <li className="sous-champs" key={i}> 
+                            <tr className="sous-champs-key"><strong>{formatKey(subKey)}:</strong></tr>
+                            <tr className="sous-champs-value">{renderFieldValue(value[subKey])}</tr>
+                            </li>
+                        )
+                    ))}
+                </div>
+            )
+        } else if (Array.isArray(value)) {
+            // Si la valeur est un tableau (potentiellement un tableau imbriqué)
+            return (
+                <div>
+                    {value.map((item, i) => (
+                        item !== null && item !== undefined && item !== '' && (
+                            <li key={i} className="sous-champs">{renderFieldValue(item)}</li> 
+                        )
+                    ))}
+                </div>
+            );
+        } else {
+            // Sinon, afficher la valeur directement si elle n'est pas vide
+            return value;
+        }
+    };
+
+    // Fonction pour rendre les données du formulaire
+    const renderFormData = (formData) => {
+        if (!formData) return null;
+
+        // Exclure les champs userId, createdAt et typeOfForm
+        const filteredKeys = Object.keys(formData).filter(key => !['userId', 'createdAt', 'typeOfForm'].includes(key));
+
+        // Filtrer les clés pour supprimer celles avec des valeurs vides ou des objets vides
+        const nonEmptyKeys = filteredKeys.filter(key => {
+            const value = formData[key];
+            if (typeof value === 'object' && !Array.isArray(value)) {
+                // Si la valeur est un objet (potentiellement un sous-champ), vérifier récursivement
+                return Object.keys(value).some(subKey => {
+                    const subValue = value[subKey];
+                    return subValue !== null && subValue !== undefined && subValue !== '';
+                });
+            } else if (Array.isArray(value)) {
+                // Si la valeur est un tableau (potentiellement un tableau imbriqué), vérifier récursivement
+                return value.some(item => {
+                    return item !== null && item !== undefined && item !== '';
+                });
             } else {
-                return value;
+                // Sinon, vérifier si la valeur n'est pas vide
+                return value !== null && value !== undefined && value !== '';
             }
-        };
-    
-        return renderFields(formData);
+        });
+
+        // Trier les clés (si nécessaire)
+        nonEmptyKeys.sort(); // Par exemple, tri alphabétique
+
+        return (
+            <div>
+            {nonEmptyKeys.map((key, index) => (
+                <div key={index}>
+                    
+                    <tr className="key"><strong>{formatKey(key)}</strong></tr>
+                    <tr className="key-value">{renderFieldValue(formData[key])}</tr>
+                </div>
+            ))}
+        </div>
+            
+        );
     };
     
-    
-    
-    
-    
-    
-
     return (
         <div className="historique-section">
             <button onClick={onReturn} className="button-back">
                 <img src={back} alt="retour" />
             </button>
-
-            <div>
+            <h3>Historique des salons</h3>
+            <div className="filter-historique">
+                <label>Filtrer par nom</label>
                 <input type="text" placeholder="Rechercher un salon" value={searchSalon} onChange={handleSearch} />
-                <div>
+                <div className="select-sugg">
                     {suggestions.map((salon) => (
                         <div key={salon.id} onClick={() => handleSelectSuggestion(salon)}
                             style={{ cursor: "pointer", padding: "5px", borderBottom: "1px solid #ccc" }} >
                             {salon.name}
                         </div>
                     ))}
+                </div>
+                <div>
+                    <label>Date de début</label>
+                    <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
+                    <label>Date de fin </label>
+                    <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
+                    <button className="button-colored" onClick={handleDateChange}>Filtrer</button>
                 </div>
             </div>
 
@@ -245,8 +235,12 @@ function Historique({ onReturn }) {
             
             ) : selectedSalon && historique.length > 0 ? (
                 <div>
-                    <h2>Historique pour {selectedSalon.name}</h2>
+                    <h2>Historique du salon {selectedSalon.name}</h2>
+                    <div className="imp">
+                    <p className="nb-visit">Nombre de visites: <span>{nombreVisites}</span></p>
                     <button onClick={handlePrintHistorique} className="button-colored">Imprimer l'historique</button>
+                    
+                    </div>
                     <table>
                         <thead>
                             <tr>
@@ -261,8 +255,10 @@ function Historique({ onReturn }) {
                                 <tr key={index}>
                                     <td>{entry.action}</td>
                                     <td>{new Date(entry.date.seconds * 1000).toLocaleString('fr-FR', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit'})}</td>
-                                    <td>{entry.userId}</td>
-                                    <td className="formdata-table">{renderFormData(entry.formData)}</td>
+                                    <td>{usersMap[entry.userId]?.lastname} {usersMap[entry.userId]?.firstname}</td>
+                                    <td className="history-form">
+                                        {renderFormData(entry.formData)}
+                                    </td>
                                 </tr>
                             ))}
                         </tbody>

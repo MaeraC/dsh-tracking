@@ -10,6 +10,8 @@ function FichePresentation({ uid, onReturn }) {
     const [searchSalon, setSearchSalon] = useState("")
     const [salonInfo, setSalonInfo] = useState(null)
     const [suggestions, setSuggestions] = useState([])
+    
+    const [message, setMessage] = useState("")
 
     const initialFormData = {
         salonName: '',
@@ -211,6 +213,7 @@ function FichePresentation({ uid, onReturn }) {
 
                 // Met à jour l'historique du salon
                 await updateSalonHistory(formData)
+                setMessage("Compte rendu de RDV de Présentation enregistré avec succès !") 
             }
             else {
                 console.error("Document de visite non trouvé.")
@@ -225,9 +228,9 @@ function FichePresentation({ uid, onReturn }) {
         <div className="demonstration-section">
             <button onClick={onReturn} className="button-back"><img src={back} alt="retour" /></button>
 
-            <div>
-                <input type="text" placeholder="Rechercher un salon par son nom" value={searchSalon} onChange={handleSearch} />
-                <div>
+            <div className="sugg">
+                <input  className="input-sugg" type="text" placeholder="Rechercher un salon par son nom" value={searchSalon} onChange={handleSearch} />
+                <div className="select-sugg">
                     {suggestions.map((salon) => (
                         <div
                             key={salon.id}
@@ -240,10 +243,12 @@ function FichePresentation({ uid, onReturn }) {
                 </div>
 
                 {salonInfo && (
+                    <>
+                    <p className="success">{message}</p>
                     <form onSubmit={handleSubmit}>
                         <div className="form-CRD">
                             <h2>{salonInfo.name}</h2>
-                            <p>{salonInfo.address}</p>
+                            <p className="adress">{salonInfo.address}</p>
                             <input type="text" name="ville" placeholder="Ville" value={formData.ville} onChange={handleChange} /><br></br>
                             <input type="text" name="departement" placeholder='Département' value={formData.departement} onChange={handleChange} /><br></br>
             
@@ -435,6 +440,9 @@ function FichePresentation({ uid, onReturn }) {
 
                         </div>
                     </form>
+                    <p className="success">{message}</p>
+                    </>
+                     
                 )}
 
             </div>

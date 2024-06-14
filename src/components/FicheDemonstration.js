@@ -10,6 +10,8 @@ function FicheDemonstration({ uid, onReturn }) {
     const [searchSalon, setSearchSalon] = useState("")
     const [salonInfo, setSalonInfo] = useState(null)
     const [suggestions, setSuggestions] = useState([])
+    
+    const [message, setMessage] = useState("")
 
     const initialFormData = {
         salonName: '',
@@ -234,7 +236,7 @@ function FicheDemonstration({ uid, onReturn }) {
                 typeOfForm: "CR de RDV de Démonstration",
                 userId: uid,
             });
-            console.log("formData before setting state: ", formData);
+            //console.log("formData before setting state: ", formData);
         }
         
     }  
@@ -285,6 +287,7 @@ function FicheDemonstration({ uid, onReturn }) {
 
                 // Met à jour l'historique du salon
                 await updateSalonHistory(formData)
+                setMessage("Compte rendu de RDV de Démonstration enregistré avec succès !") 
             }
             else {
                 console.error("Document de visite non trouvé.")
@@ -299,9 +302,9 @@ function FicheDemonstration({ uid, onReturn }) {
         <div className="demonstration-section">
             <button onClick={onReturn} className="button-back"><img src={back} alt="retour" /></button>
 
-            <div>
-                <input type="text" placeholder="Rechercher un salon par son nom" value={searchSalon} onChange={handleSearch} />
-                <div>
+            <div className="sugg">
+                <input  className="input-sugg" type="text" placeholder="Rechercher un salon par son nom" value={searchSalon} onChange={handleSearch} />
+                <div className="select-sugg">
                     {suggestions.map((salon) => (
                         <div
                             key={salon.id}
@@ -314,10 +317,12 @@ function FicheDemonstration({ uid, onReturn }) {
                 </div>
 
                 {salonInfo && (
+                     <>
+                     <p className="success">{message}</p>
                     <form onSubmit={handleSubmit}>
                         <div className="form-CRD">
                             <h2>{salonInfo.name}</h2>
-                            <p>{salonInfo.address}</p>
+                            <p className="adress">{salonInfo.address}</p>
                             <input type="text" name="ville" placeholder="Ville" value={formData.ville} onChange={handleChange} /><br></br>
                             <input type="text" name="nomPrenomResponsable" placeholder="Nom Prénom du responsable" value={formData.nomPrenomResponsable} onChange={handleChange} /><br></br>
                         
@@ -333,7 +338,7 @@ function FicheDemonstration({ uid, onReturn }) {
                         
                             <p className="bold margin">La démonstration portait sur :</p><br></br>
                             {Object.keys(formData.demonstrations).map(demo => (
-                                <>
+                                <> 
                                 <label className="margin" key={demo}>
                                 <input
                                     type="checkbox"
@@ -538,6 +543,9 @@ function FicheDemonstration({ uid, onReturn }) {
 
                         </div>
                     </form>
+                    <p className="success">{message}</p>
+                    </>
+                    
                 )}
 
             </div>

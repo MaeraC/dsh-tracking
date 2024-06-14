@@ -1,67 +1,64 @@
 
 // fichier HeaderAdmin
 
-import { NavLink , useLocation} from "react-router-dom"
 import "../index.css"
+import React from "react";
+import "../index.css";
 import home from "../assets/home.png"
 import homeB from "../assets/homeb.png"
+import survey from "../assets/survey.png"
+import surveyB from "../assets/surveyb.png"
 import user from "../assets/user.png"
 import userB from "../assets/userb.png" 
 import search from "../assets/search.png" 
 import searchB from "../assets/searchb.png" 
-import stats from "../assets/stats.png" 
-import statsb from "../assets/statsb.png" 
-import { useEffect, useState } from "react"
 
-function HeaderAdmin() {
-
-    const location = useLocation();
-    const [activeTab, setActiveTab] = useState("");
-
-    useEffect(() => {
-        setActiveTab(location.pathname);
-    }, [location]);
-
+function HeaderAdmin({ activeTab, onTabChange }) {
+    
     const handleTabClick = (tab) => {
-        setActiveTab(tab);
+        onTabChange(tab)
+    }
+
+    const getIcon = (tab) => {
+        switch (tab) {
+            case "apercu":
+                return activeTab === "apercu" ? homeB : home
+           
+            case "questionnaires":
+                return activeTab === "questionnaires" ? surveyB : survey
+            case "fiches":
+                return activeTab === "fiches" ? surveyB : survey
+            case "recherche-visites":
+                return activeTab === "recherche-visites" ? searchB : search
+            case "mon-compte":
+                return activeTab === "mon-compte" ? userB : user
+            default:
+                return null
+        }
     }
 
     return (
         <header className="header">
             <nav>
-                <NavLink
-                    to="/tableau-de-bord-administrateur/apercu-admin"
-                    className={activeTab === "/tableau-de-bord-administrateur/apercu-admin" ? "active" : ""}
-                    onClick={() => handleTabClick("/tableau-de-bord-administrateur/apercu-admin")}
-                >
-                    <img src={activeTab === "/tableau-de-bord-administrateur/apercu-admin" ? homeB : home} alt="Onglet accueil" className="iconHeader" />
-                </NavLink>
+                <button className={activeTab === "apercu" ? "active" : ""} onClick={() => handleTabClick("apercu")}>
+                    <img src={getIcon("apercu")} alt="Aperçu" /> 
+                </button>
 
-                <NavLink
-                    to="/tableau-de-bord-administrateur/stats-admin"
-                    className={activeTab === "/tableau-de-bord-administrateur/stats-admin" ? "active" : ""}
-                    onClick={() => handleTabClick("/tableau-de-bord-administrateur/stats-admin")}
-                >
-                    <img src={activeTab === "/tableau-de-bord-administrateur/stats-admin" ? statsb : stats} alt="Onglet statistiques" className="iconHeader" />
-                </NavLink>
+                <button className={activeTab === "fiches" ? "active" : ""}  onClick={() => handleTabClick("fiches")} >
+                    <img src={getIcon("questionnaires")} alt="Questionnaires" />
+                </button>
+
+                <button className={activeTab === "recherche-visites" ? "active" : ""} onClick={() => handleTabClick("recherche-visites")} >
+                    <img src={getIcon("recherche-visites")} alt="Recherche Visites" />
+                </button>
                 
-                <NavLink
-                    to="/tableau-de-bord-administrateur/recherche-visites-admin"
-                    className={activeTab === "/tableau-de-bord-administrateur/recherche-visites-admin" ? "active" : ""}
-                    onClick={() => handleTabClick("/tableau-de-bord-administrateur/recherche-visites-admin")}
-                >
-                    <img src={activeTab === "/tableau-de-bord-administrateur/recherche-visites-admin" ? searchB : search} alt="onglet rechercher visites" className="iconHeader" />
-                </NavLink>
-                <NavLink
-                    to="/tableau-de-bord-administrateur/mon-compte-admin"
-                    className={activeTab === "/tableau-de-bord-administrateur/mon-compte-admin" ? "active" : ""}
-                    onClick={() => handleTabClick("/tableau-de-bord-administrateur/mon-compte-admin")}
-                >
-                    <img src={activeTab === "/tableau-de-bord-administrateur/mon-compte-admin" ? userB : user} alt="Onglet mon compte" className="iconHeader" />
-                </NavLink>
+                <button className={activeTab === "mon-compte" ? "active" : ""} onClick={() => handleTabClick("mon-compte")} >
+                    <img src={getIcon("mon-compte")} alt="Mon Compte" />
+                </button>
             </nav>
         </header>
-    )
-}
+    );
+};
 
 export default HeaderAdmin
+

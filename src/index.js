@@ -8,10 +8,10 @@ import { BrowserRouter as Router, Routes, Route }   from "react-router-dom"
 import Entry                                        from "./pages/Entry"
 import SignUp                                       from "./pages/SignUp.js"
 import Login                                        from "./pages/Login.js"
-import DashboardAdmin                               from "./pages/DashboardAdmin.js"
 import "typeface-roboto"
 import AuthCheck from "./auth/AuthCheck.js"
-import DashboardComm from "./pages/DashboardComm.js"
+import DashboardComm from "./pages/DashboardComm.js"  
+import DashAdmin from "./pages/DashAdmin.js"
 
 
 const root = ReactDOM.createRoot(document.getElementById('root'))
@@ -24,7 +24,7 @@ root.render(
                 <Route path="/inscription"                          element={<SignUp />} />
                 <Route path="/connexion"                            element={<Login />} />
                 <Route path="/tableau-de-bord-commercial/*"         element={<DashboardComm />} />
-                <Route path="/tableau-de-bord-administrateur/*"       element={<DashboardAdmin />} />
+                <Route path="/tableau-de-bord-administrateur/*"       element={<DashAdmin />} />
             </Routes>
         </Router>
     </React.StrictMode>

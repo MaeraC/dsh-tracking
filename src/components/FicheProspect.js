@@ -4,36 +4,37 @@
 import back from "../assets/back.png"
 import { useState, useCallback } from "react"
 import { db } from "../firebase.config"
-import { collection, query, where, getDocs, doc, updateDoc, getDoc } from "firebase/firestore"
+import { collection, query, where, getDocs, doc, updateDoc, getDoc, arrayUnion } from "firebase/firestore"
 
 function FicheProspect({uid, onReturn}) {
     const [searchSalon, setSearchSalon] = useState("")
     const [salonInfo, setSalonInfo] = useState(null)
     const [suggestions, setSuggestions] = useState([])
+    const [message, setMessage] = useState("")
 
     const createdAt = new Date()
     
     const initialFormData = { 
         salonName: "",
-        city: "", 
+        ville: "", 
         salonAdresse: "",
-        salonTel: "",
+        telephoneFixe: "",
 
         tenueSalon: "",
-        tenuPar: "",
+        salonTenuPar: "",
         dept: "",
         jFture: "",
 
         responsableNom: "",
-        responsableAge: "",
-        numeroPortable: "",
-        adresseEmail: "",
+        ageDuResponsable: "",
+        numeroduResponsable: "",
+        emailDuResponsable: "",
 
         facebook: "",
         instagram: "",
-        origineVisite: "",
+        origineDeLaVisite: "",
 
-        colorationsAmmoniaque: [],
+        colorationsAvecAmmoniaque: [],
         colorationsSansAmmoniaque: [],
         colorationsVegetale: [],
         autresMarques: {
@@ -42,7 +43,7 @@ function FicheProspect({uid, onReturn}) {
             bac: "",
             revente: ""
         },
-        dateVisite: "",
+        dateDeVisite: "",
 
         responsablePresent: "",
         conceptsProposes: "",
@@ -52,8 +53,11 @@ function FicheProspect({uid, onReturn}) {
         autresPoints: "",
         observations: "",
         statut: "",
-        rdvDate: "",
-        rdvPour: "",
+        rdvObtenu: "",
+        rdvPrevuLe: "",
+        rdvPrevuPour: "",
+        rdvType: "",
+        demoType: [],
         commande: "",
         createdAt: createdAt,
         typeOfForm: "Fiche de suivi Prospect",
@@ -70,7 +74,7 @@ function FicheProspect({uid, onReturn}) {
     const handleAddColorationAmmoniaque = () => {
         setFormData({
             ...formData,
-            colorationsAmmoniaque: [...formData.colorationsAmmoniaque, { nom: "", prix: "", ml: "" }]
+            colorationsAvecAmmoniaque: [...formData.colorationsAvecAmmoniaque, { nom: "", prix: "", ml: "" }]
         })
     }
 
@@ -140,25 +144,25 @@ function FicheProspect({uid, onReturn}) {
 
             setFormData({
                 salonName: salon.name || "",
-                city: suiviProspect.city || "",
+                ville: suiviProspect.ville || "",
                 salonAdresse: salon.address || "",
-                salonTel: suiviProspect.salonTel || "",
+                telephoneFixe: suiviProspect.telephoneFixe || "",
     
                 tenueSalon: suiviProspect.tenuSalon || "",
-                tenuPar: suiviProspect.tenuPar || "",
+                salonTenuPar: suiviProspect.salonTenuPar || "",
                 dept: suiviProspect.dept || "",
                 jFture: suiviProspect.jFture || "",
     
                 responsableNom: suiviProspect.responsableNom ||  "",
-                responsableAge: suiviProspect.responsableAge || "",
-                numeroPortable: suiviProspect.numeroPortable || "",
-                adresseEmail: suiviProspect.adresseEmail || "",
+                ageDuResponsable: suiviProspect.ageDuResponsable || "",
+                numeroduResponsable: suiviProspect.numeroduResponsable || "",
+                emailDuResponsable: suiviProspect.emailDuResponsable || "",
     
                 facebook: suiviProspect.facebook || "",
                 instagram: suiviProspect.instagram || "",
-                origineVisite: suiviProspect.origineVisite || "",
+                origineDeLaVisite: suiviProspect.origineDeLaVisite || "",
                 
-                colorationsAmmoniaque: suiviProspect.colorationsAmmoniaque || [],
+                colorationsAvecAmmoniaque: suiviProspect.colorationsAvecAmmoniaque || [],
                 colorationsSansAmmoniaque: suiviProspect.colorationsSansAmmoniaque || [],
                 colorationsVegetale: suiviProspect.colorationsVegetale || [],
                 autresMarques: {
@@ -167,7 +171,7 @@ function FicheProspect({uid, onReturn}) {
                     bac: (suiviProspect.autresMarques && suiviProspect.autresMarques.bac) || "",
                     revente: (suiviProspect.autresMarques && suiviProspect.autresMarques.revente) || ""
                 },
-                dateVisite: suiviProspect.dateVisite || "",
+                dateDeVisite: suiviProspect.dateDeVisite || "",
     
                 responsablePresent: suiviProspect.responsablePresent || "",
                 conceptsProposes: suiviProspect.conceptsProposes || "",
@@ -175,8 +179,11 @@ function FicheProspect({uid, onReturn}) {
                 interessesPar: suiviProspect.interessesPar || "",
                 autresPoints: suiviProspect.autresPoints ||"",
                 statut: suiviProspect.statut || "",
-                rdvDate: suiviProspect.rdvDate || "",
-                rdvPour: suiviProspect.rdvPour || "",
+                rdvObtenu: suiviProspect.rdvObtenu || "",
+                rdvPrevuLe: suiviProspect.rdvPrevuLe || "",
+                rdvPrevuPour: suiviProspect.rdvPrevuPour || "",
+                rdvType: suiviProspect.rdvType || "",
+                demoType: suiviProspect.demoType || [],
                 commande: suiviProspect.commande || "",
                 pointsProchaineVisite: suiviProspect.pointsProchaineVisite || "",
                 observations: suiviProspect.observations || "",
@@ -215,6 +222,7 @@ function FicheProspect({uid, onReturn}) {
         }
     }, [salonInfo, uid]); 
 
+
     // Soumission du formulaire
     const handleSubmit = async (e) => {
         e.preventDefault()
@@ -226,11 +234,37 @@ function FicheProspect({uid, onReturn}) {
            
             if (SalonSnapshot.exists()) {
                 const salonData = SalonSnapshot.data()
-                const updatedSuiviProspect = [...(salonData.suiviProspect || []), formData]
+
+                // Compare les champs modifiés avec les données actuelles
+                const modifiedFields = {};
+                Object.keys(formData).forEach(key => {
+                    if (formData[key] !== salonData[key]) {
+                        modifiedFields[key] = formData[key];
+                    }
+                });
+
+                const updatedSuiviProspect = [...(salonData.suiviProspect || []), modifiedFields]
                 await updateDoc(salonRef, { suiviProspect: updatedSuiviProspect })   
 
                 // Met à jour l'historique du salon
-                await updateSalonHistory(formData)
+                await updateSalonHistory(modifiedFields)
+                setMessage("Fiche de suivi Prospect enregistré avec succès !") 
+
+                // Si la commande est "OUI", met à jour le statut du salon
+                if (formData.commande === "OUI") {
+                    await updateDoc(salonRef, { 
+                        status: "Client" ,
+                        historique: arrayUnion({
+                            date: new Date(),
+                            action: "Status mis à jour : Client",
+                            userId: uid
+                        })
+                    })
+                    setMessage("Fiche enregistrée, dirigez-vous vers la section Fiche Client");
+                } 
+                else {
+                    setMessage("Fiche de suivi Prospect enregistré avec succès !");
+                }
             }
             else {
                 console.error("Document de visite non trouvé.")
@@ -243,11 +277,12 @@ function FicheProspect({uid, onReturn}) {
 
     return (
         <div className="fiche-prospect-section">
+            
             <button onClick={onReturn} className="button-back"><img src={back} alt="retour" /></button>
 
-            <div>
-                <input type="text" placeholder="Rechercher un salon par son nom" value={searchSalon} onChange={handleSearch} />
-                <div>
+            <div className="sugg">
+                <input  className="input-sugg" type="text" placeholder="Rechercher un salon par son nom" value={searchSalon} onChange={handleSearch} />
+                <div  className="select-sugg">
                     {suggestions.map((salon) => (
                         <div
                             key={salon.id}
@@ -260,13 +295,15 @@ function FicheProspect({uid, onReturn}) {
                 </div>
 
                 {salonInfo && (
+                    <>
+                    <p className="success">{message}</p>
                     <form onSubmit={handleSubmit}>
                         <div className="form-FSP">
                             <h2>{salonInfo.name}</h2>
-                            <p className="adresse">{salonInfo.address}</p>
+                            <p className="adress">{salonInfo.address}</p>
 
-                            <input type="text" name="city" placeholder="Ville" value={formData.city} onChange={handleInputChange} required />
-                            <input type="text" name="salonTel" placeholder="Téléphone" value={formData.salonTel} onChange={handleInputChange} />
+                            <input type="text" name="ville" placeholder="Ville" value={formData.ville} onChange={handleInputChange} required />
+                            <input type="text" name="telephoneFixe" placeholder="Téléphone fixe" value={formData.telephoneFixe} onChange={handleInputChange} />
                     
                             <div className="space">
                                 <label className="bold margin">Tenue du salon :</label>
@@ -278,10 +315,10 @@ function FicheProspect({uid, onReturn}) {
                             </div><br></br>
                 
                             <div className="space">
-                                <label className="bold margin">Tenu par :</label>
+                                <label className="bold margin">Salon tenu par :</label>
                                 <div>
-                                    <label className="margin"><input className="checkbox" type="radio" name="tenuPar" value="Proprétaire" checked={formData.tenuPar === "Proprétaire"} onChange={handleInputChange} />Proprétaire</label><br></br>
-                                    <label className="margin"><input className="checkbox" type="radio" name="tenuPar" value="Salarié" checked={formData.tenuPar === "Salarié"} onChange={handleInputChange} />Salarié</label>
+                                    <label className="margin"><input className="checkbox" type="radio" name="salonTenuPar" value="Proprétaire" checked={formData.salonTenuPar === "Proprétaire"} onChange={handleInputChange} />Proprétaire</label><br></br>
+                                    <label className="margin"><input className="checkbox" type="radio" name="salonTenuPar" value="Salarié" checked={formData.salonTenuPar === "Salarié"} onChange={handleInputChange} />Salarié</label>
                                 </div>
                             </div>
                     
@@ -292,48 +329,48 @@ function FicheProspect({uid, onReturn}) {
                             <div className="space">
                                 <label className="bold margin">Âge du responsable :</label>
                                 <div>
-                                    <label className="margin"><input className="checkbox" type="radio" name="responsableAge" value="Moins de 35 ans" checked={formData.responsableAge === "Moins de 35 ans"} onChange={handleInputChange} />Moins de 35 ans</label><br></br>
-                                    <label className="margin"><input className="checkbox" type="radio" name="responsableAge" value="De 35 ans à 50 ans" checked={formData.responsableAge === "De 35 ans à 50 ans"} onChange={handleInputChange} />De 35 ans à 50 ans</label><br></br>
-                                    <label className="margin"><input className="checkbox" type="radio" name="responsableAge" value="Plus de 50 ans" checked={formData.responsableAge === "Plus de 50 ans"} onChange={handleInputChange} />Plus de 50 ans</label>
+                                    <label className="margin"><input className="checkbox" type="radio" name="ageDuResponsable" value="Moins de 35 ans" checked={formData.ageDuResponsable === "Moins de 35 ans"} onChange={handleInputChange} />Moins de 35 ans</label><br></br>
+                                    <label className="margin"><input className="checkbox" type="radio" name="ageDuResponsable" value="De 35 ans à 50 ans" checked={formData.ageDuResponsable === "De 35 ans à 50 ans"} onChange={handleInputChange} />De 35 ans à 50 ans</label><br></br>
+                                    <label className="margin"><input className="checkbox" type="radio" name="ageDuResponsable" value="Plus de 50 ans" checked={formData.ageDuResponsable === "Plus de 50 ans"} onChange={handleInputChange} />Plus de 50 ans</label>
                                 </div>
                             </div>
                     
-                            <input type="text" name="numeroPortable" placeholder="Numéro de portable" value={formData.numeroPortable} onChange={handleInputChange} /><br></br>
-                            <input type="email" name="adresseEmail" placeholder="Adresse e-mail" value={formData.adresseEmail} onChange={handleInputChange} /><br></br>
+                            <input type="text" name="numeroduResponsable" placeholder="Numéro du responsable" value={formData.numeroduResponsable} onChange={handleInputChange} /><br></br>
+                            <input type="email" name="emailDuResponsable" placeholder="E-mail du responsable" value={formData.emailDuResponsable} onChange={handleInputChange} /><br></br>
                             <input type="url" name="facebook" placeholder="Facebook" value={formData.facebook} onChange={handleInputChange} /><br></br>
                             <input type="url" name="instagram" placeholder="Instagram" value={formData.instagram} onChange={handleInputChange} /><br></br>
                     
                             <div className="space">
                                 <label className="bold margin">Origine de la visite :</label>
                                 <div>
-                                    <label className="margin"><input className="checkbox" type="radio" name="origineVisite" value="Visite spontanée" checked={formData.origineVisite === "visite spontanée"} onChange={handleInputChange} />Visite spontanée </label><br></br>
-                                    <label className="margin"><input className="checkbox" type="radio" name="origineVisite" value="S. recomm." checked={formData.origineVisite === "S. recomm."} onChange={handleInputChange} />S. recomm.</label><br></br>
-                                    <label className="margin"><input className="checkbox" type="radio" name="origineVisite" value="Ancien client" checked={formData.origineVisite === "Ancien client"} onChange={handleInputChange} />Ancien client </label><br></br>
-                                    <label className="margin"><input className="checkbox" type="radio" name="origineVisite" value="Prospection téléphonique" checked={formData.origineVisite === "Prospection téléphonique"} onChange={handleInputChange} />Prospection téléphonique</label>
+                                    <label className="margin"><input className="checkbox" type="radio" name="origineDeLaVisite" value="Visite spontanée" checked={formData.origineDeLaVisite === "Visite spontanée"} onChange={handleInputChange} />Visite spontanée </label><br></br>
+                                    <label className="margin"><input className="checkbox" type="radio" name="origineDeLaVisite" value="S. recomm." checked={formData.origineDeLaVisite === "S. recomm."} onChange={handleInputChange} />S. recomm.</label><br></br>
+                                    <label className="margin"><input className="checkbox" type="radio" name="origineDeLaVisite" value="Ancien client" checked={formData.origineDeLaVisite === "Ancien client"} onChange={handleInputChange} />Ancien client </label><br></br>
+                                    <label className="margin"><input className="checkbox" type="radio" name="origineDeLaVisite" value="Prospection téléphonique" checked={formData.origineDeLaVisite === "Prospection téléphonique"} onChange={handleInputChange} />Prospection téléphonique</label>
                                 </div>
                             </div>
                 
                             <p className="margin"><strong>Marques de coloration présentes</strong> :</p>
                             <div>
-                                {formData.colorationsAmmoniaque.map((coloration, index) => (
+                                {formData.colorationsAvecAmmoniaque.map((coloration, index) => ( 
                                     <div key={index}>
                                         <input
                                             type="text"
                                             placeholder="Nom"
                                             value={coloration.nom}
-                                            onChange={(e) => handleColorationChange(index, 'colorationsAmmoniaque', 'nom', e.target.value)}
+                                            onChange={(e) => handleColorationChange(index, 'colorationsAvecAmmoniaque', 'nom', e.target.value)}
                                         /><br></br>
                                         <input
                                             type="text"
                                             placeholder="Prix"
                                             value={coloration.prix}
-                                            onChange={(e) => handleColorationChange(index, 'colorationsAmmoniaque', 'prix', e.target.value)}
+                                            onChange={(e) => handleColorationChange(index, 'colorationsAvecAmmoniaque', 'prix', e.target.value)}
                                         /><br></br>
                                         <input
                                             type="text"
                                             placeholder="ML"
                                             value={coloration.ml}
-                                            onChange={(e) => handleColorationChange(index, 'colorationsAmmoniaque', 'ml', e.target.value)}
+                                            onChange={(e) => handleColorationChange(index, 'colorationsAvecAmmoniaque', 'ml', e.target.value)}
                                         />
                                     </div>
                                 ))}
@@ -428,8 +465,8 @@ function FicheProspect({uid, onReturn}) {
                                 <label className="bold margin">Date de visite :</label>
                                 <input
                                     type="date"
-                                    name="dateVisite"
-                                    value={formData.dateVisite}
+                                    name="dateDeVisite"
+                                    value={formData.dateDeVisite}
                                     onChange={handleInputChange}
                                 />
                             </div>
@@ -504,21 +541,51 @@ function FicheProspect({uid, onReturn}) {
                                     <input className="checkbox" type="radio" name="statut" value="A REVOIR" checked={formData.statut === "A REVOIR"} onChange={handleInputChange} />
                                     A REVOIR
                                 </label>
+                            </div><br></br>
+                            <div className="space">
+                                <label className="bold margin">RDV obtenu :</label>
+                                <div>
+                                    <label className="oui">
+                                        <input className="checkbox" type="radio" name="rdvObtenu" value="OUI" checked={formData.rdvObtenu === "OUI"} onChange={handleInputChange} />
+                                        OUI
+                                    </label>
+                                    <label>
+                                        <input className="checkbox" type="radio" name="rdvObtenu" value="NON" checked={formData.rdvObtenu === "NON"} onChange={handleInputChange} />
+                                        NON
+                                    </label>
+                                </div>
                             </div>
-                            <div>
-                                <label className="bold margin">RDV OK LE :</label>
-                                <input type="date" name="rdvDate" placeholder="RDV OK LE" value={formData.rdvDate} onChange={handleInputChange} />
-                            </div>
-                            <div>
-                                <label className="bold margin">Pour :</label>
-                                <select name="rdvPour" value={formData.rdvPour} onChange={handleInputChange}>
-                                    <option value="">Choisir</option>
-                                    <option value="Présentation">Présentation</option>
-                                    <option value="Démo">Démo</option>
-                                    <option value="Formation">Formation</option>
-                                    <option value="Commercial">Commercial</option>
-                                </select>
-                            </div>
+                            {formData.rdvObtenu === "OUI" && (
+                                <>
+                                    <div>
+                                        <label className="bold margin">Prévu pour le :</label>
+                                        <input type="date" name="rdvPrevuLe" placeholder="Prévu pour le" value={formData.rdvPrevuLe} onChange={handleInputChange} />
+                                    </div>
+                                    <div>
+                                        <label className="bold margin">Type de RDV :</label>
+                                        <div>
+                                            <label className="margin"><input className="checkbox" type="radio" name="typeDeRdv" value="Présentation" checked={formData.typeDeRdv === "Présentation"} onChange={handleInputChange} />Présentation</label><br></br>
+                                            <label className="margin"><input className="checkbox" type="radio" name="typeDeRdv" value="Démonstration" checked={formData.typeDeRdv === "Démonstration"} onChange={handleInputChange} />Démonstration</label><br></br>
+                                            <label className="margin"><input className="checkbox" type="radio" name="typeDeRdv" value="Formation" checked={formData.typeDeRdv === "Formation"} onChange={handleInputChange} />Formation</label><br></br>
+                                            <label className="margin"><input className="checkbox" type="radio" name="typeDeRdv" value="Commercial" checked={formData.typeDeRdv === "Commercial"} onChange={handleInputChange} />Commercial</label><br></br>
+                                            <label className="margin"><input className="checkbox" type="radio" name="typeDeRdv" value="Autre" checked={formData.typeDeRdv === "Autre"} onChange={handleInputChange} />Autre</label>
+                                        </div>
+                                    </div>
+                                    {formData.typeDeRdv === "Démonstration" && (
+                                        <div>
+                                            <label className="bold margin">Type de démonstration :</label>
+                                            <div>
+                                                <label className="margin"><input type="checkbox" name="typeDeDemonstration" value="Microscopie" checked={formData.typeDeDemonstration.includes("Microscopie")} onChange={handleInputChange} />Microscopie</label><br></br>
+                                                <label className="margin"><input type="checkbox" name="typeDeDemonstration" value="Coloration Thalasso" checked={formData.typeDeDemonstration.includes("Coloration Thalasso")} onChange={handleInputChange} />Coloration Thalasso</label><br></br>
+                                                <label className="margin"><input type="checkbox" name="typeDeDemonstration" value="La Végétale" checked={formData.typeDeDemonstration.includes("La Végétale")} onChange={handleInputChange} />La Végatle</label><br></br>
+                                                <label className="margin"><input type="checkbox" name="typeDeDemonstration" value="Décoloration permanente" checked={formData.typeDeDemonstration.includes("Décoloration permanente")} onChange={handleInputChange} />Décoloration permanente</label><br></br>
+                                                <label className="margin"><input type="checkbox" name="typeDeDemonstration" value="By DSH" checked={formData.typeDeDemonstration.includes("By DSH")} onChange={handleInputChange} />By DSH</label><br></br>
+                                                <label className="margin"><input type="checkbox" name="typeDeDemonstration" value="Olyzea" checked={formData.typeDeDemonstration.includes("Olyzea")} onChange={handleInputChange} />Olyzea</label>
+                                            </div>
+                                        </div>
+                                    )}
+                                </>
+                            )}
                             <div className="space">
                                 <label className="bold margin">Commande ? :</label>
                                 <div>
@@ -531,14 +598,19 @@ function FicheProspect({uid, onReturn}) {
                                         NON
                                     </label>
                                 </div>
+                                
                             </div>
-                
+                 
                             <button type="submit" className="button-colored">Enregistrer</button>
                         </div>
-                    </form>
+                    </form>  
+                    <p className="success">{message}</p>
+                    </>
+                    
                 )}
+                </div> 
+            
             </div>
-        </div>
     )
 }
 

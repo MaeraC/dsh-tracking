@@ -243,8 +243,6 @@ function Geolocation({ uid }) {
     } 
 
     const updateRouteWithStops = async () => {
-        
-
         try {
             const routeDocRef = doc(db, "feuillesDeRoute", currentRouteId);
             const totalKm = getTotalStopDistances();
@@ -256,7 +254,7 @@ function Geolocation({ uid }) {
                 totalKm: totalKm,
                 unitTotalKm : unit
             })
-            console.log("Arrêts mis à jour avec succès");
+            //console.log("Arrêts mis à jour avec succès");
         } catch (e) {
             console.error("Erreur lors de la mise à jour des arrêts : ", e);
         }
@@ -456,7 +454,7 @@ function Geolocation({ uid }) {
         ])
 
         // Ajoute l'action de visite dans le champ 'historique' du document du salon
-        const logMessage = `Salon visité`
+        const logMessage = `Nouvelle visite`
         const salonRef = doc(db, 'salons', selectedSalon.place_id)
         await updateDoc(salonRef, {
             historique: arrayUnion({
@@ -530,7 +528,6 @@ function Geolocation({ uid }) {
     }
 
     const formatDistance = (distance) => {
-
         if (distance < 1000) {
             return `${distance.toFixed(0)} m`;
         }
@@ -780,6 +777,7 @@ function Geolocation({ uid }) {
                 {isParcoursEnded && (
                     <div className="congrats">
                         <p>Félicitations, vous avez terminé votre parcours !<br></br> À bientôt !</p>
+                        <p className="error-message">N'oubliez pas de clôturer votre feuille de route de la journée avant ce soir 22h.</p>
                     </div>
                 )}
             </div>

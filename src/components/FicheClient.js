@@ -10,17 +10,18 @@ function FicheClient({ onReturn, uid }) {
     const [searchSalon, setSearchSalon] = useState("")
     const [salonInfo, setSalonInfo] = useState(null)
     const [suggestions, setSuggestions] = useState([])
+    const [message, setMessage] = useState("")
 
     const createdAt = new Date()
     
     const initialFormData = {
-        salonName: "",
-        city: "",
-        salonAdresse: "",
-        salonTel: "",
-        responsableNomPrenom: "",
-        responsablePortable: "",
-        responsableEmail: "",
+        nomDuSalon: "",
+        ville: "",
+        adresse: "",
+        téléphone: "",
+        nomDuResponsable: "",
+        portableDuResponsable: "",
+        EmailDuResponsable: "",
         marquesEnPlace: {
             systemeDsh: false,
             colorationThalasso: false,
@@ -28,19 +29,19 @@ function FicheClient({ onReturn, uid }) {
             ondThPerm: false,
             laVegetale: false,
             byDsh: false,
-            oyzea: false,
+            olyzea: false,
             stylPro: false,
             persTou: false,
         },
         equipe: [],
         clientEnContrat: "",
-        contratLequel: "",
-        tarifSpecifique: "",
+        typeDeContrat: "",
+        tarifSpécifique: "",
         dateVisite: "",
         responsablePresent: "",
         priseDeCommande: "",
         gammesCommande: "",
-        animationProposee: "",
+        animationProposée: "",
         produitsProposes: "",
         autresPointsAbordes: "",
         pointsProchaineVisite: "",
@@ -123,13 +124,13 @@ function FicheClient({ onReturn, uid }) {
             const suiviClient = data.suiviClient ? data.suiviClient[data.suiviClient.length - 1] : {};
 
             setFormData({
-                salonName: salon.name || "",
-                city: suiviClient.city || "",
-                salonAdresse: salon.address || "",
-                salonTel: suiviClient.salonTel || "",
-                responsableNomPrenom: suiviClient.responsableNomPrenom || "",
-                responsablePortable: suiviClient.responsablePortable || "",
-                responsableEmail: suiviClient.responsableEmail || "",
+                nomDuSalon: salon.name || "",
+                ville: suiviClient.ville || "",
+                adresse: salon.address || "",
+                téléphone: suiviClient.téléphone || "",
+                nomDuResponsable: suiviClient.nomDuResponsable || "",
+                portableDuResponsable: suiviClient.portableDuResponsable || "",
+                EmailDuResponsable: suiviClient.EmailDuResponsable || "",
                 marquesEnPlace: {
                     systemeDsh: suiviClient.marquesEnPlace?.systemeDsh || false,
                     colorationThalasso: suiviClient.marquesEnPlace?.colorationThalasso || false,
@@ -137,19 +138,19 @@ function FicheClient({ onReturn, uid }) {
                     ondThPerm: suiviClient.marquesEnPlace?.ondThPerm || false,
                     laVegetale: suiviClient.marquesEnPlace?.laVegetale || false,
                     byDsh: suiviClient.marquesEnPlace?.byDsh || false,
-                    oyzea: suiviClient.marquesEnPlace?.oyzea || false,
+                    olyzea: suiviClient.marquesEnPlace?.olyzea || false,
                     stylPro: suiviClient.marquesEnPlace?.stylPro || false,
                     persTou: suiviClient.marquesEnPlace?.persTou || false,
                 },
                 equipe: suiviClient.equipe || [],
                 clientEnContrat: suiviClient.clientEnContrat || "",
-                contratLequel: suiviClient.contratLequel || "",
-                tarifSpecifique: suiviClient.tarifSpecifique || "",
+                typeDeContrat: suiviClient.typeDeContrat || "",
+                tarifSpécifique: suiviClient.tarifSpécifique || "",
                 dateVisite: suiviClient.dateVisite || "",
                 responsablePresent: suiviClient.responsablePresent || "",
                 priseDeCommande: suiviClient.priseDeCommande || "",
                 gammesCommande: suiviClient.gammesCommande || "",
-                animationProposee: suiviClient.animationProposee || "",
+                animationProposée: suiviClient.animationProposée || "",
                 produitsProposes: suiviClient.produitsProposes || "",
                 autresPointsAbordes: suiviClient.autresPointsAbordes || "",
                 pointsProchaineVisite: suiviClient.pointsProchaineVisite || "",
@@ -207,6 +208,7 @@ function FicheClient({ onReturn, uid }) {
 
                 // Met à jour l'historique du salon
                 await updateSalonHistory(formData)
+                setMessage("Fiche de suivi Client enregistré avec succès !")
             }
             else {
                 console.error("Document de visite non trouvé.")
@@ -221,9 +223,9 @@ function FicheClient({ onReturn, uid }) {
         <div className="fiche-client-section">
             <button onClick={onReturn} className="button-back"><img src={back} alt="retour" /></button>
 
-            <div>
-                <input type="text" placeholder="Rechercher un salon par son nom" value={searchSalon} onChange={handleSearch} />
-                <div>
+            <div className="sugg">
+                <input className="input-sugg" type="text" placeholder="Rechercher un salon par son nom" value={searchSalon} onChange={handleSearch} />
+                <div className="select-sugg">
                     {suggestions.map((salon) => (
                         <div
                             key={salon.id}
@@ -236,16 +238,18 @@ function FicheClient({ onReturn, uid }) {
                 </div>
 
                 {salonInfo && (
+                    <>
+                    <p className="success">{message}</p>
                     <form onSubmit={handleSubmit}>
                         <div className="form-FSC">
                             <h2>{salonInfo.name}</h2>
-                            <p>{salonInfo.address}</p>
-                            <input type="text" name="salonTel" placeholder="Téléphone" value={formData.salonTel} onChange={handleInputChange} /><br />
+                            <p className="adress">{salonInfo.address}</p>
+                            <input type="text" name="téléphone" placeholder="Téléphone" value={formData.téléphone} onChange={handleInputChange} /><br />
 
                             <p><strong>Responsable du salon</strong></p><br></br>
-                            <input type="text" name="responsableNomPrenom" placeholder="Nom Prénom" value={formData.responsableNomPrenom} onChange={handleInputChange} /><br />
-                            <input type="text" name="responsablePortable" placeholder="Portable" value={formData.responsablePortable} onChange={handleInputChange} /><br />
-                            <input type="email" name="responsableEmail"  placeholder="Email" value={formData.responsableEmail} onChange={handleInputChange} /><br />
+                            <input type="text" name="nomDuResponsable" placeholder="Nom Prénom" value={formData.nomDuResponsable} onChange={handleInputChange} /><br />
+                            <input type="text" name="portableDuResponsable" placeholder="Portable" value={formData.portableDuResponsable} onChange={handleInputChange} /><br />
+                            <input type="email" name="EmailDuResponsable"  placeholder="Email" value={formData.EmailDuResponsable} onChange={handleInputChange} /><br />
 
                             <p><strong>Marques en place</strong></p><br></br>
                             <div className="marques">
@@ -255,7 +259,7 @@ function FicheClient({ onReturn, uid }) {
                                 <label><input className="checkbox" type="checkbox" name="ondThPerm" checked={formData.marquesEnPlace.ondThPerm} onChange={handleCheckboxChange} /> Ond Th/Perm</label><br />
                                 <label><input className="checkbox" type="checkbox" name="laVegetale" checked={formData.marquesEnPlace.laVegetale} onChange={handleCheckboxChange} /> La Végétale</label><br />
                                 <label><input className="checkbox" type="checkbox" name="byDsh" checked={formData.marquesEnPlace.byDsh} onChange={handleCheckboxChange} /> By DSH</label><br />
-                                <label><input className="checkbox" type="checkbox" name="oyzea" checked={formData.marquesEnPlace.oyzea} onChange={handleCheckboxChange} /> Oyzea</label><br />
+                                <label><input className="checkbox" type="checkbox" name="olyzea" checked={formData.marquesEnPlace.olyzea} onChange={handleCheckboxChange} /> olyzea</label><br />
                                 <label><input className="checkbox" type="checkbox" name="stylPro" checked={formData.marquesEnPlace.stylPro} onChange={handleCheckboxChange} /> Styl Pro</label><br />
                                 <label><input className="checkbox" type="checkbox" name="persTou" checked={formData.marquesEnPlace.persTou} onChange={handleCheckboxChange} /> Pers Tou</label><br />
                             </div>
@@ -280,8 +284,8 @@ function FicheClient({ onReturn, uid }) {
                             </div>
                             {formData.clientEnContrat === "Oui" && (
                                 <div>
-                                    <input type="text" name="contratLequel" placeholder="Lequel" value={formData.contratLequel} onChange={handleInputChange} /><br />
-                                    <input type="text" name="tarifSpecifique" placeholder="Tarif spécifique" value={formData.tarifSpecifique} onChange={handleInputChange} /><br />
+                                    <input type="text" name="typeDeContrat" placeholder="Lequel" value={formData.typeDeContrat} onChange={handleInputChange} /><br />
+                                    <input type="text" name="tarifSpécifique" placeholder="Tarif spécifique" value={formData.tarifSpécifique} onChange={handleInputChange} /><br />
                                 </div>
                             )}
 
@@ -304,7 +308,7 @@ function FicheClient({ onReturn, uid }) {
                             </div>
                             <div className="div-space">
                                 <label className="label-space"><strong>Animation proposée</strong> :</label><br></br>
-                                <input type="text" name="animationProposee" placeholder="Animation proposée" value={formData.animationProposee} onChange={handleInputChange} />
+                                <input type="text" name="animationProposée" placeholder="Animation proposée" value={formData.animationProposée} onChange={handleInputChange} />
                             </div>
                             <div className="div-space">
                                 <label className="label-space"><strong>Produits proposés</strong> :</label><br></br>
@@ -326,6 +330,8 @@ function FicheClient({ onReturn, uid }) {
 
                         </div>
                     </form>
+                    <p className="success">{message}</p>
+                    </>
                 )}
             </div>
         </div>

@@ -6,6 +6,10 @@ import { getDocs, query, where, collection } from "firebase/firestore"
 import { db } from "../firebase.config.js"
 
 function SearchVisits() {
+
+    // Create Document Component
+
+
     const [startDate, setStartDate] = useState("")
     const [endDate, setEndDate] = useState("")
     const [salonName, setSalonName] = useState("")
@@ -417,3 +421,8 @@ function SearchVisits() {
 }
 
 export default SearchVisits
+
+
+
+
+

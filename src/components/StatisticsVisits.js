@@ -11,6 +11,7 @@ function StatisticsVisits({ uid }) {
     const [visitsCount, setVisitsCount] = useState(0);
     const [daysWithoutVisitsCount, setDaysWithoutVisitsCount] = useState(0);
     const [totalDistance, setTotalDistance] = useState(0);
+    const [unit, setUnit] = useState("")
     const [clientVisitsCount, setClientVisitsCount] = useState(0);
     const [prospectVisitsCount, setProspectVisitsCount] = useState(0);
     const [modalOpen, setModalOpen] = useState(false);
@@ -35,9 +36,14 @@ function StatisticsVisits({ uid }) {
                         visits += feuille.stops.length;
                         feuille.stops.forEach(stop => {
                             distance += stop.distance;
+
+                            const units = stop.unitDistance || 'km';
+                            setUnit(units)
+
                             if (stop.status === "Client") {
                                 clientVisits++;
-                            } else if (stop.status === "Prospect") {
+                            } 
+                            else if (stop.status === "Prospect") {
                                 prospectVisits++;
                             }
                         });
@@ -46,9 +52,9 @@ function StatisticsVisits({ uid }) {
                     }
                 });
 
-                setVisitsCount(visits);
+                setVisitsCount(visits); 
                 setDaysWithoutVisitsCount(daysWithoutVisits);
-                setTotalDistance(distance);
+                setTotalDistance(distance)
                 setClientVisitsCount(clientVisits);
                 setProspectVisitsCount(prospectVisits);
             } catch (error) {
@@ -57,7 +63,7 @@ function StatisticsVisits({ uid }) {
         };
 
         fetchStatistics();
-    }, [uid]);
+    }, [uid, unit]);
 
     const handleModalOpen = () => {
         setModalOpen(true);
@@ -134,8 +140,8 @@ function StatisticsVisits({ uid }) {
 
             <div className="nb total">
                 <p>Kilomètres parcourus</p>
-                <span>{totalDistance}</span>
-            </div>
+                <span>{totalDistance.toFixed(2) + " " + unit}</span> 
+            </div> 
 
             {modalOpen && (
                 <div className="modal-stats">

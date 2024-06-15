@@ -28,8 +28,6 @@ function HeaderAdmin({ activeTab, onTabChange }) {
                 return activeTab === "questionnaires" ? surveyB : survey
             case "fiches":
                 return activeTab === "fiches" ? surveyB : survey
-            case "recherche-visites":
-                return activeTab === "recherche-visites" ? searchB : search
             case "mon-compte":
                 return activeTab === "mon-compte" ? userB : user
             default:
@@ -46,10 +44,6 @@ function HeaderAdmin({ activeTab, onTabChange }) {
 
                 <button className={activeTab === "fiches" ? "active" : ""}  onClick={() => handleTabClick("fiches")} >
                     <img src={getIcon("questionnaires")} alt="Questionnaires" />
-                </button>
-
-                <button className={activeTab === "recherche-visites" ? "active" : ""} onClick={() => handleTabClick("recherche-visites")} >
-                    <img src={getIcon("recherche-visites")} alt="Recherche Visites" />
                 </button>
                 
                 <button className={activeTab === "mon-compte" ? "active" : ""} onClick={() => handleTabClick("mon-compte")} >

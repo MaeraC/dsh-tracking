@@ -1625,7 +1625,7 @@ form .adress {
 }
 .account .content button,
 .account .content div  {
-    padding: 40px 0;
+    padding: 25px 0;
     border: none;
     font-family: "Roboto";
     font-size: 17px;
@@ -1869,3 +1869,4 @@ form .adress {
 .select-sugg div {
     padding: 15px 10px !important;
 }
+

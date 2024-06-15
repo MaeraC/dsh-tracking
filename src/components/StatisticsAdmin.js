@@ -6,26 +6,20 @@ import search from "../assets/searchb.png";
 import close from "../assets/close.png";
 import { getDocs, collection, query, where,  } from "firebase/firestore";
 
-function StatisticsAdmin() {
-    const [totalStats, setTotalStats] = useState({
-        visits: 0,
-        daysWithoutVisits: 0,
-        distance: 0,
-        clientVisits: 0,
-        prospectVisits: 0
-    });
-    const [usersMap, setUsersMap] = useState({});
-    const [filteredUsers, setFilteredUsers] = useState([]);
-    const [selectedUser, setSelectedUser] = useState('');
-    const [userStats, setUserStats] = useState({});
+function StatisticsAdmin({ }) {
+ 
+    const [visitsCount, setVisitsCount] = useState(0);
+    const [daysWithoutVisitsCount, setDaysWithoutVisitsCount] = useState(0);
+    const [totalDistance, setTotalDistance] = useState(0);
+    const [unit, setUnit] = useState("")
+    const [clientVisitsCount, setClientVisitsCount] = useState(0);
+    const [prospectVisitsCount, setProspectVisitsCount] = useState(0);
     const [modalOpen, setModalOpen] = useState(false);
-    const [unit, setUnit] = useState("km");
-    const [searchTerm, setSearchTerm] = useState('');
-    const [result, setResult] = useState({});
-    const [startDate, setStartDate] = useState(new Date());
-    const [endDate, setEndDate] = useState(new Date());
+    const [result, setResult] = useState({ visits: 0, daysWithoutVisits: 0, distance: 0 })
+    
+    const [usersMap, setUsersMap] = useState({})
 
-
+    // Récupère les nom et prénom des users
     useEffect(() => {
         const fetchUsersData = async () => {
             const usersData = {};
@@ -35,99 +29,72 @@ function StatisticsAdmin() {
                     usersData[doc.id] = doc.data();
                 });
                 setUsersMap(usersData);
-                setFilteredUsers(Object.keys(usersData));
             } catch (error) {
                 console.error("Erreur lors de la récupération des utilisateurs : ", error);
             }
-        };
+        }; 
         fetchUsersData();
     }, []);
 
     useEffect(() => {
-        // Fonction pour calculer la date de début de la semaine en cours
-        const calculateStartOfWeek = () => {
-            const today = new Date();
-            const day = today.getDay();
-            const diff = today.getDate() - day + (day === 0 ? -6 : 1); // ajustement pour le dimanche
-            return new Date(today.setDate(diff));
-        };
-
-        // Définir startDate et endDate pour la semaine en cours
-        const startOfWeek = calculateStartOfWeek();
-        const endOfWeek = new Date(startOfWeek);
-        endOfWeek.setDate(endOfWeek.getDate() + 7); // Fin de la semaine (7 jours plus tard)
-
-        setStartDate(startOfWeek);
-        setEndDate(endOfWeek);
-    }, []);
-
-    useEffect(() => {
         const fetchStatistics = async () => {
+    
+            const usersData = {};
+            try {
+                const usersSnapshot = await getDocs(collection(db, 'feuillesDeRoute'));
+                usersSnapshot.forEach((doc) => {
+                    usersData[doc.id] = doc.data();
+                });
+                setUsersMap(usersData);
+            } catch (error) {
+                console.error("Erreur lors de la récupération des utilisateurs : ", error);
+            }
             try {
                 const feuillesDeRouteRef = collection(db, 'feuillesDeRoute');
-                const q = query(feuillesDeRouteRef, where("date", ">=", startDate), where("date", "<", endDate));
+                console.log(feuillesDeRouteRef) 
+                const q = query(feuillesDeRouteRef);
                 const feuillesDeRouteSnapshot = await getDocs(q);
                 const feuillesDeRouteData = feuillesDeRouteSnapshot.docs.map(doc => doc.data());
 
-                const updatedUserStats = {};
-                let updatedTotalStats = {
-                    visits: 0,
-                    daysWithoutVisits: 0,
-                    distance: 0,
-                    clientVisits: 0,
-                    prospectVisits: 0
-                };
+                let visits = 0;
+                let daysWithoutVisits = 0;
+                let distance = 0;
+                let clientVisits = 0;
+                let prospectVisits = 0;
 
                 feuillesDeRouteData.forEach(feuille => {
-                    const uid = feuille.userId;
-                    const userName = usersMap[uid]?.firstname + ' ' + usersMap[uid]?.lastname;
-
-                    if (!updatedUserStats[userName]) {
-                        updatedUserStats[userName] = {
-                            visits: 0,
-                            daysWithoutVisits: 0,
-                            distance: 0,
-                            clientVisits: 0,
-                            prospectVisits: 0
-                        };
-                    }
-
                     if (feuille.isVisitsStarted) {
-                        updatedUserStats[userName].visits += feuille.stops.length;
-                        updatedTotalStats.visits += feuille.stops.length;
+                        visits += feuille.stops.length;
                         feuille.stops.forEach(stop => {
-                            updatedUserStats[userName].distance += stop.distance;
-                            updatedTotalStats.distance += stop.distance;
+                            distance += stop.distance;
 
                             const units = stop.unitDistance || 'km';
-                            setUnit(units);
+                            setUnit(units)
 
                             if (stop.status === "Client") {
-                                updatedUserStats[userName].clientVisits++;
-                                updatedTotalStats.clientVisits++;
-                            } else if (stop.status === "Prospect") {
-                                updatedUserStats[userName].prospectVisits++;
-                                updatedTotalStats.prospectVisits++;
+                                clientVisits++;
+                            } 
+                            else if (stop.status === "Prospect") {
+                                prospectVisits++;
                             }
                         });
                     } else {
-                        updatedUserStats[userName].daysWithoutVisits++;
-                        updatedTotalStats.daysWithoutVisits++;
+                        daysWithoutVisits++;
                     }
                 });
 
-                setUserStats(updatedUserStats);
-                setTotalStats(updatedTotalStats);
-                setFilteredUsers(Object.keys(updatedUserStats));
+                setVisitsCount(visits); 
+                setDaysWithoutVisitsCount(daysWithoutVisits);
+                setTotalDistance(distance)
+                setClientVisitsCount(clientVisits);
+                setProspectVisitsCount(prospectVisits);
             } catch (error) {
                 console.error('Erreur lors de la récupération des statistiques :', error);
             }
         };
 
-        if (Object.keys(usersMap).length > 0) {
-            fetchStatistics();
-        }
-    }, [usersMap, startDate, endDate]);
+        fetchStatistics();
+    }, [unit]);
 
     const handleModalOpen = () => {
         setModalOpen(true);
@@ -137,87 +104,40 @@ function StatisticsAdmin() {
         setModalOpen(false);
     };
 
-    const handleDateRangeSelect = async () => {
-        const start = new Date(document.getElementById('start-date').value);
-        const end = new Date(document.getElementById('end-date').value);
-        end.setDate(end.getDate() + 1); // Ajouter un jour pour inclure toute la journée
+    const handleDateRangeSelect = async () => {  
+        const startDate = new Date(document.getElementById('start-date').value);
+        const endDate = new Date(document.getElementById('end-date').value);
+
+        // Ajouter un jour à la date de fin pour inclure toute la journée
+        endDate.setDate(endDate.getDate() + 1);
 
         try {
             const feuillesDeRouteRef = collection(db, 'feuillesDeRoute');
-            let q = query(feuillesDeRouteRef);
-
-            // Appliquer le filtre par période
-            q = start ? query(q, where("date", ">=", start)) : q;
-            q = end ? query(q, where("date", "<", end)) : q;
-
+            const q = query(feuillesDeRouteRef);
             const feuillesDeRouteSnapshot = await getDocs(q);
             const feuillesDeRouteData = feuillesDeRouteSnapshot.docs.map(doc => doc.data());
 
-            const periodUserStats = {};
-            let total = {
-                visits: 0,
-                daysWithoutVisits: 0,
-                distance: 0,
-                clientVisits: 0,
-                prospectVisits: 0
-            };
+            let visits = 0;
+            let daysWithoutVisits = 0;
+            let distance = 0;
 
             feuillesDeRouteData.forEach(feuille => {
-                const uid = feuille.userId;
-                const userName = usersMap[uid]?.firstname + ' ' + usersMap[uid]?.lastname;
-
-                if (!periodUserStats[userName]) {
-                    periodUserStats[userName] = {
-                        visits: 0,
-                        daysWithoutVisits: 0,
-                        distance: 0,
-                        clientVisits: 0,
-                        prospectVisits: 0
-                    };
-                }
-
-                if (feuille.isVisitsStarted) {
-                    periodUserStats[userName].visits += feuille.stops.length;
-                    total.visits += feuille.stops.length;
-                    feuille.stops.forEach(stop => {
-                        periodUserStats[userName].distance += stop.distance;
-                        total.distance += stop.distance;
-
-                        if (stop.status === "Client") {
-                            periodUserStats[userName].clientVisits++;
-                            total.clientVisits++;
-                        } else if (stop.status === "Prospect") {
-                            periodUserStats[userName].prospectVisits++;
-                            total.prospectVisits++;
-                        }
-                    });
-                } else {
-                    periodUserStats[userName].daysWithoutVisits++;
-                    total.daysWithoutVisits++;
+                const feuilleDate = feuille.date.toDate();  // Conversion du timestamp en objet Date
+                if (feuilleDate >= startDate && feuilleDate < endDate) {
+                    if (feuille.isVisitsStarted) {
+                        visits += feuille.stops.length;
+                        feuille.stops.forEach(stop => {
+                            distance += stop.distance;
+                        });
+                    } else {
+                        daysWithoutVisits++;
+                    }
                 }
             });
 
-            setResult(periodUserStats);
-            setTotalStats(total);
+            setResult({ visits, daysWithoutVisits, distance });
         } catch (error) {
             console.error('Erreur lors de la récupération des statistiques :', error);
-        }
-    };
-
-    const handleUserChange = (event) => {
-        setSelectedUser(event.target.value);
-    };
-
-    const handleSearchChange = (event) => {
-        const searchValue = event.target.value.toLowerCase();
-        setSearchTerm(searchValue);
-        if (searchValue === '') {
-            setFilteredUsers(Object.keys(userStats));
-        } else {
-            const filtered = Object.keys(userStats).filter(userName =>
-                userName.toLowerCase().includes(searchValue)
-            );
-            setFilteredUsers(filtered);
         }
     };
 
@@ -230,95 +150,53 @@ function StatisticsAdmin() {
 
             <div className="nb total">
                 <p>Total Visites réalisées</p>
-                <span>{totalStats.visits}</span>
+                <span>{visitsCount}</span>
             </div>
 
             <div className="cp">
                 <div className="nb fr">
                     <p>Visites Client</p>
-                    <span>{totalStats.clientVisits}</span>
+                    <span>{clientVisitsCount}</span>
                 </div>
                 <div className="nb fr">
                     <p>Visites Prospect</p>
-                    <span>{totalStats.prospectVisits}</span>
+                    <span>{prospectVisitsCount}</span>
                 </div>
             </div>
 
             <div className="nb total">
                 <p>Jours sans visites</p>
-                <span>{totalStats.daysWithoutVisits}</span>
+                <span>{daysWithoutVisitsCount}</span>
             </div>
 
             <div className="nb total">
                 <p>Kilomètres parcourus</p>
-                <span>{totalStats.distance.toFixed(2) + " " + unit}</span>
-            </div>
+                <span>{totalDistance.toFixed(2) + " " + unit}</span> 
+            </div> 
 
             {modalOpen && (
                 <div className="modal-stats">
                     <div className="content">
                         <span className="close" onClick={handleModalClose}><img src={close} alt="fermer" /></span>
-                        <h3 className="h3">Sélectionner une période et un utilisateur</h3>
-                        <label>Date de début :</label>
-                        <input  type="date" id="start-date" placeholder="12/06/2024" className="input"  />
-                        
-                        
+                        <h3 className="h3">Sélectionner une période</h3>
+                        <label>Date de début </label>
+                        <input  className="input" type="date" id="start-date" />
+                          
                         <label>Date de fin :</label>
-                        <input className="input custom-datepicker" type="date" id="end-date" />
-
-                        <label>Utilisateur :</label>
-                        <input
-                            type="text"
-                            className="input"
-                            value={searchTerm}
-                            onChange={handleSearchChange}
-                            placeholder="Rechercher un utilisateur"
-                        />
-                        <select value={selectedUser} onChange={handleUserChange}>
-                            <option value="">Sélectionner un utilisateur</option>
-                            {filteredUsers.map(userName => (
-                                <option key={userName} value={userName}>{userName}</option>
-                            ))}
-                        </select>
-
+                        <input type="date" id="end-date" />
+                       
                         <button className="button-colored" onClick={handleDateRangeSelect}>Valider</button>
-
-                        {selectedUser ? (
-                            <div>
-                                <h3>Statistiques pour {selectedUser}</h3>
-                                <p><span>{userStats[selectedUser]?.visits || 0}</span> Visites réalisées</p>
-                                <p><span>{userStats[selectedUser]?.daysWithoutVisits || 0}</span> Jours sans visites</p>
-                                <p><span>{userStats[selectedUser]?.distance.toFixed(2) || 0}</span> Kilomètres parcourus</p>
-                                <p><span>{userStats[selectedUser]?.clientVisits || 0}</span> Visites Client</p>
-                                <p><span>{userStats[selectedUser]?.prospectVisits || 0}</span> Visites Prospect</p>
-                            </div>
-                        ) : (
-                            <div>
-                                <h3>Statistiques globales pour la période sélectionnée</h3>
-                                <p><span>{totalStats.visits}</span> Visites réalisées</p>
-                                <p><span>{totalStats.daysWithoutVisits}</span> Jours sans visites</p>
-                                <p><span>{totalStats.distance.toFixed(2)}</span> Kilomètres parcourus</p>
-                                <p><span>{totalStats.clientVisits}</span> Visites Client</p>
-                                <p><span>{totalStats.prospectVisits}</span> Visites Prospect</p>
-                                {Object.keys(result).map(userName => (
-                                    <div key={userName}>
-                                        <h3>Utilisateur: {userName}</h3>
-                                        <p><span>{result[userName]?.visits || 0}</span> Visites réalisées</p>
-                                        <p><span>{result[userName]?.daysWithoutVisits || 0}</span> Jours sans visites</p>
-                                        <p><span>{result[userName]?.distance.toFixed(2) || 0}</span> Kilomètres parcourus</p>
-                                        <p><span>{result[userName]?.clientVisits || 0}</span> Visites Client</p>
-                                        <p><span>{result[userName]?.prospectVisits || 0}</span> Visites Prospect</p>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
+                        <div>
+                            <p><span>{result.visits}</span>Visites réalisées</p>
+                            <p><span>{result.daysWithoutVisits}</span>Jours sans visites</p>
+                            <p><span>{result.distance}</span>Kilomètres parcourus</p>
+                        </div>
                     </div>
                 </div>
             )}
-            
-
         </section>
     );
+
 }
 
 export default StatisticsAdmin;

@@ -6,8 +6,8 @@ import { db } from '../firebase.config'
 import { collection, query, where, getDocs, orderBy, doc, updateDoc, addDoc } from 'firebase/firestore'
 import back from "../assets/back.png" 
 import ReactSignatureCanvas from 'react-signature-canvas'
-import { PDFDownloadLink } from '@react-pdf/renderer'
-import FeuillesDeRoutePDF from '../components/FeuillesDeRoutePDF'
+//import { PDFDownloadLink } from '@react-pdf/renderer'
+//import FeuillesDeRoutePDF from '../components/FeuillesDeRoutePDF'
 
 function FeuillesDeRouteSemaine({ uid, onReturn }) {
 
@@ -363,12 +363,12 @@ function FeuillesDeRouteSemaine({ uid, onReturn }) {
                     <button className='button-colored' onClick={filterFeuillesParPeriode}>Filtrer par période</button>
                 </div>
 
-                <PDFDownloadLink 
+                {/*<PDFDownloadLink 
                 document={<FeuillesDeRoutePDF filteredFeuilles={filteredFeuilles} />}
                 fileName="feuilles-de-route.pdf"
                 >
                 {({ loading }) => loading ? 'Création du document...' : 'Exporter en PDF'}
-                </PDFDownloadLink>
+                    </PDFDownloadLink>*/}
 
                 <div className="feuilles-de-route-list">
                     {filteredFeuilles.length > 0 ? (

@@ -259,8 +259,8 @@ function FeuillesDeRouteSemaine({ uid, onReturn }) {
         // Vérifie si le jour et l'heure actuels permettent la signature
         const currentDate = new Date();
     
-        // Vérification si on est vendredi après 8h pour autoriser la signature
-        if (currentDate.getDay() === 5 && currentDate.getHours() >= 17 && currentDate.getHours() < 22) {
+        // Vérification si on est vendredi 5 après 8h pour autoriser la signature
+        if (currentDate.getDay() === 6 && currentDate.getHours() >= 12 && currentDate.getHours() < 22) {
             displayThisWeek()
         } else {
             setMsgError("Vous pouvez visionner et signer votre feuille de route de la semaine uniquement chaque vendredi entre 17h et 22h.");

@@ -320,11 +320,11 @@ function FeuillesDeRouteSemaineAdmin({ onReturn }) {
                                     {feuille.dayOn && feuille.dayOn.length > 0 && (
                                         <div className='feuille-jj'>
                                             
-                                            {feuille.dayOn.map((day, index) => (
+                                            {feuille.dayOn.map((day, index) => (  
                                                 <div key={index}>
-                                                    <p className='date'>{formatDate(day.date)}</p>
+                                                    <p className='date'>{formatDate(day.date)}</p>  
                                                     <p><strong>Ville</strong> : {day.city}</p>
-                                                    <p><strong>Distance totale</strong> : {day.totalKm} km</p>
+                                                    <p><strong>Distance totale</strong> : {day.totalKm.toFixed(2)}{day.unitTotalKm}</p>
                                                     <p><strong>Visites</strong> :</p>
                                                     <table>
                                                         <thead>
@@ -338,7 +338,7 @@ function FeuillesDeRouteSemaineAdmin({ onReturn }) {
                                                             {day.stops.map((stop, idx) => (
                                                                 <tr key={idx}>
                                                                     <td>{stop.name}</td>
-                                                                    <td>{stop.distance} km</td>
+                                                                    <td>{stop.distance.toFixed(2)}{stop.unitDistance}</td>
                                                                     <td>{stop.status}</td>
                                                                 </tr>
                                                             ))}

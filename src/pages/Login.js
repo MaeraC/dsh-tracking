@@ -4,7 +4,7 @@
 import "../index.css" 
 import { Link, useNavigate }                                from "react-router-dom"
 import { useState }                                         from "react"
-import { GoogleAuthProvider, signInWithPopup }                       from "firebase/auth"
+//import { GoogleAuthProvider, signInWithPopup }                       from "firebase/auth"
 //import { signOut }                                        from "firebase/auth"
 import { auth, db }                                         from "../firebase.config.js"
 import { doc, getDoc }                                      from "firebase/firestore"
@@ -34,9 +34,9 @@ function Login() {
                 return
             }*/
             
-            const provider = new GoogleAuthProvider()
-            const userCredential = await signInWithPopup(auth, provider);
-            //const userCredential = await signInWithEmailAndPassword(auth, email, password)
+            //const provider = new GoogleAuthProvider()
+            //const userCredential = await signInWithPopup(auth, provider);
+            const userCredential = await signInWithEmailAndPassword(auth, email, password)
             const user = userCredential.user
              const userDoc = await getDoc(doc(db, "users", user.uid))
             const userData = userDoc.data()

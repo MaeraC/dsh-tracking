@@ -266,7 +266,6 @@ function FeuillesDeRouteSemaine({ uid, onReturn }) {
             setMsgError("Vous pouvez visionner et signer votre feuille de route de la semaine uniquement chaque vendredi entre 17h et 22h.");
         }
     }
-  
     const handleSignFiche = async () => { 
         
         if (!signatureCanvasRef.current.isEmpty()) {
@@ -510,6 +509,7 @@ function FeuillesDeRouteSemaine({ uid, onReturn }) {
                     <h2>Feuille de route du jour</h2>
                     {feuilleDuJour ? (
                         <>
+                        
                             {isFicheCloturee ? (
                                 <div className='feuille-jj'>
                                     <h3>Fiche clôturée</h3>

@@ -709,7 +709,10 @@ textarea {
 .congrats {
     text-align: center;
     line-height: 25px;
-    margin: 20px;
+    margin: 40px 10px;
+}
+.congrats .error-message {
+    margin-top: 20px;
 }
 .start-tour {
     padding: 30px 0;
@@ -754,9 +757,10 @@ textarea {
 }
 .start-adress .info {
     color: grey;
-    font-size: 13px;
+    font-size: 14px;
     font-style: italic;
-    margin-bottom: 10px;
+    margin-bottom: 20px;
+    margin-top: 10px;
     text-align: center;
 }
 .btn-cancel {
@@ -772,9 +776,6 @@ textarea {
 }
 .modale .content .status .prospect {
     margin-right: 20px;
-}
-.new-salon .button-colored {
-    margin-top: 0 !important;
 }
 .new-salon h2 {
     text-align: center;
@@ -947,7 +948,7 @@ textarea {
     margin-bottom: 15px;
 }
 .feuille-jj {
-    margin: 20px 0;
+    margin: 10px 0;
     border-radius: 20px;
     padding: 20px;
     box-shadow: 2px 2px 15px #cfcfcf;
@@ -1794,14 +1795,18 @@ form .adress {
     background-color: #3D9B9B;
     border-radius: 50%;
     border: none;
-    padding: 7px;
-    padding-bottom: 5px;
+    padding: 13px;
+    padding-bottom:8px;
     margin-top: 10px;
     cursor: pointer;
 }
 .geo-header .btns button img {
     width: 27px;
     height: 27px;
+}
+.geo-header .add {
+    width: 55px;
+    height: 55px;
 }
 .btn-circle {
     background: #3D9B9B;
@@ -1842,4 +1847,12 @@ form .adress {
 }
 .custom-select option {
     color: black;
+}
+
+.new-salon .content .button-colored {
+    margin-top: 20px !important;
+}
+.new-salon .content label:nth-child(1) {
+    margin-left: 20px !important;
+    display: inline-block;
 }

@@ -495,6 +495,8 @@ function Geolocation({ uid }) {
     }
 
     const handleAddSalon = async () => {
+        setIsModalCounterOpen(true)
+        
         const unit = totalDistance < 1000 ? 'm' : 'km';
         setStops(prevStops => [...prevStops, {
             name: newSalonName,
@@ -600,7 +602,7 @@ function Geolocation({ uid }) {
             <header className="geo-header">
                 <h1>Map Salons de coiffure</h1>  
                 <div className="btns">
-                    <img onClick={() => setIsModalSalonOpen(true)} src={plus} alt="Ajouter un salon"/> 
+                    <img className="add" onClick={() => setIsModalSalonOpen(true)} src={plus} alt="Ajouter un salon"/> 
                     <button><img onClick={handleSalonsNearBy} src={refresh} alt="Actualiser" /></button>
                 </div>
                 

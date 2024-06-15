@@ -350,7 +350,7 @@ function FeuillesDeRouteSemaine({ uid, onReturn }) {
 
             <div>
                 <div className="filters">
-                    <select value={selectedMonth} onChange={handleMonthChange}>
+                    <select value={selectedMonth} className='custom-select' onChange={handleMonthChange}>
                         <option value="">Sélectionner un mois</option>
                         {months.map((month, index) => (
                             <option key={index} value={month}>{month}</option>
@@ -360,7 +360,7 @@ function FeuillesDeRouteSemaine({ uid, onReturn }) {
                 </div>
                 <div className="date-filters">
                     <label>Date de début </label>
-                    <input type="date" value={startDate} onChange={handleStartDateChange}  />
+                    <input className='custom-select' type="date" value={startDate} onChange={handleStartDateChange}  />
                    
                     <label>Date de fin</label>
                     <input type="date" value={endDate} onChange={handleEndDateChange} />

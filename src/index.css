@@ -305,6 +305,10 @@ textarea {
         margin-left: 100px;
         margin-right: 100px;
     }
+    .fdr-section-admin {
+        margin-right: initial !important;
+        margin-left: initial !important;
+    }
 }
 @media screen and (min-width: 800px) {
     .preview-section,
@@ -312,8 +316,12 @@ textarea {
     .search-section,
     .stats-section,
     .feuilles-de-route-section {
-        margin-left: 200px;
-        margin-right: 200px;
+        margin-left: 200px !important;
+        margin-right: 200px !important;
+    }
+    .fdr-section-admin {
+        margin-right: initial !important;
+        margin-left: initial !important;
     }
 }
 @media screen and (min-width: 1000px) {
@@ -324,6 +332,10 @@ textarea {
     .feuilles-de-route-section {
         margin-left: 300px;
         margin-right: 300px;
+        .fdr-section-admin {
+            margin-right: initial !important;
+            margin-left: initial !important;
+        }
     }
 }
 @media screen and (min-width: 1400px) {
@@ -336,8 +348,8 @@ textarea {
         margin-right: 400px;
     }
     .fdr-section-admin {
-        margin-right: initial;
-        margin-left: initial;
+        margin-right: initial !important;
+        margin-left: initial !important;
     }
 }
 

@@ -335,6 +335,10 @@ textarea {
         margin-left: 400px;
         margin-right: 400px;
     }
+    .fdr-section-admin {
+        margin-right: initial;
+        margin-left: initial;
+    }
 }
 
 .preview-section header,
@@ -1153,6 +1157,45 @@ form .adress {
     border: 1px solid rgb(172, 172, 172);
 }
 .sign-fdj .error-message {
+    margin-top: 20px;
+}
+
+
+
+
+.fdr-section-admin .content {
+    display: flex;
+    justify-content: space-around;
+    padding-top: 30px;
+}
+.fdr-section-admin .search {
+    width: 25%;
+    height: 550px;
+}
+.fdr-section-admin .results {
+    width: 70%;
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+}
+.fdr-section-admin .results .feuille-jj {
+    width: 30%;
+}
+.fdr-section-admin .results .feuilles-de-route-list {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+}
+.fdr-section-admin .results .this-week {
+    width: 45%;
+    margin-top: 0;
+}
+.fdr-section-admin .none-fdr {
+    margin: 20px;
+}
+.fdr-section-admin .vrp {
+    margin-bottom: 10px !important;
     margin-top: 20px;
 }
 

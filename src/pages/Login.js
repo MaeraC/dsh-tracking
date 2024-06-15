@@ -12,6 +12,7 @@ import { doc, getDoc }                                      from "firebase/fires
 import emailImg                                             from "../assets/email.png"
 import mdpImg                                               from "../assets/mdp.png"
 import { browserLocalPersistence, setPersistence }          from "firebase/auth"
+import { signInWithEmailAndPassword } from "firebase/auth"
 
 function Login() { 
     const [email, setEmail]                                 = useState("")
@@ -31,7 +32,7 @@ function Login() {
             if (isHolidayOrWeekend()) {
                 setMessage("Impossible de se connecter durant les week-ends et jours fériés.")
                 setMessageType("error")
-                return
+                return  
             }*/
             
             //const provider = new GoogleAuthProvider()

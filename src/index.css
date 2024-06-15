@@ -222,7 +222,7 @@ textarea {
 .error-message {
     color: red;
     margin-bottom: 20px;
-    font-size: 15px;
+    font-size: 16px;
 }
 .login-form button,
 .signup-form button {
@@ -817,11 +817,11 @@ textarea {
     border-top: 5px #e9e9e9 solid;
 }
 .fiches-section .content .button {
-    padding: 20px;
+    padding: 40px 0px;
     border: none;
     font-family: "Roboto";
     border-bottom: 5px #e9e9e9 solid;
-    font-size: 16px;
+    font-size: 17px;
     width: 100%;
     background: white;
 }
@@ -1625,10 +1625,10 @@ form .adress {
 }
 .account .content button,
 .account .content div  {
-    padding: 20px 0;
+    padding: 40px 0;
     border: none;
     font-family: "Roboto";
-    font-size: 16px;
+    font-size: 17px;
     background-color: white;
     border-bottom: 5px #e9e9e9 solid;
 }
@@ -1658,14 +1658,18 @@ form .adress {
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 20px;
+    padding: 40px;
 }
 .account .modal-content {
     background-color: white;
-    padding: 20px;
+    padding: 40px;
     text-align: center;
     border-radius: 20px;
     line-height: 25px;
+}
+.account .modal-content p {
+    margin-bottom: 20px;
+    font-size: 17px;
 }
 .account .modal-content button {
     margin-top: 20px;
@@ -1674,10 +1678,10 @@ form .adress {
     font-family: "Roboto";
     border: none;
     border-radius: 5px;
-    padding: 5px;
-    font-size: 16px;
-    margin-right: 10px;
-    width: 60px;
+    padding: 10px;
+    font-size: 18px;
+    margin-right: 20px;
+    width: 80px;
 }
 
 
@@ -1861,4 +1865,7 @@ form .adress {
 .new-salon .content label:nth-child(1) {
     margin-left: 20px !important;
     display: inline-block;
+}
+.select-sugg div {
+    padding: 15px 10px !important;
 }

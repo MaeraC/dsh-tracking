@@ -360,10 +360,10 @@ function FeuillesDeRouteSemaine({ uid, onReturn }) {
                 </div>
                 <div className="date-filters">
                     <label>Date de début </label>
-                    <input className='custom-select' type="date" value={startDate} onChange={handleStartDateChange}  />
+                    <input className='custom-select' type="date" value={startDate} onChange={handleStartDateChange}  /> <br></br> 
                    
                     <label>Date de fin</label>
-                    <input type="date" value={endDate} onChange={handleEndDateChange} />
+                    <input type="date" className='custom-select' value={endDate} onChange={handleEndDateChange} />
                     
                     <button className='button-colored' onClick={filterFeuillesParPeriode}>Filtrer par période</button>
                 </div>
@@ -488,7 +488,7 @@ function FeuillesDeRouteSemaine({ uid, onReturn }) {
                     <div className='signature'>
                         <p className='error-message'>Veuillez signer votre feuille de route de la semaine dans le cadre ci-dessous</p>
                         <p className='error-message'>{errorNoSignature}</p>
-                        <ReactSignatureCanvas ref={signatureCanvasRef} canvasProps={{ width: 400, height: 200, className: 'signature-modal' }} />
+                        <ReactSignatureCanvas ref={signatureCanvasRef} canvasProps={{ width: 250, height: 200, className: 'signature-modal' }} />
                         <button className='button-colored' onClick={handleSignFiche}>Valider</button> 
                     </div>
                 </div>
@@ -547,7 +547,7 @@ function FeuillesDeRouteSemaine({ uid, onReturn }) {
                                     <input type="text" value={feuilleDuJour.departureAddress} onChange={(e) => setFeuilleDuJour({...feuilleDuJour, departureAddress: e.target.value})}/>
                                     
                                     <label>Distance totale</label>
-                                    <p className='total-dist'>{feuilleDuJour.totalKm}{feuilleDuJour.unitTotalKm}</p>
+                                    <p className='total-dist'>{feuilleDuJour.totalKm.toFixed(2)}{feuilleDuJour.unitTotalKm}</p>
                                     
                                     {feuilleDuJour.stops.map((stop, index) => (
                                         <div key={index}>
@@ -560,7 +560,7 @@ function FeuillesDeRouteSemaine({ uid, onReturn }) {
                                                 }}
                                             />
                                             <label>Distance</label>
-                                            <p className='inline'>{stop.distance}{stop.unitDistance}</p><br></br>
+                                            <p className='inline'>{stop.distance.toFixed(2)}{stop.unitDistance}</p><br></br>
                                             <label>Statut</label>
                                             <div className='status'>
                                                 <input className='checkbox' type="radio" value="Prospect" checked={stop.status === "Prospect"} onChange={() => handleStopStatusChange(index, "Prospect")} />
@@ -578,7 +578,7 @@ function FeuillesDeRouteSemaine({ uid, onReturn }) {
                                 <div className='signature sign-fdj'>
                                     <p className='error-message'>Veuillez signer votre feuille de route de la semaine dans le cadre ci-dessous</p>
                                     <p className='error-message'>{errorMsg}</p> 
-                                    <ReactSignatureCanvas ref={signatureCanvasRef2} canvasProps={{ width: 400, height: 200, className: 'signature-modal' }} />
+                                    <ReactSignatureCanvas ref={signatureCanvasRef2} canvasProps={{ width: 250, height: 200, className: 'signature-modal' }} />
                                     
                                 </div>
                                     

@@ -246,7 +246,7 @@ function FeuillesDeRouteSemaineAdmin({ onReturn }) {
                                 onChange={(e) => setIsThisWeekOpen(e.target.checked)}
                             />
                             Feuilles de route de la semaine
-                        </label>
+                        </label><br></br>
                         <label>
                             <input
                                 type="checkbox"

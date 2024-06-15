@@ -30,7 +30,6 @@ function StatisticsAdmin() {
                 let clientVisits = 0;
                 let prospectVisits = 0;
 
-                console.log(feuillesDeRouteData)
                 feuillesDeRouteData.forEach(feuille => {
                     if (feuille.isVisitsStarted) {
                         visits += feuille.stops.length;

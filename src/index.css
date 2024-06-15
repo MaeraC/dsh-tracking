@@ -1220,6 +1220,7 @@ form .adress {
     justify-content: space-around;
     padding-top: 30px;
 }
+
 .fdr-section-admin .search {
     width: 25%;
     height: 550px;
@@ -1230,6 +1231,7 @@ form .adress {
     justify-content: space-around;
     flex-wrap: wrap;
 }
+
 .fdr-section-admin .results .feuille-jj {
     width: 30%;
 }
@@ -1249,6 +1251,50 @@ form .adress {
 .fdr-section-admin .vrp {
     margin-bottom: 10px !important;
     margin-top: 20px;
+}
+@media screen and (max-width: 700px) {
+    .fdr-section-admin .content {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .fdr-section-admin .search {
+        width: 90%;
+        height: 500px;
+    }
+    .fdr-section-admin .results {
+        width: 90%;
+        display: flex;
+        justify-content: space-around;
+        flex-wrap: wrap;
+    }
+    .fdr-section-admin .results .feuille-jj {
+        width: 100%;
+    }
+    .fdr-section-admin .results .this-week {
+        width: 90%;
+       margin-bottom: 20px;
+    }
+    .fdr-section-admin .results .feuille-jj div {
+        width: 100%;
+        margin-bottom: 30px;
+        background: white;
+        padding: 20px;
+        border-radius: 20px;
+    }
+
+}
+.dayOn-section .feuille-jj {
+    width: 100%;
+    padding: 0 !important;
+}
+.feuilles-de-route-list .feuille-jj {
+    background: none;
+    box-shadow: none !important;
+}
+.dayOff-section .feuille-jj {
+    background: white;
+    margin-bottom: 20px;
 }
 
 

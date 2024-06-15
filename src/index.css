@@ -1803,8 +1803,13 @@ form .adress {
 
 
 .tableau-indispo {
-    padding: 20px;
-    position: relative;
+    padding: 20px !important;
+    position: absolute !important;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: white;
 }
 .tableau-indispo h2 {
     margin-bottom: 30px;
@@ -1812,6 +1817,7 @@ form .adress {
 }
 .tableau-indispo table {
     background: #cfcfcf;
+    width: 100%;
 }
 .tableau-indispo th {
     padding: 5px;

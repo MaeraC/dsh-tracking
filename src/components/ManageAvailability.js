@@ -19,7 +19,7 @@ function ManageAvailability() {
     return (
         <section className="available-section">
 
-            <button className="button" onClick={openHistory} >Voir la fiche d'indisponibilité</button>
+            
 
             {showHistory && (
                 <UnavailabilityHistory />  

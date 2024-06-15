@@ -14,6 +14,7 @@ import { db, auth } from "../firebase.config"
 import { onAuthStateChanged } from "firebase/auth"
 import { collection, getDocs, addDoc, Timestamp, getDoc, doc } from "firebase/firestore"
 import ManageAvailability from "../components/ManageAvailability"
+import back from "../assets/back.png"
 
 function AccountAdmin({ email, firstname, lastname }) {
      
@@ -29,6 +30,39 @@ function AccountAdmin({ email, firstname, lastname }) {
     const [endDate, setEndDate] = useState("")
     const [message, setMessage] = useState("")
     const [admin, setAdmin] = useState({})
+    const [unavailabilities, setUnavailabilities] = useState([])
+    const [userNames, setUserNames] = useState({})
+    const [show, setShow] = useState(false)
+ 
+
+    useEffect(() => {
+        const fetchUnavailabilities = async () => {
+            const unavailabilitySnapshot = await getDocs(collection(db, "unavailabilities"))
+            const unavailabilityList = unavailabilitySnapshot.docs.map(doc => doc.data())
+            setUnavailabilities(unavailabilityList)
+        }
+
+        const fetchUserNames = async () => {
+            const usersSnapshot = await getDocs(collection(db, "users"))
+
+            const usersList = usersSnapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data()
+            }))
+
+            const userNameMap = {}
+
+            usersList.forEach(user => {
+                userNameMap[user.id] = `${user.firstname} ${user.lastname}`
+            })
+
+            setUserNames(userNameMap)
+        }
+
+        fetchUnavailabilities()
+        fetchUserNames()
+    }, [])
+
 
     const navigate                                      = useNavigate()
 
@@ -150,10 +184,11 @@ function AccountAdmin({ email, firstname, lastname }) {
                     <span>E-mail</span>
                     <p>{email}</p>
                 </div>
-                
+                  
                 <button onClick={() => openModal("resetPassword")}>Réinitialiser mon mot de passe</button>
                 <button onClick={() => openModal("logout")}>Déconnexion</button>
                 <button className="button" onClick={() => setShowManage(true)}>Rendre indisponible un commercial</button>
+                <button className="button" onClick={() => setShow(true)} >Voir la fiche d'indisponibilité</button>
                 <ManageAvailability />
             </div>
 
@@ -171,43 +206,72 @@ function AccountAdmin({ email, firstname, lastname }) {
             {showManage && (
                 <section className="modal-manage">
                 
-            <form onSubmit={handleSubmit}>
-                <h2>Indisponibilités</h2>
-                <select value={selectedUser} onChange={(e) => setSelectedUser(e.target.value)}>
-                    <option value="">Sélectionnez un commercial</option>
-                    {users.map(user => (
-                        <option key={user.id} value={user.id}>{user.firstname} {user.lastname}</option>
-                    ))}
-                </select>
+                <form onSubmit={handleSubmit}>
+                    <h2>Indisponibilités</h2>
+                    <select value={selectedUser} onChange={(e) => setSelectedUser(e.target.value)}>
+                        <option value="">Sélectionnez un commercial</option>
+                        {users.map(user => (
+                            <option key={user.id} value={user.id}>{user.firstname} {user.lastname}</option>
+                        ))}
+                    </select>
 
-                <select value={selectedReason} onChange={(e) => setSelectedReason(e.target.value)}>
-                    <option value="">Sélectionnez une raison</option>
-                    <option value="Arrêt maladie">Arrêt maladie</option> 
-                    <option value="Congé vacances">Congés vacances</option>
-                    <option value="Autre">Autre</option>
-                </select>
+                    <select value={selectedReason} onChange={(e) => setSelectedReason(e.target.value)}>
+                        <option value="">Sélectionnez une raison</option>
+                        <option value="Arrêt maladie">Arrêt maladie</option> 
+                        <option value="Congé vacances">Congés vacances</option>
+                        <option value="Autre">Autre</option>
+                    </select>
 
-                {selectedReason === "Autre" && (
-                    <div>
-                        <input 
-                            type="text" 
-                            value={customReason} 
-                            onChange={(e) => setCustomReason(e.target.value)} 
-                            placeholder="Entrez la raison" 
-                        />
-                    </div>
-                )}
+                    {selectedReason === "Autre" && (  
+                        <div>
+                            <input 
+                                type="text" 
+                                value={customReason} 
+                                onChange={(e) => setCustomReason(e.target.value)} 
+                                placeholder="Entrez la raison" 
+                            />
+                        </div>
+                    )}
 
-                <label>Date de début</label><br></br>
-                <input className="custom-select" type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
-                <label>Date de fin</label><br></br>
-                <input className="custom-select" type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
+                    <label>Date de début</label><br></br>
+                    <input className="custom-select" type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
+                    <label>Date de fin</label><br></br>
+                    <input className="custom-select" type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
 
-                <button className="button-colored" type="submit">Déconnecter le commercial</button>
-                <button className="cancel" onClick={() => setShowManage(false)}>Annuler</button>
-            </form>
-            {message && <p className="success">{message}</p>}
-            </section>
+                    <button className="button-colored" type="submit">Déconnecter le commercial</button>
+                    <button className="cancel" onClick={() => setShowManage(false)}>Annuler</button>
+                </form>
+                {message && <p className="success">{message}</p>}
+                </section>
+            )}
+
+            {show && (
+            <div className="tableau-indispo">
+                <button onClick={() => setShow(false)} className="button-back"><img src={back} alt="retour" /></button>
+                <h2>Historique des indisponibilités</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Administrateur</th>
+                            <th>Commercial</th>
+                            <th>Date de début</th>
+                            <th>Date de fin</th>
+                            <th>Raison</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {unavailabilities.map((unavailability, index) => (
+                            <tr key={index}>
+                                <td>{unavailability.adminName}</td>
+                                <td>{userNames[unavailability.userId] || "Nom non trouvé"}</td>
+                                <td>{new Date(unavailability.startDate.seconds * 1000).toLocaleDateString()}</td>
+                                <td>{new Date(unavailability.endDate.seconds * 1000).toLocaleDateString()}</td>
+                                <td>{unavailability.reason}</td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
             )}
             
             <p className="success">{message}</p>

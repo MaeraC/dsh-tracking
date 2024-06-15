@@ -3,6 +3,8 @@
 
 import { useState, useEffect }                              from "react"
 import PreviewAdmin                                             from "./PreviewAdmin"
+import AccountAdmin                                              from "./AccountAdmin.js"
+import SearchVisits                                         from "./SearchVisits"
 import Loader                                               from "../components/Loader"
 import FichesAdmin                                               from "./FichesAdmin.js"
 import { useNavigate }                                      from "react-router-dom"
@@ -11,7 +13,6 @@ import { auth, db }                                         from "../firebase.co
 import { onAuthStateChanged }                               from "firebase/auth"
 import HeaderAdmin from "../components/HeaderAdmin.js" 
 import FeuillesDeRouteSemaineAdmin from "./FeuillesDeRouteSemaineAdmin.js"
-import AccountAdmin from "./AccountAdmin.js"
 
 function DashAdmin () {
     const [activeTab, setActiveTab]                         = useState("apercu")
@@ -65,7 +66,9 @@ function DashAdmin () {
         <div style={{ display: activeTab === "mon-compte" ? "block" : "none" }}>
             <AccountAdmin firstname={firstname} lastname={lastname} email={email} />
         </div>
-       
+        <div style={{ display: activeTab === "recherche-visites" ? "block" : "none" }}>
+            <SearchVisits />
+        </div>
         <div style={{ display: activeTab === "fiches" ? "block" : "none" }}>
             <FichesAdmin uid={uid} />
         </div>

@@ -25,6 +25,7 @@ function StatisticsAdmin() {
     const [startDate, setStartDate] = useState(new Date());
     const [endDate, setEndDate] = useState(new Date());
 
+
     useEffect(() => {
         const fetchUsersData = async () => {
             const usersData = {};
@@ -259,10 +260,11 @@ function StatisticsAdmin() {
                         <span className="close" onClick={handleModalClose}><img src={close} alt="fermer" /></span>
                         <h3 className="h3">Sélectionner une période et un utilisateur</h3>
                         <label>Date de début :</label>
-                        <input className="input" type="date" id="start-date" />
+                        <input  type="date" id="start-date" placeholder="12/06/2024" className="input"  />
+                        
                         
                         <label>Date de fin :</label>
-                        <input className="input" type="date" id="end-date" />
+                        <input className="input custom-datepicker" type="date" id="end-date" />
 
                         <label>Utilisateur :</label>
                         <input

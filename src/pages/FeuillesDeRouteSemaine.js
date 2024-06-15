@@ -32,7 +32,9 @@ function FeuillesDeRouteSemaine({ uid, onReturn }) {
     //eslint-disable-next-line 
     const [signatureImage, setSignatureImage] = useState('');
     const [msgError, setMsgError] = useState("")
+    const [errorMsg, setErrorMsg ]= useState("")
     const signatureCanvasRef = useRef() 
+    const signatureCanvasRef2 = useRef() 
 
     // récupère toutes les feuilles de route du user
     useEffect(() => {
@@ -73,8 +75,6 @@ function FeuillesDeRouteSemaine({ uid, onReturn }) {
 
         fetchFeuilles()
     }, [uid])
-
-    
 
     useEffect(() => {
         // Appel à displayFeuilleDuJour au chargement initial pour afficher la feuille du jour
@@ -129,7 +129,7 @@ function FeuillesDeRouteSemaine({ uid, onReturn }) {
             return feuilleDate === todayDate; 
         })
 
-        setFeuilleDuJour(feuille || null)  
+        setFeuilleDuJour(feuille || null)
          
         // Clôture automatique si non clôturée avant 22h
         if (feuille && !feuille.isClotured && currentHour >= 22) {
@@ -212,11 +212,15 @@ function FeuillesDeRouteSemaine({ uid, onReturn }) {
 
     const handleCloturerFiche = async (e) => {
         e.preventDefault()
-
-        if (feuilleDuJour) {
+        console.log(signatureCanvasRef2)
+        
+        if (feuilleDuJour && !signatureCanvasRef2.current.isEmpty()) {
             const feuilleRef = doc(db, 'feuillesDeRoute', feuilleDuJour.id)
-            await updateDoc(feuilleRef, { ...feuilleDuJour, isClotured: true, })
+            await updateDoc(feuilleRef, { ...feuilleDuJour, isClotured: true, signature: signatureCanvasRef2.current.getTrimmedCanvas().toDataURL('image/png')})
             setIsFicheCloturee(true)
+        }
+        else {
+            setErrorMsg("Veuillez remplir et signer votre fiche")
         }
     }
 
@@ -259,11 +263,12 @@ function FeuillesDeRouteSemaine({ uid, onReturn }) {
         if (currentDate.getDay() === 5 && currentDate.getHours() >= 17 && currentDate.getHours() < 22) {
             displayThisWeek()
         } else {
-            setMsgError("Vous pouvez visionner et signer votre feuille de route de la semaine uniquement chaque vendredi de 17h à 22h.");
+            setMsgError("Vous pouvez visionner et signer votre feuille de route de la semaine uniquement chaque vendredi entre 17h et 22h.");
         }
     }
   
     const handleSignFiche = async () => { 
+        
         if (!signatureCanvasRef.current.isEmpty()) {
             
             // Enregistrer la feuille de route de la semaine
@@ -529,6 +534,8 @@ function FeuillesDeRouteSemaine({ uid, onReturn }) {
                                             ))}
                                         </tbody>
                                     </table>
+                                    <p style={{marginTop: "20px", fontSize: "15px"}}>Clôturée le : {formatDate(feuilleDuJour.date)}</p>
+                                    <img src={feuilleDuJour.signature} width={120} alt="" />  
                                 </div>
                             ) : (
                                 <form onSubmit={handleCloturerFiche} className='form-feuilledj feuille-jj'>  
@@ -563,10 +570,17 @@ function FeuillesDeRouteSemaine({ uid, onReturn }) {
                                                 <input className='checkbox' type="radio" value="Client" checked={stop.status === "Client"} onChange={() => handleStopStatusChange(index, "Client")} /> 
                                                 <p>Client</p>               
                                             </div>
-                                            <p style={{margin: "20px"}}>{formatDate(feuilleDuJour.date)}</p>
+                                            
                                         </div>
                                         
                                     ))}
+
+                                <div className='signature sign-fdj'>
+                                    <p className='error-message'>Veuillez signer votre feuille de route de la semaine dans le cadre ci-dessous</p>
+                                    <p className='error-message'>{errorMsg}</p> 
+                                    <ReactSignatureCanvas ref={signatureCanvasRef2} canvasProps={{ width: 400, height: 200, className: 'signature-modal' }} />
+                                    
+                                </div>
                                     
                                     <button type="submit" className='button-colored' onClick={handleCloturerFiche}>Clôturer la fiche</button>
                                 </form>

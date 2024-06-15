@@ -374,6 +374,7 @@ textarea {
 }
 .stats-section {
     margin: 20px 0;
+    margin-top: 50px;
 }
 .stats-section .title-stats {
     display: flex;
@@ -1148,7 +1149,12 @@ form .adress {
     background: white;
 }
 
-
+.sign-fdj .signature-modal{
+    border: 1px solid rgb(172, 172, 172);
+}
+.sign-fdj .error-message {
+    margin-top: 20px;
+}
 
 
 .fdr-survey {

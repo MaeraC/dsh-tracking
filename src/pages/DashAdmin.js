@@ -3,7 +3,6 @@
 
 import { useState, useEffect }                              from "react"
 import PreviewAdmin                                             from "./PreviewAdmin"
-import SearchVisits                                         from "./SearchVisits"
 import Loader                                               from "../components/Loader"
 import FichesAdmin                                               from "./FichesAdmin.js"
 import { useNavigate }                                      from "react-router-dom"

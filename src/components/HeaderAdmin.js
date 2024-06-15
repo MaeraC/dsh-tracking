@@ -10,8 +10,6 @@ import survey from "../assets/survey.png"
 import surveyB from "../assets/surveyb.png"
 import user from "../assets/user.png"
 import userB from "../assets/userb.png" 
-import search from "../assets/search.png" 
-import searchB from "../assets/searchb.png" 
 
 function HeaderAdmin({ activeTab, onTabChange }) {
     

@@ -1,58 +1,26 @@
+// Fichier StatisticsVisits.js
 
-// Fichier StatisticsAdminAdmin.jsimport { collection, getDocs, query, where } from "firebase/firestore";
+import { collection, getDocs, query } from "firebase/firestore"; // Removed 'where'
 import { db } from "../firebase.config.js";
 import { useEffect, useState } from "react";
 import search from "../assets/searchb.png";
 import close from "../assets/close.png";
-import { getDocs, collection, query, where,  } from "firebase/firestore";
 
-function StatisticsAdmin({ }) {
- 
+function StatisticsAdmin() {
     const [visitsCount, setVisitsCount] = useState(0);
     const [daysWithoutVisitsCount, setDaysWithoutVisitsCount] = useState(0);
     const [totalDistance, setTotalDistance] = useState(0);
-    const [unit, setUnit] = useState("")
+    const [unit, setUnit] = useState("");
     const [clientVisitsCount, setClientVisitsCount] = useState(0);
     const [prospectVisitsCount, setProspectVisitsCount] = useState(0);
     const [modalOpen, setModalOpen] = useState(false);
-    const [result, setResult] = useState({ visits: 0, daysWithoutVisits: 0, distance: 0 })
-    
-    const [usersMap, setUsersMap] = useState({})
-
-    // Récupère les nom et prénom des users
-    useEffect(() => {
-        const fetchUsersData = async () => {
-            const usersData = {};
-            try {
-                const usersSnapshot = await getDocs(collection(db, 'users'));
-                usersSnapshot.forEach((doc) => {
-                    usersData[doc.id] = doc.data();
-                });
-                setUsersMap(usersData);
-            } catch (error) {
-                console.error("Erreur lors de la récupération des utilisateurs : ", error);
-            }
-        }; 
-        fetchUsersData();
-    }, []);
+    const [result, setResult] = useState({ visits: 0, daysWithoutVisits: 0, distance: 0 });
 
     useEffect(() => {
         const fetchStatistics = async () => {
-    
-            const usersData = {};
-            try {
-                const usersSnapshot = await getDocs(collection(db, 'feuillesDeRoute'));
-                usersSnapshot.forEach((doc) => {
-                    usersData[doc.id] = doc.data();
-                });
-                setUsersMap(usersData);
-            } catch (error) {
-                console.error("Erreur lors de la récupération des utilisateurs : ", error);
-            }
             try {
                 const feuillesDeRouteRef = collection(db, 'feuillesDeRoute');
-                console.log(feuillesDeRouteRef) 
-                const q = query(feuillesDeRouteRef);
+                const q = query(feuillesDeRouteRef); // No filter for userId
                 const feuillesDeRouteSnapshot = await getDocs(q);
                 const feuillesDeRouteData = feuillesDeRouteSnapshot.docs.map(doc => doc.data());
 
@@ -62,6 +30,7 @@ function StatisticsAdmin({ }) {
                 let clientVisits = 0;
                 let prospectVisits = 0;
 
+                console.log(feuillesDeRouteData)
                 feuillesDeRouteData.forEach(feuille => {
                     if (feuille.isVisitsStarted) {
                         visits += feuille.stops.length;
@@ -69,12 +38,11 @@ function StatisticsAdmin({ }) {
                             distance += stop.distance;
 
                             const units = stop.unitDistance || 'km';
-                            setUnit(units)
+                            setUnit(units);
 
                             if (stop.status === "Client") {
                                 clientVisits++;
-                            } 
-                            else if (stop.status === "Prospect") {
+                            } else if (stop.status === "Prospect") {
                                 prospectVisits++;
                             }
                         });
@@ -83,9 +51,9 @@ function StatisticsAdmin({ }) {
                     }
                 });
 
-                setVisitsCount(visits); 
+                setVisitsCount(visits);
                 setDaysWithoutVisitsCount(daysWithoutVisits);
-                setTotalDistance(distance)
+                setTotalDistance(distance);
                 setClientVisitsCount(clientVisits);
                 setProspectVisitsCount(prospectVisits);
             } catch (error) {
@@ -96,6 +64,8 @@ function StatisticsAdmin({ }) {
         fetchStatistics();
     }, [unit]);
 
+
+
     const handleModalOpen = () => {
         setModalOpen(true);
     };
@@ -104,7 +74,7 @@ function StatisticsAdmin({ }) {
         setModalOpen(false);
     };
 
-    const handleDateRangeSelect = async () => {  
+    const handleDateRangeSelect = async () => {
         const startDate = new Date(document.getElementById('start-date').value);
         const endDate = new Date(document.getElementById('end-date').value);
 
@@ -113,7 +83,7 @@ function StatisticsAdmin({ }) {
 
         try {
             const feuillesDeRouteRef = collection(db, 'feuillesDeRoute');
-            const q = query(feuillesDeRouteRef);
+            const q = query(feuillesDeRouteRef); // No filter for userId
             const feuillesDeRouteSnapshot = await getDocs(q);
             const feuillesDeRouteData = feuillesDeRouteSnapshot.docs.map(doc => doc.data());
 
@@ -122,7 +92,7 @@ function StatisticsAdmin({ }) {
             let distance = 0;
 
             feuillesDeRouteData.forEach(feuille => {
-                const feuilleDate = feuille.date.toDate();  // Conversion du timestamp en objet Date
+                const feuilleDate = feuille.date.toDate(); // Conversion du timestamp en objet Date
                 if (feuilleDate >= startDate && feuilleDate < endDate) {
                     if (feuille.isVisitsStarted) {
                         visits += feuille.stops.length;
@@ -171,8 +141,8 @@ function StatisticsAdmin({ }) {
 
             <div className="nb total">
                 <p>Kilomètres parcourus</p>
-                <span>{totalDistance.toFixed(2) + " " + unit}</span> 
-            </div> 
+                <span>{totalDistance.toFixed(2) + " " + unit}</span>
+            </div>
 
             {modalOpen && (
                 <div className="modal-stats">
@@ -180,23 +150,22 @@ function StatisticsAdmin({ }) {
                         <span className="close" onClick={handleModalClose}><img src={close} alt="fermer" /></span>
                         <h3 className="h3">Sélectionner une période</h3>
                         <label>Date de début </label>
-                        <input  className="input" type="date" id="start-date" />
-                          
+                        <input className="input" type="date" id="start-date" />
+
                         <label>Date de fin :</label>
                         <input type="date" id="end-date" />
-                       
+
                         <button className="button-colored" onClick={handleDateRangeSelect}>Valider</button>
                         <div>
-                            <p><span>{result.visits}</span>Visites réalisées</p>
-                            <p><span>{result.daysWithoutVisits}</span>Jours sans visites</p>
-                            <p><span>{result.distance}</span>Kilomètres parcourus</p>
+                            <p><span>{result.visits}</span> Visites réalisées</p>
+                            <p><span>{result.daysWithoutVisits}</span> Jours sans visites</p>
+                            <p><span>{result.distance}</span> Kilomètres parcourus</p>
                         </div>
                     </div>
                 </div>
             )}
         </section>
     );
-
 }
 
 export default StatisticsAdmin;

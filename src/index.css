@@ -1080,6 +1080,9 @@ textarea {
     flex-direction: column;
     align-items: center;
 }
+.filter-historique {
+    width: 100%;
+}
 .fiche-client-section .button-back,
 .fiche-prospect-section .button-back ,
 .demonstration-section .button-back{
@@ -1199,7 +1202,9 @@ form .adress {
 .sign-fdj .error-message {
     margin-top: 20px;
 }
-
+.filter-historique table {
+    overflow: scroll;
+}
 
 
 

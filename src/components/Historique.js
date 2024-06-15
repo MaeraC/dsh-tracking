@@ -223,9 +223,9 @@ function Historique({ onReturn }) {
                 </div>
                 <div>
                     <label>Date de début</label>
-                    <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
+                    <input type="date"  className='custom-select' value={startDate} onChange={(e) => setStartDate(e.target.value)} /><br></br>
                     <label>Date de fin </label>
-                    <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
+                    <input type="date"  className='custom-select'value={endDate} onChange={(e) => setEndDate(e.target.value)} />  <br></br>
                     <button className="button-colored" onClick={handleDateChange}>Filtrer</button>
                 </div>
             </div>

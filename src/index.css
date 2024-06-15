@@ -309,6 +309,11 @@ textarea {
         margin-right: initial !important;
         margin-left: initial !important;
     }
+    .preview-admin {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+    
+    }
 }
 @media screen and (min-width: 800px) {
     .preview-section,
@@ -323,6 +328,11 @@ textarea {
         margin-right: initial !important;
         margin-left: initial !important;
     }
+    .preview-admin {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+    
+    }
 }
 @media screen and (min-width: 1000px) {
     .preview-section,
@@ -332,10 +342,16 @@ textarea {
     .feuilles-de-route-section {
         margin-left: 300px;
         margin-right: 300px;
-        .fdr-section-admin {
-            margin-right: initial !important;
-            margin-left: initial !important;
-        }
+        
+    }
+    .fdr-section-admin {
+        margin-right: initial !important;
+        margin-left: initial !important;
+    }
+    .preview-admin {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+    
     }
 }
 @media screen and (min-width: 1400px) {
@@ -350,6 +366,11 @@ textarea {
     .fdr-section-admin {
         margin-right: initial !important;
         margin-left: initial !important;
+    }
+    .preview-admin {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+    
     }
 }
 
@@ -1650,6 +1671,9 @@ form .adress {
 .preview-admin {
     padding-left: 0 !important;
     padding-right: 0 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+
 }
 .available-section {
     margin-top: 30px;

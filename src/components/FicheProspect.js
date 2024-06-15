@@ -468,6 +468,7 @@ function FicheProspect({uid, onReturn}) {
                                     name="dateDeVisite"
                                     value={formData.dateDeVisite}
                                     onChange={handleInputChange}
+                                    className='custom-select'
                                 />
                             </div>
                             <div className="space">
@@ -559,7 +560,7 @@ function FicheProspect({uid, onReturn}) {
                                 <>
                                     <div>
                                         <label className="bold margin">Prévu pour le :</label>
-                                        <input type="date" name="rdvPrevuLe" placeholder="Prévu pour le" value={formData.rdvPrevuLe} onChange={handleInputChange} />
+                                        <input type="date"  className='custom-select' name="rdvPrevuLe" placeholder="Prévu pour le" value={formData.rdvPrevuLe} onChange={handleInputChange} />
                                     </div>
                                     <div>
                                         <label className="bold margin">Type de RDV :</label>

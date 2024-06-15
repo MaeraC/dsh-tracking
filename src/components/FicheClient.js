@@ -292,7 +292,7 @@ function FicheClient({ onReturn, uid }) {
                             <br></br>
                             <div className="div-space">
                                 <label className="label-space"><strong>Date de visite</strong> :</label><br></br>
-                                <input type="date" name="dateVisite" value={formData.dateVisite} onChange={handleInputChange} />
+                                <input type="date"  className='custom-select' name="dateVisite" value={formData.dateVisite} onChange={handleInputChange} />
                             </div>
                             <div className="div-space">
                                 <label className="label-space"><strong>Responsable présent</strong> :</label><br></br>

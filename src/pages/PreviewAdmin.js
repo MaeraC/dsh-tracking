@@ -1,6 +1,7 @@
 
 // Fichier PreviewAdmin
 
+import Recap from "../components/Recap"
 import StatisticsAdmin from "../components/StatisticsAdmin"  
 
 function PreviewAdmin({ firstname }) {
@@ -15,7 +16,10 @@ function PreviewAdmin({ firstname }) {
                 <p>Voici votre tableau de gestion administrateur</p>
             </div>
 
+            <div className="content">
             <StatisticsAdmin />
+            <Recap /> 
+            </div>
         </div>
     )
 }

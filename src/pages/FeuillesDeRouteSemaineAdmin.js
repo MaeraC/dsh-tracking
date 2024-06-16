@@ -269,7 +269,7 @@ function FeuillesDeRouteSemaineAdmin({ onReturn }) {
                                 {feuille.isVisitsStarted ? (
                                     <>
                                         <p><strong>Ville</strong> : {feuille.city}</p>
-                                        <p><strong>Distance totale</strong> : {feuille.totalKm} {feuille.unitTotalKm}</p>
+                                        <p><strong>Distance totale</strong> : {feuille.totalKm.toFixed(2)} {feuille.unitTotalKm}</p>
                                         <p><strong>Visites</strong> :</p>
                                         <table>
                                             <thead>

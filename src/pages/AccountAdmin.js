@@ -13,13 +13,13 @@ import { sendPasswordResetEmail }                       from "firebase/auth"
 import { db, auth } from "../firebase.config"
 import { onAuthStateChanged } from "firebase/auth"
 import { collection, getDocs, addDoc, Timestamp, getDoc, doc } from "firebase/firestore"
-import ManageAvailability from "../components/ManageAvailability"
 import back from "../assets/back.png"
 
 function AccountAdmin({ email, firstname, lastname }) {
      
     const [showModal, setShowModal]                     = useState(false)
     const [showManage, setShowManage]                     = useState(false)
+    // eslint-disable-next-line
     const [showForm, setShowForm]                     = useState(false)
     const [action, setAction]                           = useState(null)
     const [users, setUsers] = useState([])
@@ -189,7 +189,7 @@ function AccountAdmin({ email, firstname, lastname }) {
                 <button onClick={() => openModal("logout")}>Déconnexion</button>
                 <button className="button" onClick={() => setShowManage(true)}>Rendre indisponible un commercial</button>
                 <button className="button" onClick={() => setShow(true)} >Voir la fiche d'indisponibilité</button>
-                <ManageAvailability />
+               
             </div>
 
             {showModal && (

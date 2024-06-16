@@ -216,6 +216,7 @@ function FeuillesDeRouteSemaineAdmin({ onReturn }) {
                 <div className='search'>
                     <label>Filtres</label>
                     <input
+                    className='input-filter'
                         type="text"
                         value={searchTerm}
                         onChange={handleSearchTermChange}

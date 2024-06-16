@@ -2014,11 +2014,31 @@ form .adress {
 .preview-admin .hello {
     margin-left: 50px;
 }
-
+.suggestions-list {
+    border: 1px solid #bebebe;
+    background: white;
+}
+.suggestions-list li {
+    padding: 10px;
+    border-bottom: 1px #bebebe solid;
+}
 @media screen and (min-width: 800px) {
     .preview-admin .stats-section {
         margin-left: initial !important;
         margin-right: initial !important;
+    }
+}
+@media screen and (max-width: 1700px) {
+    .fiche-client-section form,
+    .fiche-prospect-section form,
+    .demonstration-section form {
+        display: flex;
+        justify-content: center;
+    }
+    .form-FSC,
+    .form-FSP,
+    .form-CRD {
+        width: 70%;
     }
 }
 @media screen and (max-width: 1300px) {
@@ -2035,6 +2055,11 @@ form .adress {
     }
     .fdr-section-admin .results .feuille-jj {
         width: 45%;
+    }
+    .form-FSC,
+    .form-FSP,
+    .form-CRD {
+        width: 70%;
     }
 }
 @media screen and (max-width: 1000px) {
@@ -2077,6 +2102,11 @@ form .adress {
     .fdr-section-admin .results .feuille-jj {
         width: 90%;
     }
+    .form-FSC,
+    .form-FSP,
+    .form-CRD {
+        width: 90%;
+    }
 }
 @media screen and (max-width: 600px) {
     .fdr-section-admin .content {
@@ -2092,6 +2122,11 @@ form .adress {
     }
     .preview-admin .hello {
         margin-left: 20px;
+    }
+    .form-FSC,
+    .form-FSP,
+    .form-CRD {
+        width: 100%;
     }
 }
 

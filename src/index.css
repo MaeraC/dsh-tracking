@@ -1257,6 +1257,9 @@ form .adress {
 .fdr-section-admin .results .feuille-jj {
     width: 30%;
 }
+.fdr-section-admin .results .ad {
+    width: 100% !important;
+}
 .fdr-section-admin .results .feuilles-de-route-list {
     width: 100%;
     display: flex;

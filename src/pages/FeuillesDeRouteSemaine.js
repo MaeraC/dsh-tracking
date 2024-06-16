@@ -257,14 +257,14 @@ function FeuillesDeRouteSemaine({ uid, onReturn }) {
 
     const handleOpenWeekFiche = () => {
         // Vérifie si le jour et l'heure actuels permettent la signature
-        const currentDate = new Date();
-    
+        //const currentDate = new Date();
+        displayThisWeek()
         // Vérification si on est vendredi 5 après 8h pour autoriser la signature
-        if (currentDate.getDay() === 6 && currentDate.getHours() >= 12 && currentDate.getHours() < 22) {
-            displayThisWeek()
-        } else {
-            setMsgError("Vous pouvez visionner et signer votre feuille de route de la semaine uniquement chaque vendredi entre 17h et 22h.");
-        }
+        //if (currentDate.getDay() === 6 && currentDate.getHours() >= 12 && currentDate.getHours() < 22) {
+       //     displayThisWeek()
+        //} else {
+           setMsgError("Vous pouvez visionner et signer votre feuille de route de la semaine uniquement chaque vendredi entre 17h et 22h.");
+        //}
     }
     const handleSignFiche = async () => { 
         
@@ -387,7 +387,7 @@ function FeuillesDeRouteSemaine({ uid, onReturn }) {
                                                 <div key={index}>
                                                     <p className='date'>{formatDate(day.date)}</p>
                                                     <p><strong>Ville</strong> : {day.city}</p>
-                                                    <p><strong>Distance totale</strong> : {day.totalKm} km</p>
+                                                    <p><strong>Distance totale</strong> : {day.totalKm.toFixed(2)}{day.unitTotalKm}</p>
                                                     <p><strong>Visites</strong> :</p>
                                                     <table>
                                                         <thead>
@@ -401,7 +401,7 @@ function FeuillesDeRouteSemaine({ uid, onReturn }) {
                                                             {day.stops.map((stop, idx) => (
                                                                 <tr key={idx}>
                                                                     <td>{stop.name}</td>
-                                                                    <td>{stop.distance} km</td>
+                                                                    <td>{stop.distance.toFixed(2)}{stop.unitDistance}</td>
                                                                     <td>{stop.status}</td>
                                                                 </tr>
                                                             ))}
@@ -454,7 +454,7 @@ function FeuillesDeRouteSemaine({ uid, onReturn }) {
                             {feuille.isVisitsStarted ? (
                                 <>
                                     <p><strong>Ville</strong> : {feuille.city}</p>
-                                    <p><strong>Distance totale</strong> : {feuille.totalKm} km</p>
+                                    <p><strong>Distance totale</strong> : {feuille.totalKm.toFixed(2)}{feuille.unitTotalKm}</p>
                                     <p><strong>Visites</strong> :</p>
                                     <table>
                                         <thead>
@@ -468,7 +468,7 @@ function FeuillesDeRouteSemaine({ uid, onReturn }) {
                                             {feuille.stops.map((stop, index) => (
                                             <tr key={index}>
                                                 <td>{stop.name}</td>
-                                                <td>{stop.distance} km</td>
+                                                <td>{stop.distance.toFixed(2)}{stop.unitDistance}</td>
                                                 <td>{stop.status}</td>
                                             </tr>
                                             ))}
@@ -514,7 +514,7 @@ function FeuillesDeRouteSemaine({ uid, onReturn }) {
                                 <div className='feuille-jj'>
                                     <h3>Fiche clôturée</h3>
                                     <p><strong>Ville</strong> : {feuilleDuJour.city}</p>
-                                    <p><strong>Distance totale</strong> : {feuilleDuJour.totalKm}{feuilleDuJour.unitTotalKm}</p>
+                                    <p><strong>Distance totale</strong> : {feuilleDuJour.totalKm.toFixed(2)}{feuilleDuJour.unitTotalKm}</p>
                                     <p><strong>Visites</strong> :</p>
                                     <table>
                                         <thead>
@@ -528,7 +528,7 @@ function FeuillesDeRouteSemaine({ uid, onReturn }) {
                                             {feuilleDuJour.stops.map((stop, index) => (
                                             <tr key={index}>
                                                 <td>{stop.name}</td>
-                                                <td>{stop.distance} {stop.unitDistance}</td>
+                                                <td>{stop.distance.toFixed(2)}{stop.unitDistance}</td>
                                                 <td>{stop.status}</td>
                                             </tr>  
                                             ))}

@@ -2086,5 +2086,12 @@ form .adress {
     .fdr-section-admin .results .feuille-jj {
         width: 100%;
     }
+    .preview-admin .stats-section {
+        padding: 0;
+        padding-bottom: 20px;
+    }
+    .preview-admin .hello {
+        margin-left: 20px;
+    }
 }
 

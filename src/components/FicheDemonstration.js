@@ -14,9 +14,9 @@ function FicheDemonstration({ uid, onReturn }) {
     const [message, setMessage] = useState("")
 
     const initialFormData = {
-        salonName: '',
+        nomduSalon: '',
         ville: '',
-        nomPrenomResponsable: '',
+        nomPrenomDuResponsable: '',
         responsablePresent: '',
         tel: '',
         email: '',
@@ -32,7 +32,7 @@ function FicheDemonstration({ uid, onReturn }) {
           laVegetale: false,
           autre: false,
         },
-        dureeDemonstration: '',
+        dureeDeLaDemonstration: '',
         techniciennePresente: '',
         avecLaVRP: false,
         seule: false,
@@ -178,9 +178,9 @@ function FicheDemonstration({ uid, onReturn }) {
             const crDemonstration = data.crDemonstration ? data.crDemonstration[data.crDemonstration.length - 1] : {};
 
             setFormData({
-                salonName: crDemonstration.salonName || "",
+                nomduSalon: crDemonstration.nomduSalon || "",
                 ville: crDemonstration.ville || "",
-                nomPrenomResponsable: crDemonstration.nomPrenomResponsable || "",
+                nomPrenomDuResponsable: crDemonstration.nomPrenomDuResponsable || "",
                 responsablePresent: crDemonstration.responsablePresent || "",
                 tel: crDemonstration.tel || "",
                 email: crDemonstration.email || "",
@@ -196,7 +196,7 @@ function FicheDemonstration({ uid, onReturn }) {
                     laVegetale: crDemonstration.demonstrations?.laVegetale || false,
                     autre: crDemonstration.demonstrations?.autre || false,
                 },
-                dureeDemonstration: crDemonstration.dureeDemonstration || "",
+                dureeDeLaDemonstration: crDemonstration.dureeDeLaDemonstration || "",
                 techniciennePresente: crDemonstration.techniciennePresente || "",
                 avecLaVRP: crDemonstration.avecLaVRP || false,
                 seule: crDemonstration.seule || false,
@@ -236,7 +236,6 @@ function FicheDemonstration({ uid, onReturn }) {
                 typeOfForm: "CR de RDV de Démonstration",
                 userId: uid,
             });
-            //console.log("formData before setting state: ", formData);
         }
         
     }  
@@ -271,8 +270,6 @@ function FicheDemonstration({ uid, onReturn }) {
 
     const handleSubmit = async (e) => {
         e.preventDefault()
-
-        console.log("Form data before validation:", formData)
 
         try {
             // Mets à jour le document du salon avec les nouvelles informations
@@ -324,7 +321,7 @@ function FicheDemonstration({ uid, onReturn }) {
                             <h2>{salonInfo.name}</h2>
                             <p className="adress">{salonInfo.address}</p>
                             <input type="text" name="ville" placeholder="Ville" value={formData.ville} onChange={handleChange} /><br></br>
-                            <input type="text" name="nomPrenomResponsable" placeholder="Nom Prénom du responsable" value={formData.nomPrenomResponsable} onChange={handleChange} /><br></br>
+                            <input type="text" name="nomPrenomDuResponsable" placeholder="Nom Prénom du responsable" value={formData.nomPrenomDuResponsable} onChange={handleChange} /><br></br>
                         
                             <div className="space">
                                 <p className="bold margin">Responsable présent :</p><br></br>
@@ -380,7 +377,7 @@ function FicheDemonstration({ uid, onReturn }) {
                                 </label>
                             </div>
 
-                            <input type="text" name="dureeDemonstration" placeholder="Durée de la démonstration" value={formData.dureeDemonstration} onChange={handleChange} /><br></br>
+                            <input type="text" name="dureeDeLaDemonstration" placeholder="Durée de la démonstration" value={formData.dureeDeLaDemonstration} onChange={handleChange} /><br></br>
                     
                             {formData.techniciennePresente === 'oui' && (
                                 <>
@@ -416,7 +413,7 @@ function FicheDemonstration({ uid, onReturn }) {
                             <br></br>
                             <br></br>
 
-                            <p className="bold margin">Issue favorable de la démonstration avec implantation de :</p>
+                            <p className="bold margin">Issue favorable de la démonstration avec implantation de :</p><br></br>
 
                             {Object.keys(formData.issueFavorable).map(issue => (
                                 <>

@@ -158,7 +158,7 @@ function StatisticsVisits({ uid }) {
                         <div>
                             <p><span>{result.visits}</span>Visites réalisées</p>
                             <p><span>{result.daysWithoutVisits}</span>Jours sans visites</p>
-                            <p><span>{result.distance}</span>Kilomètres parcourus</p>
+                            <p><span>{result.distance.toFixed(2)} </span>Kilomètres parcourus</p>
                         </div>
                     </div>
                 </div>

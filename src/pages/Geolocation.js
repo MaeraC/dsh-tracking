@@ -246,7 +246,6 @@ function Geolocation({ uid }) {
         try {
             const routeDocRef = doc(db, "feuillesDeRoute", currentRouteId);
             const totalKm = getTotalStopDistances();
-            // Déterminez l'unité en fonction de la distance
             const unit = totalKm < 1000 ? 'm' : 'km';
 
             await updateDoc(routeDocRef, {
@@ -254,7 +253,6 @@ function Geolocation({ uid }) {
                 totalKm: totalKm,
                 unitTotalKm : unit
             })
-            //console.log("Arrêts mis à jour avec succès");
         } catch (e) {
             console.error("Erreur lors de la mise à jour des arrêts : ", e);
         }
@@ -600,11 +598,14 @@ function Geolocation({ uid }) {
     return (
         <>
             <header className="geo-header">
-                <h1>Map Salons de coiffure</h1>  
-                <div className="btns">
-                    <img className="add" onClick={() => setIsModalSalonOpen(true)} src={plus} alt="Ajouter un salon"/> 
-                    <button><img onClick={handleSalonsNearBy} src={refresh} alt="Actualiser" /></button>
-                </div>
+                <h1>Map Salons de coiffure</h1> 
+                {!isModalSalonOpen && (  
+                     <div className="btns">
+                        <img className="add" onClick={() => setIsModalSalonOpen(true)} src={plus} alt="Ajouter un salon"/> 
+                        <button><img onClick={handleSalonsNearBy} src={refresh} alt="Actualiser" /></button>
+                    </div>
+                )} 
+               
                 
             </header>
             <div className="geoloc-section">
@@ -730,12 +731,12 @@ function Geolocation({ uid }) {
                             )}
 
                             {!isRadioVisible && (
-                                <p>Statut : {status}</p>
+                                <p><span style={{fontWeight : "bold"}}>Statut</span>: {status}</p> 
                             )}
 
                             {isTracking ? (
                                 <div>
-                                    <p>Calcul en cours...</p> 
+                                    <p>Calcul en cours ...</p> 
                                     <p className="total"><strong>{formatDistance(distance)}</strong></p>
                                     <button className="button-colored" onClick={handleStopTracking}>Arrivé à destination</button>
                                 </div>

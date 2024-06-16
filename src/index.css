@@ -602,6 +602,7 @@ textarea {
 }
 .modale {
     height: 100vh;
+    width: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1922,7 +1923,7 @@ form .adress {
 .geo-header .btns {
     position: absolute;
     z-index: 2;
-    bottom: -100px;
+    bottom: -120px;
     right: 20px;
     cursor: pointer;
     display: flex;
@@ -1934,17 +1935,21 @@ form .adress {
     border-radius: 50%;
     border: none;
     padding: 13px;
-    padding-bottom:8px;
+    padding-left: 12px;
+    padding-right: 12px;
+    padding-bottom:9px;
     margin-top: 10px;
     cursor: pointer;
 }
 .geo-header .btns button img {
-    width: 27px;
-    height: 27px;
+    width: 28px;
+    height: 28px;
 }
 .geo-header .add {
-    width: 55px;
-    height: 55px;
+    background: #3D9B9B;
+    border-radius: 50%;
+    padding:
+    10px;
 }
 .btn-circle {
     background: #3D9B9B;
@@ -2193,4 +2198,10 @@ form .adress {
 
 .date-filters .un {
     margin-bottom: 10px !important;
+}
+.type-contrat {
+    margin-top: 20px;
+}
+.form-CRD .btnn {
+    margin-bottom: 0px !important;
 }

@@ -37,7 +37,7 @@ function FicheClient({ onReturn, uid }) {
         clientEnContrat: "",
         typeDeContrat: "",
         tarifSpécifique: "",
-        dateVisite: "",
+        dateDeVisite: "",
         responsablePresent: "",
         priseDeCommande: "",
         gammesCommande: "",
@@ -146,7 +146,7 @@ function FicheClient({ onReturn, uid }) {
                 clientEnContrat: suiviClient.clientEnContrat || "",
                 typeDeContrat: suiviClient.typeDeContrat || "",
                 tarifSpécifique: suiviClient.tarifSpécifique || "",
-                dateVisite: suiviClient.dateVisite || "",
+                dateDeVisite: suiviClient.dateDeVisite || "",
                 responsablePresent: suiviClient.responsablePresent || "",
                 priseDeCommande: suiviClient.priseDeCommande || "",
                 gammesCommande: suiviClient.gammesCommande || "",
@@ -284,7 +284,7 @@ function FicheClient({ onReturn, uid }) {
                             </div>
                             {formData.clientEnContrat === "Oui" && (
                                 <div>
-                                    <input type="text" name="typeDeContrat" placeholder="Lequel" value={formData.typeDeContrat} onChange={handleInputChange} /><br />
+                                    <input type="text" className="type-contrat" name="typeDeContrat" placeholder="Lequel" value={formData.typeDeContrat} onChange={handleInputChange} />
                                     <input type="text" name="tarifSpécifique" placeholder="Tarif spécifique" value={formData.tarifSpécifique} onChange={handleInputChange} /><br />
                                 </div>
                             )}
@@ -292,7 +292,7 @@ function FicheClient({ onReturn, uid }) {
                             <br></br>
                             <div className="div-space">
                                 <label className="label-space"><strong>Date de visite</strong> :</label><br></br>
-                                <input type="date"  className='custom-select' name="dateVisite" value={formData.dateVisite} onChange={handleInputChange} />
+                                <input type="date"  className='custom-select' name="dateDeVisite" value={formData.dateDeVisite} onChange={handleInputChange} />
                             </div>
                             <div className="div-space">
                                 <label className="label-space"><strong>Responsable présent</strong> :</label><br></br>

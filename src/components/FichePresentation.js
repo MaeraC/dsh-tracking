@@ -14,40 +14,38 @@ function FichePresentation({ uid, onReturn }) {
     const [message, setMessage] = useState("")
 
     const initialFormData = {
-        salonName: '',
+        //nomduSalon: '',
         ville: '',
         departement: '',
-        presenceResponsable: '',
-        nomPrenomResponsable: '',
-        ageResponsable: '',
+        responsablePresent: '',
+        nomPrenomDuResponsable: '',
+        ageDuResponsable: '',
         email: '',
-        tel: '',
-        tenueSalon: '',
+        telephone: '',
+        tenueDuSalon: '',
         visite: '',
         marquesColoration: [],
         marquesRevente: [],
         marquesBacTech: [],
-        conceptsDSH: {
-        microscopie: false,
-        couleur: false,
-        deco: false,
-        permanente: false,
-        prGale: false
+        conceptsDshAbordés: {
+            microscopie: false,
+            couleur: false,
+            deco: false,
+            permanente: false,
+            prGale: false
         },
-        revoirConceptsDSH: '',
-        dateRevoirConceptsDSH: '',
-        interet: {
-        microscopie: false,
-        couleur: false,
-        deco: false,
-        permanente: false,
-        autre: false
+        rdvOuAbandon: '',
+        dateDeRdv: '',
+        interessePar: {
+            microscopie: false,
+            couleur: false,
+            deco: false,
+            permanente: false,
+            autre: false
         },
-        revoirInteret: '',
-        dateRevoirInteret: '',
-        dateRdvDemoFormation: '',
-        observationPreparation: '',
-        motifRefus: '',
+       
+        obeservationsAPreparerpourLaProchaineVisite: '',
+        motifDeRefus: '',
         createdAt: new Date(),
         typeOfForm: "Compte rendu de RDV de Présentation",
         userId: uid,
@@ -71,6 +69,60 @@ function FichePresentation({ uid, onReturn }) {
             }))
         }
     }
+
+    const handleAddColoration = () => {
+        setFormData({
+            ...formData,
+            marquesColoration: [...formData.marquesColoration, { nom: "" }]
+        });
+    }
+
+    const handleColoration = (index, field, value) => {
+        const coloration = formData.marquesColoration.map((marque, i) => {
+            if (i === index) {
+                return { ...marque, [field]: value };
+            }
+            return marque;
+        });
+
+        setFormData({ ...formData, marquesColoration: coloration });
+    }
+
+    const handleAddRevente = () => {
+        setFormData({
+            ...formData,
+            marquesRevente: [...formData.marquesRevente, { nom: "" }]
+        });
+    }
+
+    const handleRevente = (index, field, value) => {
+        const revente = formData.marquesRevente.map((marque, i) => {
+            if (i === index) {
+                return { ...marque, [field]: value };
+            }
+            return marque;
+        });
+
+        setFormData({ ...formData, marquesRevente: revente });
+    }
+
+    const handleAddBac = () => {
+        setFormData({
+            ...formData,
+            marquesBacTech: [...formData.marquesBacTech, { nom: "" }]
+        });
+    }
+
+    const handleBac = (index, field, value) => {
+        const bac = formData.marquesBacTech.map((marque, i) => {
+            if (i === index) {
+                return { ...marque, [field]: value };
+            }
+            return marque;
+        });
+
+        setFormData({ ...formData, marquesBacTech: bac });
+    }
     
     const handleRadioChange = (e) => {
         const { name, value } = e.target
@@ -81,13 +133,28 @@ function FichePresentation({ uid, onReturn }) {
         })
     }
 
-    const handleCheckboxChange = (e) => {
+    const handleDemonstrationChange = (e) => {
         const { name, checked } = e.target
 
-        setFormData({
-            ...formData,
-            [name]: checked
-        })
+        setFormData(prevState => ({
+            ...prevState,
+            conceptsDshAbordés: {
+                ...prevState.conceptsDshAbordés,
+                [name]: checked
+            }
+        }))
+    }
+
+    const handleInteresseChange = (e) => {
+        const { name, checked } = e.target
+
+        setFormData(prevState => ({
+            ...prevState,
+            interessePar: {
+                ...prevState.interessePar,
+                [name]: checked
+            }
+        }))
     }
 
     const handleSearch = async (e) => {
@@ -127,40 +194,38 @@ function FichePresentation({ uid, onReturn }) {
             const crPresentation = data.crPresentation ? data.crPresentation[data.crPresentation.length - 1] : {};
 
             setFormData({
-                salonName: crPresentation.salonName || initialFormData.salonName,
+                //nomduSalon: crPresentation.nomduSalon || initialFormData.nomduSalon,
                 ville: crPresentation.ville || initialFormData.ville,
                 departement: crPresentation.departement || initialFormData.departement,
-                presenceResponsable: crPresentation.presenceResponsable || initialFormData.presenceResponsable,
-                nomPrenomResponsable: crPresentation.nomPrenomResponsable || initialFormData.nomPrenomResponsable,
-                ageResponsable: crPresentation.ageResponsable || initialFormData.ageResponsable,
+                responsablePresent: crPresentation.responsablePresent || initialFormData.responsablePresent,
+                nomPrenomDuResponsable: crPresentation.nomPrenomDuResponsable || initialFormData.nomPrenomDuResponsable,
+                ageDuResponsable: crPresentation.ageDuResponsable || initialFormData.ageDuResponsable,
                 email: crPresentation.email || initialFormData.email,
-                tel: crPresentation.tel || initialFormData.tel,
-                tenueSalon: crPresentation.tenueSalon || initialFormData.tenueSalon,
+                telephone: crPresentation.telephone || initialFormData.telephone,
+                tenueDuSalon: crPresentation.tenueDuSalon || initialFormData.tenueDuSalon,
                 visite: crPresentation.visite || initialFormData.visite,
                 marquesColoration: crPresentation.marquesColoration || initialFormData.marquesColoration,
                 marquesRevente: crPresentation.marquesRevente || initialFormData.marquesRevente,
                 marquesBacTech: crPresentation.marquesBacTech || initialFormData.marquesBacTech,
-                conceptsDSH: {
-                    microscopie: crPresentation.conceptsDSH?.microscopie || initialFormData.conceptsDSH.microscopie,
-                    couleur: crPresentation.conceptsDSH?.couleur || initialFormData.conceptsDSH.couleur,
-                    deco: crPresentation.conceptsDSH?.deco || initialFormData.conceptsDSH.deco,
-                    permanente: crPresentation.conceptsDSH?.permanente || initialFormData.conceptsDSH.permanente,
-                    prGale: crPresentation.conceptsDSH?.prGale || initialFormData.conceptsDSH.prGale,
+                conceptsDshAbordés: {
+                    microscopie: crPresentation.conceptsDshAbordés?.microscopie || false,
+                    couleur: crPresentation.conceptsDshAbordés?.couleur || false,
+                    deco: crPresentation.conceptsDshAbordés?.deco || false,
+                    permanente: crPresentation.conceptsDshAbordés?.permanente || false,
+                    prGale: crPresentation.conceptsDshAbordés?.prGale || false,
                 },
-                revoirConceptsDSH: crPresentation.revoirConceptsDSH || initialFormData.revoirConceptsDSH,
-                dateRevoirConceptsDSH: crPresentation.dateRevoirConceptsDSH || initialFormData.dateRevoirConceptsDSH,
-                interet: {
-                    microscopie: crPresentation.interet?.microscopie || initialFormData.interet.microscopie,
-                    couleur: crPresentation.interet?.couleur || initialFormData.interet.couleur,
-                    deco: crPresentation.interet?.deco || initialFormData.interet.deco,
-                    permanente: crPresentation.interet?.permanente || initialFormData.interet.permanente,
-                    autre: crPresentation.interet?.autre || initialFormData.interet.autre,
+                rdvOuAbandon: crPresentation.rdvOuAbandon || initialFormData.rdvOuAbandon,
+                dateDeRdv: crPresentation.dateDeRdv || initialFormData.dateDeRdv,
+                interessePar: {
+                    microscopie: crPresentation.interessePar?.microscopie || initialFormData.interessePar.microscopie,
+                    couleur: crPresentation.interessePar?.couleur || initialFormData.interessePar.couleur,
+                    deco: crPresentation.interessePar?.deco || initialFormData.interessePar.deco,
+                    permanente: crPresentation.interessePar?.permanente || initialFormData.interessePar.permanente,
+                    autre: crPresentation.interessePar?.autre || initialFormData.interessePar.autre,
                 },
-                revoirInteret: crPresentation.revoirInteret || initialFormData.revoirInteret,
-                dateRevoirInteret: crPresentation.dateRevoirInteret || initialFormData.dateRevoirInteret,
-                dateRdvDemoFormation: crPresentation.dateRdvDemoFormation || initialFormData.dateRdvDemoFormation,
-                observationPreparation: crPresentation.observationPreparation || initialFormData.observationPreparation,
-                motifRefus: crPresentation.motifRefus || initialFormData.motifRefus,
+                
+                obeservationsAPreparerpourLaProchaineVisite: crPresentation.obeservationsAPreparerpourLaProchaineVisite || initialFormData.obeservationsAPreparerpourLaProchaineVisite,
+                motifDeRefus: crPresentation.motifDeRefus || initialFormData.motifDeRefus,
                 createdAt: new Date(),
                 typeOfForm: "Compte rendu de RDV de Présentation",
                 userId: uid,
@@ -197,9 +262,30 @@ function FichePresentation({ uid, onReturn }) {
         }
     }, [salonInfo, uid]); 
 
+    // Fonction de vérification des champs
+    const validateFormData = (data) => {
+        for (const key in data) {
+            if (data[key] === '' || data[key] === null || data[key] === undefined) {
+                return key;
+            }
+            if (typeof data[key] === 'object' && !Array.isArray(data[key])) {
+                const nestedInvalidKey = validateFormData(data[key]);
+                if (nestedInvalidKey) {
+                    return `${key}.${nestedInvalidKey}`;
+                }
+            }
+        }
+        return null;
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault()
-
+        const invalidField = validateFormData(formData);
+        if (invalidField) {
+            console.error(`Erreur : le champ "${invalidField}" est vide ou invalide.`);
+            return;
+        }
+    
         try {
             // Mets à jour le document du salon avec les nouvelles informations
             const salonRef = doc(db, "salons", salonInfo.id)
@@ -209,7 +295,7 @@ function FichePresentation({ uid, onReturn }) {
 
                 const salonData = SalonSnapshot.data()
                 const updatedcrPresentation = [...(salonData.crPresentation || []), formData]
-                await updateDoc(salonRef, { crPresentation: updatedcrPresentation })   
+                await updateDoc(salonRef, { crPresentation: updatedcrPresentation })  
 
                 // Met à jour l'historique du salon
                 await updateSalonHistory(formData)
@@ -255,47 +341,47 @@ function FichePresentation({ uid, onReturn }) {
                             <div className='space'>
                                 <p className='bold margin'>Présence de la responsable:</p><br></br>
                                 <>
-                                <input className='space checkbox' type="radio" name="presenceResponsable" value="OUI" onChange={handleRadioChange} />
+                                <input className='space checkbox' type="radio" name="responsablePresent" value="OUI" onChange={handleRadioChange} />
                                 <label>OUI</label>     
-                                <input className='space checkbox' type="radio" name="presenceResponsable" value="NON" onChange={handleRadioChange} />
+                                <input className='space checkbox' type="radio" name="responsablePresent" value="NON" onChange={handleRadioChange} />
                                 <label>NON</label>
                                 </>
                             </div>
                             
-                            <input type="text" name="nomPrenomResponsable" placeholder='Nom du responsable' value={formData.nomPrenomResponsable} onChange={handleChange} />
+                            <input type="text" name="nomPrenomDuResponsable" placeholder='Nom du responsable' value={formData.nomPrenomDuResponsable} onChange={handleChange} />
                             
                             <div className="space">
                                 <p className='bold margin'>Âge du responsable :</p><br></br>
                                 <div className="margin">
-                                    <input className="checkbox" type="radio" name="ageResponsable" value="moins de 30 ans" onChange={handleRadioChange} />
+                                    <input className="checkbox" type="radio" name="ageDuResponsable" value="moins de 30 ans" onChange={handleRadioChange} />
                                     <label>moins de 30 ans</label>
                                 </div><br></br>
                                 <div className="margin">
-                                    <input className="checkbox" type="radio" name="ageResponsable" value="de 30 à 50 ans" onChange={handleRadioChange} />
+                                    <input className="checkbox" type="radio" name="ageDuResponsable" value="de 30 à 50 ans" onChange={handleRadioChange} />
                                     <label>de 30 à 50 ans</label>
                                 </div><br></br>
                                 <div className="margin">
-                                    <input className="checkbox" type="radio" name="ageResponsable" value="plus de 50 ans" onChange={handleRadioChange} />
+                                    <input className="checkbox" type="radio" name="ageDuResponsable" value="plus de 50 ans" onChange={handleRadioChange} />
                                     <label>plus de 50 ans</label>
                                 </div>
                             </div>
 
                             <input type="email" name="email" placeholder="E-mail" value={formData.email} onChange={handleChange} /><br></br>
-                            <input type="tel" name="tel" placeholder="Téléphone" value={formData.tel} onChange={handleChange} />
+                            <input type="telephone" name="telephone" placeholder="Téléphone" value={formData.telephone} onChange={handleChange} />
                             
                             <div className="space">
                                 <p className='bold margin'>Tenue du salon :</p><br></br>
                                 <div>
-                                    <input className="checkbox" type="radio" name="tenueSalon" value="TB" onChange={handleRadioChange} />
-                                    <label className="margin">TB</label>
+                                    <input className="checkbox" type="radio" name="tenueDuSalon" value="TB" onChange={handleRadioChange} />
+                                    <label className="margin">Très bien</label>
                                 </div>
                                 <div>
-                                    <input className="checkbox" type="radio" name="tenueSalon" value="MOY" onChange={handleRadioChange} />
-                                    <label className="margin">MOY</label>
+                                    <input className="checkbox" type="radio" name="tenueDuSalon" value="MOY" onChange={handleRadioChange} />
+                                    <label className="margin">Moyenne</label>
                                 </div>
                                 <div>
-                                    <input className="checkbox" type="radio" name="tenueSalon" value="MAUVAIS" onChange={handleRadioChange} />
-                                    <label>MAUVAIS</label>
+                                    <input className="checkbox" type="radio" name="tenueDuSalon" value="MAUVAIS" onChange={handleRadioChange} />
+                                    <label>Mauvaise</label>
                                 </div>
                             </div><br></br>
 
@@ -314,126 +400,100 @@ function FichePresentation({ uid, onReturn }) {
                                     <label className="margin">Ancienne cliente</label>
                                 </div>
                                 <div>
-                                    <input className="checkbox" type="radio" name="visite" value="prospection_telephonique" onChange={handleRadioChange} />
+                                    <input className="checkbox" type="radio" name="visite" value="prospection_telephoneephonique" onChange={handleRadioChange} />
                                     <label>Prospection téléphonique</label>
                                 </div>
-                            </div>
+                            </div><br></br>
+
                             <div className="space">
                                 {formData.marquesColoration.map((marque, index) => (
                                     <div key={index}>
-                                        <input type="text" value={marque} onChange={(e) => handleChange(e)} />
+                                        <input type="text" placeholder="Nom de la marque" value={marque.nom} onChange={(e) => handleColoration(index, 'nom', e.target.value)} />
                                     </div>
                                 ))}
-                                <button className="button-colored" type="button" onClick={() => setFormData({...formData, marquesColoration: [...formData.marquesColoration, '']})}>Ajouter une marque de coloration</button>
-                            </div>
+                                <button className="button-colored btnn" type="button" onClick={handleAddColoration}>Ajouter une marque de coloration</button>
+                            </div><br></br>
                             <div className="space">
                                 {formData.marquesRevente.map((marque, index) => (
                                 <div key={index}>
-                                    <input type="text" value={marque} onChange={(e) => handleChange(e)} />
+                                    <input type="text" placeholder="Nom de la marque" value={marque.nom} onChange={(e) => handleRevente(index, "nom", e.target.value)} />
                                 </div>
                                 ))}
-                                <button className="button-colored" type="button" onClick={() => setFormData({...formData, marquesRevente: [...formData.marquesRevente, '']})}>Ajouter une marque de revente</button>
-                            </div>
+                                <button className="button-colored btnn" type="button" onClick={handleAddRevente}>Ajouter une marque de revente</button>
+                            </div><br></br>
                             <div className="space">
                                 {formData.marquesBacTech.map((marque, index) => (
                                 <div key={index}>
-                                <input type="text" value={marque} onChange={(e) => handleChange(e)} />
+                                <input type="text" value={marque.nom} placeholder="Nom de la marque" onChange={(e) => handleBac(index, "nom", e.target.value)} />
                                 </div>
                                 ))}
-                                <button className="button-colored" type="button" onClick={() => setFormData({...formData, marquesBacTech: [...formData.marquesBacTech, '']})}>Ajouter une marque BAC/TECH</button>
+                                <button className="button-colored btnn" type="button" onClick={handleAddBac}>Ajouter une marque BAC/TECH</button>
                             </div><br></br><br></br>
-                            <div>
+                              <div>
                                 <p className="margin"><strong>Concepts DSH abordés :</strong></p><br></br>
-                                <div className="margin">
-                                    <input className="checkbox" type="checkbox" name="conceptsDSH" value="microscopie" onChange={handleCheckboxChange} />
-                                    <label>Microscopie</label>
-                                </div><br></br>
-                                <div className="margin">
-                                    <input className="checkbox" type="checkbox" name="conceptsDSH" value="couleur" onChange={handleCheckboxChange} />
-                                    <label>Couleur</label>
-                                </div><br></br>
-                                <div className="margin">
-                                    <input className="checkbox" type="checkbox" name="conceptsDSH" value="deco" onChange={handleCheckboxChange} />
-                                    <label>Déco</label>
-                                </div><br></br>
-                                <div className="margin">
-                                    <input className="checkbox" type="checkbox" name="conceptsDSH" value="permanente" onChange={handleCheckboxChange} />
-                                    <label>Permanente</label>
-                                </div><br></br>
-                                <div className="margin">
-                                    <input className="checkbox" type="checkbox" name="conceptsDSH" value="prGale" onChange={handleCheckboxChange} />
-                                    <label>PR. Gale</label>
-                                </div><br></br>
+                                {Object.keys(formData.conceptsDshAbordés).map(demo => (
+                                <> 
+                                <label className="margin" key={demo}>
+                                <input
+                                    type="checkbox"
+                                    name={demo}
+                                    checked={formData.conceptsDshAbordés[demo]}
+                                    onChange={handleDemonstrationChange}
+                                    className="checkbox"
+                                />
+                                {demo.charAt(0).toUpperCase() + demo.slice(1)}
+                                </label>
+                                <br></br>
+                                </>
+                            ))}
+                               
                             </div><br></br>
+                            <div>
+                            <p className="margin"><strong>Intéressé par :</strong></p><br></br>
+                                {Object.keys(formData.interessePar).map(demo => (
+                                <> 
+                                <label className="margin" key={demo}>
+                                <input  
+                                    type="checkbox"
+                                    name={demo}
+                                    checked={formData.interessePar[demo]}
+                                    onChange={handleInteresseChange}
+                                    className="checkbox"
+                                />
+                                {demo.charAt(0).toUpperCase() + demo.slice(1)}
+                                </label>
+                                <br></br>
+                                </>
+                            ))}
+                               
+                            </div><br></br>
+                            
                             <div className="space">
-                                <p className="margin"><strong>A revoir ou abandon :</strong></p><br></br>
+                                <p className="margin"><strong>RDV ou abandon :</strong></p><br></br>
                                 <div className="margin">
-                                    <input className="checkbox" type="radio" name="revoirConceptsDSH" value="a_revoir" onChange={handleRadioChange} />
-                                    <label>À revoir</label>
+                                    <input className="checkbox" type="radio" name="rdvOuAbandon" value="rdv" onChange={handleRadioChange} />
+                                    <label>RDV</label>
                                 </div><br></br>
                                 <div className="margin">
-                                    <input className="checkbox" type="radio" name="revoirConceptsDSH" value="abandon" onChange={handleRadioChange} />
+                                    <input className="checkbox" type="radio" name="rdvOuAbandon" value="abandon" onChange={handleRadioChange} />
                                     <label>Abandon</label>
                                 </div><br></br><br></br>
                                 
-                                {formData.revoirConceptsDSH === 'a_revoir' && (
+                                {formData.rdvOuAbandon === 'rdv' && (
                                 <div>
                                     <p className="margin"><strong>RDV prévu pour quelle date :</strong></p><br></br>
-                                    <input type="date" name="dateRevoirConceptsDSH" value={formData.dateRevoirConceptsDSH} onChange={handleChange} />
+                                    <input type="date" name="dateDeRdv" value={formData.dateDeRdv} onChange={handleChange} />
                                 </div>
-                                )}
-                            </div>
-                            <div>
-                                <p className="margin"><strong>Intéressé par :</strong></p><br></br>
-                                <div className="margin">
-                                    <input className="checkbox" type="checkbox" name="interet" value="microscopie" onChange={handleCheckboxChange} />
-                                    <label>Microscopie</label>
-                                </div><br></br>
-                                <div className="margin">
-                                    <input className="checkbox" type="checkbox" name="interet" value="couleur" onChange={handleCheckboxChange} />
-                                    <label>Couleur</label>
-                                </div><br></br>
-                                <div className="margin">
-                                    <input className="checkbox" type="checkbox" name="interet" value="deco" onChange={handleCheckboxChange} />
-                                    <label>Déco</label>
-                                </div><br></br>
-                                <div className="margin">
-                                    <input className="checkbox" type="checkbox" name="interet" value="permanente" onChange={handleCheckboxChange} />
-                                    <label>Permanente</label>
-                                </div><br></br>
-                                <div className="margin">
-                                    <input className="checkbox" type="checkbox" name="interet" value="autre" onChange={handleCheckboxChange} />
-                                    <label>Autre</label>
-                                </div><br></br>
-                            </div><br></br>
-                            <div>
-                                <p className="margin"><strong>A revoir ou abandon :</strong></p><br></br>
-                                <div className="margin">
-                                    <input className="checkbox" type="radio" name="revoirInteret" value="a_revoir" onChange={handleRadioChange} />
-                                    <label>À revoir</label>
-                                </div><br></br>
-                                <div className="margin">
-                                    <input className="checkbox" type="radio" name="revoirInteret" value="abandon" onChange={handleRadioChange} />
-                                    <label>Abandon</label>
-                                </div><br></br><br></br>
-                                
-                                {formData.revoirInteret === 'a_revoir' && (
-                                    <div>
-                                        <label className="margin bold">RDV prévu pour quelle date:</label>
-                                        <input type="date" name="dateRevoirInteret" value={formData.dateRevoirInteret} onChange={handleChange} />
-                                        <label className="margin bold">RDV pour démo / formation:</label>
-                                        <input type="date" name="dateRdvDemoFormation" value={formData.dateRdvDemoFormation} onChange={handleChange} />
-                                    </div>
                                 )}
                             </div>
                             <br></br>
                             <div>
-                                <label className="margin bold">Si à revoir, observation à préparer pour la prochaine visite:</label>
-                                <textarea name="observationPreparation" value={formData.observationPreparation} onChange={handleChange}></textarea>
+                                <label className="margin bold">Si à RDV, observation à préparer pour la prochaine visite:</label>
+                                <textarea name="obeservationsAPreparerpourLaProchaineVisite" value={formData.obeservationsAPreparerpourLaProchaineVisite} onChange={handleChange}></textarea>
                             </div>
                             <div>
                                 <label className="margin bold">Si refus, motif:</label>
-                                <textarea name="motifRefus" value={formData.motifRefus} onChange={handleChange}></textarea>
+                                <textarea name="motifDeRefus" value={formData.motifDeRefus} onChange={handleChange}></textarea>
                             </div>
                         
                             <button type="submit" className="button-colored">Envoyer</button>
@@ -442,7 +502,6 @@ function FichePresentation({ uid, onReturn }) {
                     </form>
                     <p className="success">{message}</p>
                     </>
-                     
                 )}
 
             </div>

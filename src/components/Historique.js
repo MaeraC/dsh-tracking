@@ -127,7 +127,7 @@ function Historique({ onReturn }) {
         return formattedKey.charAt(0).toUpperCase() + formattedKey.slice(1); // Mettre la première lettre en majuscule
     };
 
-
+/*
     // Fonction pour afficher la valeur du champ
     const renderFieldValue = (value) => {
         if (typeof value === 'object' && !Array.isArray(value)) {
@@ -204,7 +204,89 @@ function Historique({ onReturn }) {
             
         );
     };
-    
+*/
+
+// Fonction pour afficher la valeur du champ
+const renderFieldValue = (value) => {
+   
+        if (typeof value === 'object' && !Array.isArray(value)) {
+            // Si la valeur est un objet (potentiellement un sous-champ)
+            const isBooleanObject = Object.values(value).every(v => typeof v === 'boolean');
+            return (
+                <div>
+                    {Object.keys(value).map((subKey, i) => (
+                        (value[subKey] && (!isBooleanObject || value[subKey] === true)) && (
+                            <li className="sous-champs" key={i}>
+                                <tr className="sous-champs-key"><strong>{formatKey(subKey)}</strong></tr>
+                                <tr className="sous-champs-value">{renderFieldValue(value[subKey])}</tr>
+                            </li>
+                        )
+                    ))}
+                </div>
+            );
+        
+        
+    } else if (Array.isArray(value)) {
+        // Si la valeur est un tableau (potentiellement un tableau imbriqué)
+        return (
+            <div>
+                {value.map((item, i) => (
+                    item !== null && item !== undefined && item !== '' && (
+                        <li key={i} className="sous-champs">{renderFieldValue(item)}</li>
+                    )
+                ))}
+            </div>
+        );
+    } else {
+        // Sinon, afficher la valeur directement
+        return value;
+    }
+};
+
+
+// Fonction pour rendre les données du formulaire
+const renderFormData = (formData) => {
+    if (!formData) return null;
+
+    // Exclure les champs userId, createdAt et typeOfForm
+    const filteredKeys = Object.keys(formData).filter(key => !['userId', 'createdAt', 'typeOfForm'].includes(key));
+
+    // Filtrer les clés pour supprimer celles avec des valeurs vides ou des objets vides
+    const nonEmptyKeys = filteredKeys.filter(key => {
+        const value = formData[key];
+        if (typeof value === 'object' && !Array.isArray(value)) {
+            const isBooleanObject = Object.values(value).every(v => typeof v === 'boolean');
+            // Si la valeur est un objet (potentiellement un sous-champ), vérifier récursivement
+            return isBooleanObject ? Object.values(value).some(v => v === true) : Object.keys(value).some(subKey => {
+                const subValue = value[subKey];
+                return subValue !== null && subValue !== undefined && subValue !== '';
+            });
+        } else if (Array.isArray(value)) {
+            // Si la valeur est un tableau (potentiellement un tableau imbriqué), vérifier récursivement
+            return value.some(item => {
+                return item !== null && item !== undefined && item !== '';
+            });
+        } else {
+            // Sinon, vérifier si la valeur n'est pas vide
+            return value !== null && value !== undefined && value !== '';
+        }
+    });
+
+    // Trier les clés (si nécessaire)
+    nonEmptyKeys.sort(); // Par exemple, tri alphabétique
+
+    return (
+        <div>
+            {nonEmptyKeys.map((key, index) => (
+                <div key={index}>
+                    <tr className="key"><strong>{formatKey(key)}</strong></tr>
+                    <tr className="key-value">{renderFieldValue(formData[key])}</tr>
+                </div>
+            ))}
+        </div>
+    );
+};
+
     return (
         <div className="historique-section">
             <button onClick={onReturn} className="button-back">

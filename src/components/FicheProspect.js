@@ -11,29 +11,26 @@ function FicheProspect({uid, onReturn}) {
     const [salonInfo, setSalonInfo] = useState(null)
     const [suggestions, setSuggestions] = useState([])
     const [message, setMessage] = useState("")
+    const [isOpenModal, setIsOpenModal] = useState(false)
 
     const createdAt = new Date()
     
     const initialFormData = { 
-        salonName: "",
+        nomDuSalon: "",
         ville: "", 
-        salonAdresse: "",
-        telephoneFixe: "",
-
-        tenueSalon: "",
+        adresseDuSalon: "",
+        telephoneDuSalon: "",
+        tenueDuSalon: "",
         salonTenuPar: "",
-        dept: "",
+        departement: "",
         jFture: "",
-
-        responsableNom: "",
+        nomDuResponsable: "",
         ageDuResponsable: "",
         numeroduResponsable: "",
         emailDuResponsable: "",
-
         facebook: "",
         instagram: "",
         origineDeLaVisite: "",
-
         colorationsAvecAmmoniaque: [],
         colorationsSansAmmoniaque: [],
         colorationsVegetale: [],
@@ -44,7 +41,6 @@ function FicheProspect({uid, onReturn}) {
             revente: ""
         },
         dateDeVisite: "",
-
         responsablePresent: "",
         conceptsProposes: "",
         animationProposee: "",
@@ -57,7 +53,7 @@ function FicheProspect({uid, onReturn}) {
         rdvPrevuLe: "",
         rdvPrevuPour: "",
         rdvType: "",
-        demoType: [],
+        typeDeDemonstration: [],
         commande: "",
         createdAt: createdAt,
         typeOfForm: "Fiche de suivi Prospect",
@@ -105,7 +101,6 @@ function FicheProspect({uid, onReturn}) {
 
     // Recherche d'une fiche prospect par le nom du salon 
     const handleSearch = async (e) => {
-    
         const searchValue = e.target.value;
         setSearchSalon(searchValue);
 
@@ -113,7 +108,6 @@ function FicheProspect({uid, onReturn}) {
             try {
                 const q = query(collection(db, "salons"), where("name", ">=", searchValue), where("name", "<=", searchValue + "\uf8ff"));
                 const querySnapshot = await getDocs(q);
-
                 const searchResults = [];
                 querySnapshot.forEach((doc) => {
                     const data = doc.data();
@@ -143,25 +137,21 @@ function FicheProspect({uid, onReturn}) {
             const suiviProspect = data.suiviProspect ? data.suiviProspect[data.suiviProspect.length - 1] : {}
 
             setFormData({
-                salonName: salon.name || "",
+                nomDuSalon: salon.name || "",
                 ville: suiviProspect.ville || "",
-                salonAdresse: salon.address || "",
-                telephoneFixe: suiviProspect.telephoneFixe || "",
-    
-                tenueSalon: suiviProspect.tenuSalon || "",
+                adresseDuSalon: salon.address || "",
+                telephoneDuSalon: suiviProspect.telephoneDuSalon || "",
+                tenueDuSalon: suiviProspect.tenuSalon || "",
                 salonTenuPar: suiviProspect.salonTenuPar || "",
-                dept: suiviProspect.dept || "",
+                departement: suiviProspect.departement || "",
                 jFture: suiviProspect.jFture || "",
-    
-                responsableNom: suiviProspect.responsableNom ||  "",
+                nomDuResponsable: suiviProspect.nomDuResponsable ||  "",
                 ageDuResponsable: suiviProspect.ageDuResponsable || "",
                 numeroduResponsable: suiviProspect.numeroduResponsable || "",
                 emailDuResponsable: suiviProspect.emailDuResponsable || "",
-    
                 facebook: suiviProspect.facebook || "",
                 instagram: suiviProspect.instagram || "",
                 origineDeLaVisite: suiviProspect.origineDeLaVisite || "",
-                
                 colorationsAvecAmmoniaque: suiviProspect.colorationsAvecAmmoniaque || [],
                 colorationsSansAmmoniaque: suiviProspect.colorationsSansAmmoniaque || [],
                 colorationsVegetale: suiviProspect.colorationsVegetale || [],
@@ -172,7 +162,6 @@ function FicheProspect({uid, onReturn}) {
                     revente: (suiviProspect.autresMarques && suiviProspect.autresMarques.revente) || ""
                 },
                 dateDeVisite: suiviProspect.dateDeVisite || "",
-    
                 responsablePresent: suiviProspect.responsablePresent || "",
                 conceptsProposes: suiviProspect.conceptsProposes || "",
                 animationProposee: suiviProspect.animationProposee || "",
@@ -183,7 +172,7 @@ function FicheProspect({uid, onReturn}) {
                 rdvPrevuLe: suiviProspect.rdvPrevuLe || "",
                 rdvPrevuPour: suiviProspect.rdvPrevuPour || "",
                 rdvType: suiviProspect.rdvType || "",
-                demoType: suiviProspect.demoType || [],
+                typeDeDemonstration: suiviProspect.typeDeDemonstration || [],
                 commande: suiviProspect.commande || "",
                 pointsProchaineVisite: suiviProspect.pointsProchaineVisite || "",
                 observations: suiviProspect.observations || "",
@@ -205,10 +194,7 @@ function FicheProspect({uid, onReturn}) {
                     const newHistoryEntry = [
                         ...(salonData.historique || []),
                         {
-                            date: new Date(),
-                            action: "Mise à jour de la Fiche de suivi Prospect",
-                            formData: updatedData,
-                            userId: uid
+                            date: new Date(), action: "Mise à jour de la Fiche de suivi Prospect", formData: updatedData, userId: uid
                         }
                     ];
     
@@ -222,20 +208,16 @@ function FicheProspect({uid, onReturn}) {
         }
     }, [salonInfo, uid]); 
 
-
     // Soumission du formulaire
     const handleSubmit = async (e) => {
         e.preventDefault()
 
         try {
-            // Mets à jour le document du salon avec les nouvelles informations
             const salonRef = doc(db, "salons", salonInfo.id)
             const SalonSnapshot = await getDoc(salonRef)
            
             if (SalonSnapshot.exists()) {
                 const salonData = SalonSnapshot.data()
-
-                // Compare les champs modifiés avec les données actuelles
                 const modifiedFields = {};
                 Object.keys(formData).forEach(key => {
                     if (formData[key] !== salonData[key]) {
@@ -245,22 +227,15 @@ function FicheProspect({uid, onReturn}) {
 
                 const updatedSuiviProspect = [...(salonData.suiviProspect || []), modifiedFields]
                 await updateDoc(salonRef, { suiviProspect: updatedSuiviProspect })   
-
-                // Met à jour l'historique du salon
                 await updateSalonHistory(modifiedFields)
                 setMessage("Fiche de suivi Prospect enregistré avec succès !") 
 
-                // Si la commande est "OUI", met à jour le statut du salon
                 if (formData.commande === "OUI") {
                     await updateDoc(salonRef, { 
                         status: "Client" ,
-                        historique: arrayUnion({
-                            date: new Date(),
-                            action: "Status mis à jour : Client",
-                            userId: uid
-                        })
+                        historique: arrayUnion({ date: new Date(), action: "Status mis à jour : Client", userId: uid })
                     })
-                    setMessage("Fiche enregistrée, dirigez-vous vers la section Fiche Client");
+                    setIsOpenModal(true)
                 } 
                 else {
                     setMessage("Fiche de suivi Prospect enregistré avec succès !");
@@ -277,20 +252,12 @@ function FicheProspect({uid, onReturn}) {
 
     return (
         <div className="fiche-prospect-section">
-            
             <button onClick={onReturn} className="button-back"><img src={back} alt="retour" /></button>
-
             <div className="sugg">
                 <input  className="input-sugg" type="text" placeholder="Rechercher un salon par son nom" value={searchSalon} onChange={handleSearch} />
                 <div  className="select-sugg">
                     {suggestions.map((salon) => (
-                        <div
-                            key={salon.id}
-                            onClick={() => handleSelectSuggestion(salon)}
-                            style={{ cursor: "pointer", padding: "5px", borderBottom: "1px solid #ccc" }}
-                        >
-                            {salon.name}
-                        </div>
+                        <div key={salon.id} onClick={() => handleSelectSuggestion(salon)} style={{ cursor: "pointer", padding: "5px", borderBottom: "1px solid #ccc" }} >{salon.name}</div>
                     ))}
                 </div>
 
@@ -303,14 +270,14 @@ function FicheProspect({uid, onReturn}) {
                             <p className="adress">{salonInfo.address}</p>
 
                             <input type="text" name="ville" placeholder="Ville" value={formData.ville} onChange={handleInputChange} required />
-                            <input type="text" name="telephoneFixe" placeholder="Téléphone fixe" value={formData.telephoneFixe} onChange={handleInputChange} />
+                            <input type="text" name="telephoneDuSalon" placeholder="Téléphone fixe" value={formData.telephoneDuSalon} onChange={handleInputChange} />
                     
                             <div className="space">
                                 <label className="bold margin">Tenue du salon :</label>
                                 <div>
-                                    <label className="margin"><input className="checkbox" type="radio" name="tenueSalon" value="Très bien" checked={formData.tenueSalon === "Très bien"} onChange={handleInputChange} />Très bien</label><br></br>
-                                    <label className="margin" ><input className="checkbox" type="radio" name="tenueSalon" value="Moyenne" checked={formData.tenueSalon === "Moyenne"} onChange={handleInputChange} />Moyenne</label><br></br>
-                                    <label className="margin"><input className="checkbox" type="radio" name="tenueSalon" value="Mauvaise" checked={formData.tenueSalon === "Mauvaise"} onChange={handleInputChange} />Mauvaise</label><br></br>
+                                    <label className="margin"><input className="checkbox" type="radio" name="tenueDuSalon" value="Très bien" checked={formData.tenueDuSalon === "Très bien"} onChange={handleInputChange} />Très bien</label><br></br>
+                                    <label className="margin" ><input className="checkbox" type="radio" name="tenueDuSalon" value="Moyenne" checked={formData.tenueDuSalon === "Moyenne"} onChange={handleInputChange} />Moyenne</label><br></br>
+                                    <label className="margin"><input className="checkbox" type="radio" name="tenueDuSalon" value="Mauvaise" checked={formData.tenueDuSalon === "Mauvaise"} onChange={handleInputChange} />Mauvaise</label><br></br>
                                 </div>
                             </div><br></br>
                 
@@ -322,9 +289,9 @@ function FicheProspect({uid, onReturn}) {
                                 </div>
                             </div>
                     
-                            <input type="text" name="dept" placeholder="Département" value={formData.dept} onChange={handleInputChange} /> <br></br>
+                            <input type="text" name="departement" placeholder="departement" value={formData.departement} onChange={handleInputChange} /> <br></br>
                             <input type="text" name="jFture" placeholder="J.Fture" value={formData.jFture} onChange={handleInputChange} /><br></br>
-                            <input type="text" name="responsableNom" placeholder="Nom Prénom du responsable" value={formData.responsableNom} onChange={handleInputChange} />
+                            <input type="text" name="nomDuResponsable" placeholder="Nom Prénom du responsable" value={formData.nomDuResponsable} onChange={handleInputChange} />
                     
                             <div className="space">
                                 <label className="bold margin">Âge du responsable :</label>
@@ -337,8 +304,8 @@ function FicheProspect({uid, onReturn}) {
                     
                             <input type="text" name="numeroduResponsable" placeholder="Numéro du responsable" value={formData.numeroduResponsable} onChange={handleInputChange} /><br></br>
                             <input type="email" name="emailDuResponsable" placeholder="E-mail du responsable" value={formData.emailDuResponsable} onChange={handleInputChange} /><br></br>
-                            <input type="url" name="facebook" placeholder="Facebook" value={formData.facebook} onChange={handleInputChange} /><br></br>
-                            <input type="url" name="instagram" placeholder="Instagram" value={formData.instagram} onChange={handleInputChange} /><br></br>
+                            <input type="text" name="facebook" placeholder="Facebook" value={formData.facebook} onChange={handleInputChange} /><br></br>
+                            <input type="text" name="instagram" placeholder="Instagram" value={formData.instagram} onChange={handleInputChange} /><br></br>
                     
                             <div className="space">
                                 <label className="bold margin">Origine de la visite :</label>
@@ -348,128 +315,75 @@ function FicheProspect({uid, onReturn}) {
                                     <label className="margin"><input className="checkbox" type="radio" name="origineDeLaVisite" value="Ancien client" checked={formData.origineDeLaVisite === "Ancien client"} onChange={handleInputChange} />Ancien client </label><br></br>
                                     <label className="margin"><input className="checkbox" type="radio" name="origineDeLaVisite" value="Prospection téléphonique" checked={formData.origineDeLaVisite === "Prospection téléphonique"} onChange={handleInputChange} />Prospection téléphonique</label>
                                 </div>
-                            </div>
+                            </div><br></br>
                 
                             <p className="margin"><strong>Marques de coloration présentes</strong> :</p>
                             <div>
                                 {formData.colorationsAvecAmmoniaque.map((coloration, index) => ( 
                                     <div key={index}>
-                                        <input
-                                            type="text"
-                                            placeholder="Nom"
-                                            value={coloration.nom}
+                                        <input type="text" placeholder="Nom" value={coloration.nom}
                                             onChange={(e) => handleColorationChange(index, 'colorationsAvecAmmoniaque', 'nom', e.target.value)}
                                         /><br></br>
-                                        <input
-                                            type="text"
-                                            placeholder="Prix"
-                                            value={coloration.prix}
+                                        <input type="text" placeholder="Prix" value={coloration.prix}
                                             onChange={(e) => handleColorationChange(index, 'colorationsAvecAmmoniaque', 'prix', e.target.value)}
                                         /><br></br>
-                                        <input
-                                            type="text"
-                                            placeholder="ML"
-                                            value={coloration.ml}
+                                        <input type="text" placeholder="ML" value={coloration.ml}
                                             onChange={(e) => handleColorationChange(index, 'colorationsAvecAmmoniaque', 'ml', e.target.value)}
                                         />
                                     </div>
                                 ))}
                                 <button className="button-colored" type="button" onClick={handleAddColorationAmmoniaque}>Ajouter une coloration avec ammoniaque</button>
                             </div>
-                
                             <div>
                                 {formData.colorationsSansAmmoniaque.map((coloration, index) => (
                                     <div key={index}>
-                                        <input
-                                            type="text"
-                                            placeholder="Nom"
-                                            value={coloration.nom}
+                                        <input type="text" placeholder="Nom" value={coloration.nom}
                                             onChange={(e) => handleColorationChange(index, 'colorationsSansAmmoniaque', 'nom', e.target.value)}
                                         />
-                                        <input
-                                            type="text"
-                                            placeholder="Prix"
-                                            value={coloration.prix}
+                                        <input type="text" placeholder="Prix" value={coloration.prix}
                                             onChange={(e) => handleColorationChange(index, 'colorationsSansAmmoniaque', 'prix', e.target.value)}
                                         />
-                                        <input
-                                            type="text"
-                                            placeholder="ML"
-                                            value={coloration.ml}
+                                        <input type="text" placeholder="ML" value={coloration.ml}
                                             onChange={(e) => handleColorationChange(index, 'colorationsSansAmmoniaque', 'ml', e.target.value)}
                                         />
                                     </div>
                                 ))}
                                 <button className="button-colored" type="button" onClick={handleAddColorationSansAmmoniaque}>Ajouter une coloration sans ammoniaque</button>
                             </div>
-                
                             <div>
                                 {formData.colorationsVegetale.map((coloration, index) => (
                                     <div key={index}>
-                                        <input
-                                            type="text"
-                                            placeholder="Nom"
-                                            value={coloration.nom}
+                                        <input type="text" placeholder="Nom" value={coloration.nom}
                                             onChange={(e) => handleColorationChange(index, 'colorationsVegetale', 'nom', e.target.value)}
                                         />
-                                        <input
-                                            type="text"
-                                            placeholder="Prix"
-                                            value={coloration.prix}
+                                        <input type="text" placeholder="Prix" value={coloration.prix}
                                             onChange={(e) => handleColorationChange(index, 'colorationsVegetale', 'prix', e.target.value)}
                                         />
-                                        <input
-                                            type="text"
-                                            placeholder="ML"
-                                            value={coloration.ml}
+                                        <input type="text" placeholder="ML" value={coloration.ml}
                                             onChange={(e) => handleColorationChange(index, 'colorationsVegetale', 'ml', e.target.value)}
                                         />
                                     </div>
                                 ))}
                                 <button className="button-colored" type="button" onClick={handleAddColorationVegetale}>Ajouter une coloration végétale</button>
                             </div>
-                
                             <div>
                                 <p className="margin"><strong>Autres marques :</strong></p>
-                                <input
-                                        type="text"
-                                        name="poudre"
-                                        placeholder="Poudre"
-                                        value={formData.autresMarques.poudre}
+                                <input type="text" name="poudre" placeholder="Poudre" value={formData.autresMarques.poudre}
                                         onChange={(e) => setFormData({ ...formData, autresMarques: { ...formData.autresMarques, poudre: e.target.value } })}
                                     />
-                                    <input
-                                        type="text"
-                                        name="permanente"
-                                        placeholder="Permanente"
-                                        value={formData.autresMarques.permanente}
+                                    <input type="text" name="permanente" placeholder="Permanente" value={formData.autresMarques.permanente}
                                         onChange={(e) => setFormData({ ...formData, autresMarques: { ...formData.autresMarques, permanente: e.target.value } })}
                                     />
-                                    <input
-                                        type="text"
-                                        name="bac"
-                                        placeholder="BAC"
-                                        value={formData.autresMarques.bac}
+                                    <input type="text" name="bac" placeholder="BAC" value={formData.autresMarques.bac}
                                         onChange={(e) => setFormData({ ...formData, autresMarques: { ...formData.autresMarques, bac: e.target.value } })}
                                     />
-                                    <input
-                                        type="text"
-                                        name="revente"  
-                                        placeholder="Revente"
-                                        value={formData.autresMarques.revente}
+                                    <input type="text" name="revente" placeholder="Revente" value={formData.autresMarques.revente}
                                         onChange={(e) => setFormData({ ...formData, autresMarques: { ...formData.autresMarques, revente: e.target.value } })}
                                     />
                             </div>
-                
                             <div>
                                 <label className="bold margin">Date de visite :</label>
-                                <input
-                                    type="date"
-                                    name="dateDeVisite"
-                                    value={formData.dateDeVisite}
-                                    onChange={handleInputChange}
-                                    className='custom-select'
-                                />
+                                <input type="date" name="dateDeVisite" value={formData.dateDeVisite} onChange={handleInputChange} className='custom-select' />
                             </div>
                             <div className="space">
                                 <label className="bold margin">Responsable présent :</label>
@@ -486,51 +400,27 @@ function FicheProspect({uid, onReturn}) {
                             </div>
                             <div>
                                 <label className="bold margin">Quels ont été les concepts ou produits proposés ?</label><br></br>
-                                <textarea
-                                    name="conceptsProposes"
-                                    value={formData.conceptsProposes}
-                                    onChange={handleInputChange}
-                                />
+                                <textarea name="conceptsProposes" value={formData.conceptsProposes} onChange={handleInputChange} />
                             </div>
                             <div>
                                 <label className="bold margin">Y a-t-il eu une animation proposée ? Si oui, laquelle ?</label><br></br>
-                                <textarea
-                                    name="animationProposee"
-                                    value={formData.animationProposee}
-                                    onChange={handleInputChange}
-                                />
+                                <textarea name="animationProposee" value={formData.animationProposee} onChange={handleInputChange} />
                             </div>
                             <div>
                                 <label className="bold margin">Points à aborder lors de la prochaine visite :</label><br></br>
-                                <textarea
-                                    name="pointsProchaineVisite"
-                                    value={formData.pointsProchaineVisite}
-                                    onChange={handleInputChange}
-                                />
+                                <textarea name="pointsProchaineVisite" value={formData.pointsProchaineVisite} onChange={handleInputChange} />
                             </div>
                             <div>
                                 <label className="bold margin">Intéressés par :</label><br></br>
-                                <textarea
-                                    name="interessesPar"
-                                    value={formData.interessesPar}
-                                    onChange={handleInputChange}
-                                />
+                                <textarea name="interessesPar" value={formData.interessesPar} onChange={handleInputChange} />
                             </div>
                             <div>
                                 <label className="bold margin">Autres points à aborder :</label><br></br>
-                                <textarea
-                                    name="autresPoints"
-                                    value={formData.autresPoints}
-                                    onChange={handleInputChange}
-                                />
+                                <textarea name="autresPoints" value={formData.autresPoints} onChange={handleInputChange} />
                             </div>
                             <div>
                                 <label className="bold margin">Observations (éléments à retenir) ou motifs si abandon :</label>
-                                <textarea
-                                    name="observations"
-                                    value={formData.observations}
-                                    onChange={handleInputChange}
-                                />
+                                <textarea name="observations" value={formData.observations} onChange={handleInputChange} />
                             </div>
                         
                             <div className="space">
@@ -555,7 +445,7 @@ function FicheProspect({uid, onReturn}) {
                                         NON
                                     </label>
                                 </div>
-                            </div>
+                            </div><br></br>
                             {formData.rdvObtenu === "OUI" && (
                                 <>
                                     <div>
@@ -571,23 +461,23 @@ function FicheProspect({uid, onReturn}) {
                                             <label className="margin"><input className="checkbox" type="radio" name="typeDeRdv" value="Commercial" checked={formData.typeDeRdv === "Commercial"} onChange={handleInputChange} />Commercial</label><br></br>
                                             <label className="margin"><input className="checkbox" type="radio" name="typeDeRdv" value="Autre" checked={formData.typeDeRdv === "Autre"} onChange={handleInputChange} />Autre</label>
                                         </div>
-                                    </div>
+                                    </div><br></br>
                                     {formData.typeDeRdv === "Démonstration" && (
                                         <div>
                                             <label className="bold margin">Type de démonstration :</label>
                                             <div>
-                                                <label className="margin"><input type="checkbox" name="typeDeDemonstration" value="Microscopie" checked={formData.typeDeDemonstration.includes("Microscopie")} onChange={handleInputChange} />Microscopie</label><br></br>
-                                                <label className="margin"><input type="checkbox" name="typeDeDemonstration" value="Coloration Thalasso" checked={formData.typeDeDemonstration.includes("Coloration Thalasso")} onChange={handleInputChange} />Coloration Thalasso</label><br></br>
-                                                <label className="margin"><input type="checkbox" name="typeDeDemonstration" value="La Végétale" checked={formData.typeDeDemonstration.includes("La Végétale")} onChange={handleInputChange} />La Végatle</label><br></br>
-                                                <label className="margin"><input type="checkbox" name="typeDeDemonstration" value="Décoloration permanente" checked={formData.typeDeDemonstration.includes("Décoloration permanente")} onChange={handleInputChange} />Décoloration permanente</label><br></br>
-                                                <label className="margin"><input type="checkbox" name="typeDeDemonstration" value="By DSH" checked={formData.typeDeDemonstration.includes("By DSH")} onChange={handleInputChange} />By DSH</label><br></br>
-                                                <label className="margin"><input type="checkbox" name="typeDeDemonstration" value="Olyzea" checked={formData.typeDeDemonstration.includes("Olyzea")} onChange={handleInputChange} />Olyzea</label>
+                                                <label className="margin"><input className="checkbox" type="checkbox" name="typeDeDemonstration" value="Microscopie" checked={formData.typeDeDemonstration.includes("Microscopie")} onChange={handleInputChange} />Microscopie</label><br></br>
+                                                <label className="margin"><input className="checkbox" type="checkbox" name="typeDeDemonstration" value="ColorationThalasso" checked={formData.typeDeDemonstration.includes("ColorationThalasso")} onChange={handleInputChange} />Coloration Thalasso</label><br></br>
+                                                <label className="margin"><input className="checkbox" type="checkbox" name="typeDeDemonstration" value="LaVégétale" checked={formData.typeDeDemonstration.includes("LaVégétale")} onChange={handleInputChange} />La Végétale</label><br></br>
+                                                <label className="margin"><input className="checkbox" type="checkbox" name="typeDeDemonstration" value="DécolorationPermanente" checked={formData.typeDeDemonstration.includes("DécolorationPermanente")} onChange={handleInputChange} />Décoloration permanente</label><br></br>
+                                                <label className="margin"><input className="checkbox" type="checkbox" name="typeDeDemonstration" value="ByDSH" checked={formData.typeDeDemonstration.includes("ByDSH")} onChange={handleInputChange} />By DSH</label><br></br>
+                                                <label className="margin"><input className="checkbox" type="checkbox" name="typeDeDemonstration" value="Olyzea" checked={formData.typeDeDemonstration.includes("Olyzea")} onChange={handleInputChange} />Olyzea</label>
                                             </div>
                                         </div>
                                     )}
                                 </>
                             )}
-                            <div className="space">
+                            <div className="space"><br></br>
                                 <label className="bold margin">Commande ? :</label>
                                 <div>
                                     <label className="oui">
@@ -599,17 +489,21 @@ function FicheProspect({uid, onReturn}) {
                                         NON
                                     </label>
                                 </div>
-                                
                             </div>
-                 
                             <button type="submit" className="button-colored">Enregistrer</button>
                         </div>
                     </form>  
                     <p className="success">{message}</p>
                     </>
-                    
                 )}
                 </div> 
+                {isOpenModal && (
+                    <div className="modal-commande">
+                        <div>
+                            <p>Fiche enregistrée avec succès ! Dirigez-vous vers la section Fiche de suivi Client</p>
+                        </div>
+                    </div>
+                )}
             
             </div>
     )

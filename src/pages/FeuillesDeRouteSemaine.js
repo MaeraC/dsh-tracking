@@ -399,13 +399,6 @@ function FeuillesDeRouteSemaine({ uid, onReturn }) {
                     <p style={{textAlign : "center"}} className='error-message'>{noFicheMsg}</p>
                 </div>
 
-                {/*<PDFDownloadLink 
-                document={<FeuillesDeRoutePDF filteredFeuilles={filteredFeuilles} />}
-                fileName="feuilles-de-route.pdf"
-                >
-                {({ loading }) => loading ? 'Création du document...' : 'Exporter en PDF'}
-                    </PDFDownloadLink>*/}
-
                 <div className="feuilles-de-route-list">
                     {filteredFeuilles.length > 0 ? (
                         filteredFeuilles.map(feuille => (

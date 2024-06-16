@@ -1314,9 +1314,14 @@ form .adress {
     background: none;
     box-shadow: none !important;
 }
+.feuilles-de-route-list .ad {
+    background: white !important; 
+    padding: 20px !important;
+}
 .dayOff-section .feuille-jj {
     background: white;
     margin-bottom: 20px;
+    width: 100% !important;
 }
 
 
@@ -2077,6 +2082,9 @@ form .adress {
     }
     .fdr-section-admin .results .feuille-jj {
         width: 45%;
+    }
+    .fdr-section-admin .results .ad {
+        width: 100%;
     }
     .form-FSC,
     .form-FSP,

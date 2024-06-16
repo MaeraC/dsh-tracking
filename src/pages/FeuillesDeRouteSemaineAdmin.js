@@ -319,7 +319,7 @@ function FeuillesDeRouteSemaineAdmin({ onReturn }) {
                                 <h2 style={{textAlign: "center"}}>Semaine du {formatDate(feuille.dateSignature)}</h2>
                                 <div className="dayOn-section">
                                     {feuille.dayOn && feuille.dayOn.length > 0 && (
-                                        <div className='feuille-jj'>
+                                        <div className='feuille-jj ad'>
                                             
                                             {feuille.dayOn.map((day, index) => (  
                                                 <div key={index}>

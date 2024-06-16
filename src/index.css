@@ -1093,7 +1093,19 @@ textarea {
     align-items: center;
 }
 .filter-historique {
+    width: 25%;
+    padding: 20px;
+    border-radius: 20px;
+    box-shadow: 2px 2Px 10px #cfcfcf;
+}
+.historique-content {
     width: 100%;
+    display: flex;
+    justify-content: space-around;
+    margin-top: 40px;
+}
+.historique-results {
+    width: 70%
 }
 .fiche-client-section .button-back,
 .fiche-prospect-section .button-back ,
@@ -1110,15 +1122,20 @@ textarea {
 .filter-historique .select-sugg {
     width: 100%;
 }
+.historique-results h2 {
+    font-size: 20px;
+}
+.historique-results table {
+    width: 100%;
+}
 .imp {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    margin-top: 20px;
 }
 .imp button {
    width: initial !important;
    padding: 10px 20px;
+   margin-right: 20px !important;
 }
 .nb-visit span {
     background: #3D9B9B;
@@ -2081,6 +2098,16 @@ form .adress {
     }
     .fdr-section-admin .results .feuille-jj {
         width: 45%;
+    }
+    .historique-content {
+        flex-direction: column;
+    }
+    .filter-historique {
+        width: 100%;
+        margin-bottom: 20px;
+    }
+    .historique-results {
+        width: 100%;
     }
 }
 @media screen and (max-width: 800px) {

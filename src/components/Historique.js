@@ -127,6 +127,7 @@ function Historique({ onReturn }) {
         return formattedKey.charAt(0).toUpperCase() + formattedKey.slice(1); // Mettre la première lettre en majuscule
     };
 
+
     // Fonction pour afficher la valeur du champ
     const renderFieldValue = (value) => {
         if (typeof value === 'object' && !Array.isArray(value)) {
@@ -209,7 +210,7 @@ function Historique({ onReturn }) {
             <button onClick={onReturn} className="button-back">
                 <img src={back} alt="retour" />
             </button>
-            <h3>Historique des salons</h3>
+            <div className="historique-content">
             <div className="filter-historique">
                 <label>Filtrer par nom</label>
                 <input type="text" placeholder="Rechercher un salon" value={searchSalon} onChange={handleSearch} />
@@ -234,13 +235,12 @@ function Historique({ onReturn }) {
                 <div>Loading...</div>
             
             ) : selectedSalon && historique.length > 0 ? (
-                <div>
+                <div className="historique-results">
                     <h2>Historique du salon {selectedSalon.name}</h2>
                     <div className="imp">
-                    <p className="nb-visit">Nombre de visites: <span>{nombreVisites}</span></p>
                     <button onClick={handlePrintHistorique} className="button-colored">Imprimer l'historique</button>
-                    
-                    </div>
+                   <p className="nb-visit">Nombre de visites: <span>{nombreVisites}</span></p>
+                </div>
                     <table>
                         <thead>
                             <tr>
@@ -271,6 +271,7 @@ function Historique({ onReturn }) {
                     </div>
                 )
             )}
+            </div>
         </div>
     );
 }

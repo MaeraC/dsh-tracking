@@ -500,7 +500,8 @@ function FicheProspect({uid, onReturn}) {
                 {isOpenModal && (
                     <div className="modal-commande">
                         <div>
-                            <p>Fiche enregistrée avec succès ! Dirigez-vous vers la section Fiche de suivi Client</p>
+                            <p>Fiche enregistrée avec succès !<br></br> Dirigez-vous vers la section Fiche de suivi Client</p>
+                            <button onClick={() => setIsOpenModal(false)}>Fermer</button>
                         </div>
                     </div>
                 )}

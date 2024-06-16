@@ -24,7 +24,7 @@ function Recap() {
         let parsedDate;
         if (date instanceof Date) {
           parsedDate = date;
-        } else if (date.seconds) {
+        } else if (date?.seconds) {
           parsedDate = date.toDate();
         } else {
           parsedDate = new Date(date);
@@ -37,20 +37,20 @@ function Recap() {
             acc[userId] = { totalVisits: 0, weeklyVisits: {}, visits: [] };
           }
 
-          acc[userId].totalVisits += stops.length;
-          acc[userId].visits.push({ date: parsedDate, count: stops.length });
+          acc[userId].totalVisits += stops?.length || 0
+          acc[userId].visits.push({ date: parsedDate, count: stops?.length || 0 });
 
           if (!acc[userId].weeklyVisits[weekStart]) {
             acc[userId].weeklyVisits[weekStart] = 0;
           }
-          acc[userId].weeklyVisits[weekStart] += stops.length;
+          acc[userId].weeklyVisits[weekStart] += stops?.length || 0
         }
 
         return acc;
       }, {});
 
       setVisitsSummary(summary);
-      setFilteredSummary(summary); // Initially, the filtered summary is the same as the overall summary
+      setFilteredSummary(summary); 
     };
 
     fetchData();
@@ -113,8 +113,8 @@ function Recap() {
       return (
         <tr key={userId}>
           <td>{usersMap[userId]?.lastname} {usersMap[userId]?.firstname}</td>
-          <td style={{textAlign: "center"}}>{thisWeekVisits}</td>  
-          <td style={{textAlign: "center"}}>{data.filteredVisits}</td>
+          <td style={{textAlign: "center"}}>{thisWeekVisits || 0}</td>  
+          <td style={{textAlign: "center"}}>{data.filteredVisits || 0}</td>
         </tr>
       );
     });

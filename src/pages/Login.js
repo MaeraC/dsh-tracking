@@ -5,10 +5,10 @@ import "../index.css"
 import { Link, useNavigate }                                from "react-router-dom"
 import { useState }                                         from "react"
 //import { GoogleAuthProvider, signInWithPopup }                       from "firebase/auth"
-//import { signOut }                                        from "firebase/auth"
+import { signOut }                                        from "firebase/auth"
 import { auth, db }                                         from "../firebase.config.js"
 import { doc, getDoc }                                      from "firebase/firestore"
-//import {  query, getDocs, collection, where, Timestamp }  from "firebase/firestore"
+import {  query, getDocs, collection, where, Timestamp }  from "firebase/firestore"
 import emailImg                                             from "../assets/email.png"
 import mdpImg                                               from "../assets/mdp.png"
 import { browserLocalPersistence, setPersistence }          from "firebase/auth"
@@ -28,13 +28,6 @@ function Login() {
         try {
             await setPersistence(auth, browserLocalPersistence)
 
-            /*
-            if (isHolidayOrWeekend()) {
-                setMessage("Impossible de se connecter durant les week-ends et jours fériés.")
-                setMessageType("error")
-                return  
-            }*/
-            
             //const provider = new GoogleAuthProvider()
             //const userCredential = await signInWithPopup(auth, provider);
             const userCredential = await signInWithEmailAndPassword(auth, email, password)
@@ -42,7 +35,18 @@ function Login() {
              const userDoc = await getDoc(doc(db, "users", user.uid))
             const userData = userDoc.data()
 
-            /*
+            // Vérifier si l'utilisateur est un administrateur
+            if (userData.role === "administrateur") {
+                setMessage("Connexion réussie avec succès !");
+                setMessageType("success");
+
+                setTimeout(() => {
+                navigate("/tableau-de-bord-administrateur", { state: { uid: user.uid } });
+                }, 2000);
+
+                return;
+            }
+
             const unavailabilityQuery = query(
                 collection(db, "unavailabilities"),
                 where("userId", "==", user.uid),
@@ -53,13 +57,18 @@ function Login() {
     
             if (!unavailabilitySnapshot.empty) {
                 setMessage("Vous êtes actuellement indisponible et ne pouvez pas vous connecter.")
-                setMessageType("error");
+                setMessageType("indispo");
                 await signOut(auth);
                 return;
             }
-    */
-            setMessage("Connexion réussie avec succès !")
-            setMessageType("success") 
+
+            
+            if (isHolidayOrWeekend()) {
+                setMessage("Impossible de se connecter durant les week-ends et jours fériés.")
+                setMessageType("error")
+                return  
+            }
+
 
             if (userData.role === "commercial") {
 
@@ -67,20 +76,19 @@ function Login() {
                     navigate("/tableau-de-bord-commercial", { state : { uid : user.uid } })
                 }, "2000")  
             } 
-            else if (userData.role === "administrateur") {
-                setTimeout(() => {
-                    navigate("/tableau-de-bord-administrateur", { state : { uid : user.uid } })
-                }, "2000")
-            }
 
+            
+            setMessage("Connexion réussie avec succès !")
+            setMessageType("success") 
+           
         } catch (error) {
-            console.log(error.message)
-            setMessage("Erreur de connexion. Veuillez vérifier votre adresse e-mail et votre mot de passe.")
+            setMessage("Erreur de connexion")
             setMessageType("error")
-        }
+        }   
     }
 
-    /*
+    
+    
     const isHolidayOrWeekend = () => {
         const today = new Date();
         const day = today.getDay();
@@ -89,11 +97,17 @@ function Login() {
         const todayString = today.toISOString().split("T")[0];
     
         
-        if (day === 6 || day === 0 || holidays.includes(todayString)) {
-            return true;
+        if (day === 6 || day === 0) {
+            setMessage("Impossible de se connecter durant les week-ends.")
+            setMessageType("weekend")
         }
-        return false; 
-    }*/
+        if (holidays.includes(todayString)) {
+            setMessage("Impossible de se connecter durant les jours fériés.")
+            setMessageType("ferie")
+            
+        }
+        return "";
+    }
 
     return (
         <div className="login-page">
@@ -121,6 +135,18 @@ function Login() {
                 )}
 
                 {messageType === "error" && (
+                    <p className="error-message">{message}</p>
+                )}
+
+                {messageType === "weekend" && (
+                    <p className="error-message">{message}</p>
+                )}
+
+{messageType === "ferie" && (
+                    <p className="error-message">{message}</p>
+                )}
+
+{messageType === "indispo" && (
                     <p className="error-message">{message}</p>
                 )}
 

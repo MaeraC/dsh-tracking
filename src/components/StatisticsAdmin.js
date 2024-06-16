@@ -91,10 +91,10 @@ function StatisticsAdmin() {
             let distance = 0;
 
             feuillesDeRouteData.forEach(feuille => {
-                const feuilleDate = feuille.date.toDate(); // Conversion du timestamp en objet Date
+                const feuilleDate = feuille.date?.toDate(); // Conversion du timestamp en objet Date
                 if (feuilleDate >= startDate && feuilleDate < endDate) {
                     if (feuille.isVisitsStarted) {
-                        visits += feuille.stops.length;
+                        visits += feuille.stops?.length;
                         feuille.stops.forEach(stop => {
                             distance += stop.distance;
                         });

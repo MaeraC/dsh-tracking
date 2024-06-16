@@ -1,9 +1,5 @@
 
 
-
-
-
-
 // Fichier Account
  
 import { useNavigate }                                  from "react-router-dom"
@@ -156,7 +152,7 @@ function AccountAdmin({ email, firstname, lastname }) {
             setStartDate("")
             setEndDate("")
 
-            setShowForm(false)
+            setShowManage(false)
         } 
         catch (error) {
             console.error("Erreur lors de l'ajout de l'indisponibilité: ", error)
@@ -202,7 +198,6 @@ function AccountAdmin({ email, firstname, lastname }) {
                 </div>
             )}
 
-    
             {showManage && (
                 <section className="modal-manage">
                 
@@ -241,8 +236,14 @@ function AccountAdmin({ email, firstname, lastname }) {
                     <button className="button-colored" type="submit">Déconnecter le commercial</button>
                     <button className="cancel" onClick={() => setShowManage(false)}>Annuler</button>
                 </form>
-                {message && <p className="success">{message}</p>}
+                
                 </section>
+            )}
+
+            {!showManage && (
+                <div>
+                    {message && <p style={{margin: "20px"}} className="success">{message}</p>}
+                </div>
             )}
 
             {show && (
@@ -274,7 +275,7 @@ function AccountAdmin({ email, firstname, lastname }) {
             </div>
             )}
             
-            <p className="success">{message}</p>
+            
         </div>
     )
 }

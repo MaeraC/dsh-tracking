@@ -1775,16 +1775,21 @@ form .adress {
     align-items: center
 }
 .modal-manage form{
-    width: 90%;
+    width: 40%;
     padding: 20px 30px;
     background: white;
-    
     border-radius: 20px;
 }
 .modal-manage h2 {
     text-align: center;
     margin: 20px 0;
     margin-bottom: 40px;
+}
+.modal-manage label {
+    color: grey; 
+    font-size: 14px;
+    display: inline-block;
+    margin-bottom: 10px;
 }
 .cancel {
     background: none; 
@@ -2134,6 +2139,9 @@ form .adress {
     .form-CRD {
         width: 90%;
     }
+    .modal-manage form{
+        width: 70%;
+    }
 }
 @media screen and (max-width: 600px) {
     .fdr-section-admin .content {
@@ -2154,6 +2162,9 @@ form .adress {
     .form-FSP,
     .form-CRD {
         width: 100%;
+    }
+    .modal-manage form{
+        width: 95%;
     }
 }
 

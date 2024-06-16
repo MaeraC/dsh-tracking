@@ -31,8 +31,10 @@ function FeuillesDeRouteSemaine({ uid, onReturn }) {
     const [selectedMonth, setSelectedMonth] = useState("");
     //eslint-disable-next-line 
     const [signatureImage, setSignatureImage] = useState('');
+    const [signatureImage2, setSignatureImage2] = useState('');
     const [msgError, setMsgError] = useState("")
     const [errorMsg, setErrorMsg ]= useState("")
+    const [noFicheMsg, setNoFicheMsg] = useState(true)
     const signatureCanvasRef = useRef() 
     const signatureCanvasRef2 = useRef() 
 
@@ -109,7 +111,25 @@ function FeuillesDeRouteSemaine({ uid, onReturn }) {
         fetchSignature();
     }, []);
 
+    useEffect(() => {
+        const fetchSignature2 = async () => {
+            try {
+                const fdrSemaineRef = collection(db, 'feuillesDeRoute'); 
+                const querySnapshot = await getDocs(fdrSemaineRef);
+                
+                querySnapshot.forEach((doc) => {
+                    const feuille = doc.data();
+                    if (feuille.signature) {
+                        setSignatureImage2(feuille.signature);
+                    }
+                });
+            } catch (error) {
+                console.error('Erreur lors de la récupération de la signature :', error);
+            }
+        };
 
+        fetchSignature2();
+    }, []);
      
     const displayFeuilleDuJour = () => {
         const today = new Date();
@@ -154,6 +174,13 @@ function FeuillesDeRouteSemaine({ uid, onReturn }) {
             return feuilleDate.getMonth() === selectedMonthIndex;
         });
         setFilteredFeuilles(filtered);
+
+        if (filtered.length === 0) {
+            setNoFicheMsg("Aucune fiche enregistrée pour ce mois-ci")
+        }
+        else {
+            setNoFicheMsg("")
+        }
     };
 
     const handleMonthChange = (e) => {
@@ -178,6 +205,13 @@ function FeuillesDeRouteSemaine({ uid, onReturn }) {
         });
     
         setFilteredFeuilles(filtered);
+
+        if (filtered.length === 0) {
+            setNoFicheMsg("Aucune fiche enregistrée pour cette période")
+        }
+        else {
+            setNoFicheMsg("")
+        }
     };
 
     // Fonction appelée lors du changement de date de début
@@ -212,7 +246,6 @@ function FeuillesDeRouteSemaine({ uid, onReturn }) {
 
     const handleCloturerFiche = async (e) => {
         e.preventDefault()
-        console.log(signatureCanvasRef2)
         
         if (feuilleDuJour && !signatureCanvasRef2.current.isEmpty()) {
             const feuilleRef = doc(db, 'feuillesDeRoute', feuilleDuJour.id)
@@ -223,8 +256,6 @@ function FeuillesDeRouteSemaine({ uid, onReturn }) {
             setErrorMsg("Veuillez remplir et signer votre fiche")
         }
     }
-
-
 
     const displayThisWeek = () => {
         setisThisWeekOpen(true)
@@ -359,12 +390,13 @@ function FeuillesDeRouteSemaine({ uid, onReturn }) {
                 </div>
                 <div className="date-filters">
                     <label>Date de début </label>
-                    <input className='custom-select' type="date" value={startDate} onChange={handleStartDateChange}  /> <br></br> 
+                    <input className='custom-select un' type="date" value={startDate} onChange={handleStartDateChange}  /> <br></br> 
                    
                     <label>Date de fin</label>
                     <input type="date" className='custom-select' value={endDate} onChange={handleEndDateChange} />
                     
                     <button className='button-colored' onClick={filterFeuillesParPeriode}>Filtrer par période</button>
+                    <p style={{textAlign : "center"}} className='error-message'>{noFicheMsg}</p>
                 </div>
 
                 {/*<PDFDownloadLink 
@@ -427,7 +459,7 @@ function FeuillesDeRouteSemaine({ uid, onReturn }) {
                                     )}
                                 </div>
                                 <div className='signature-draw'>
-                                    <img src={feuille.signature} alt="" />
+                                    <img width={150} src={feuille.signature} alt="" /> 
                                     <p>Signé le : {formatDate(feuille.dateSignature)}</p>
                                 </div>
                             </div>
@@ -528,14 +560,14 @@ function FeuillesDeRouteSemaine({ uid, onReturn }) {
                                             {feuilleDuJour.stops.map((stop, index) => (
                                             <tr key={index}>
                                                 <td>{stop.name}</td>
-                                                <td>{stop.distance.toFixed(2)}{stop.unitDistance}</td>
+                                                <td>{stop.distance?.toFixed(2)}{stop.unitDistance}</td>
                                                 <td>{stop.status}</td>
                                             </tr>  
                                             ))}
                                         </tbody>
                                     </table>
                                     <p style={{marginTop: "20px", fontSize: "15px"}}>Clôturée le : {formatDate(feuilleDuJour.date)}</p>
-                                    <img src={feuilleDuJour.signature} width={120} alt="" />  
+                                    <img src={signatureImage2} width={120} alt="signature" />  
                                 </div>
                             ) : (
                                 <form onSubmit={handleCloturerFiche} className='form-feuilledj feuille-jj'>  
@@ -547,7 +579,7 @@ function FeuillesDeRouteSemaine({ uid, onReturn }) {
                                     <input type="text" value={feuilleDuJour.departureAddress} onChange={(e) => setFeuilleDuJour({...feuilleDuJour, departureAddress: e.target.value})}/>
                                     
                                     <label>Distance totale</label>
-                                    <p className='total-dist'>{feuilleDuJour.totalKm.toFixed(2)}{feuilleDuJour.unitTotalKm}</p>
+                                    <p className='total-dist'>{feuilleDuJour.totalKm?.toFixed(2)}{feuilleDuJour.unitTotalKm}</p>
                                     
                                     {feuilleDuJour.stops.map((stop, index) => (
                                         <div key={index}>
@@ -560,7 +592,7 @@ function FeuillesDeRouteSemaine({ uid, onReturn }) {
                                                 }}
                                             />
                                             <label>Distance</label>
-                                            <p className='inline'>{stop.distance.toFixed(2)}{stop.unitDistance}</p><br></br>
+                                            <p className='inline'>{stop.distance?.toFixed(2)}{stop.unitDistance}</p><br></br>
                                             <label>Statut</label>
                                             <div className='status'>
                                                 <input className='checkbox' type="radio" value="Prospect" checked={stop.status === "Prospect"} onChange={() => handleStopStatusChange(index, "Prospect")} />

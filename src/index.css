@@ -890,6 +890,10 @@ textarea {
 .feuilles-de-route-section .col {
     background: #a59add;
 }
+.feuilles-de-route-section .feuilles-de-route-list .feuille-jj {
+    background: white !important;
+    padding: 20px !important;
+}
 .this-day {
     margin-bottom: 20px;
 }
@@ -1014,6 +1018,13 @@ textarea {
 }
 .this-week h2 {
     margin-bottom: 20px;
+    text-align: center;
+}
+.this-week .error-message:nth-child(1) {
+    margin-top: 20px;
+}
+.this-week .error-message:nth-child(2) {
+    display: none;
 }
 .no-visit-btn {
     padding: 10px;
@@ -1042,7 +1053,9 @@ textarea {
 .signature-modal {
     background-color: white;
     border-radius: 20px;
-    margin-top: 20px;
+}
+.this-week .signature-modal {
+    margin-bottom: 20px;
 }
 .annuler-signature {
     text-decoration: underline;
@@ -1965,7 +1978,6 @@ form .adress {
   padding: 15px;
   font-size: 17px;
   border: 1px solid #ccc;
-  border-radius: 20px;
   background-color: #fff;
   color: #333;
   width: 100%;
@@ -2179,3 +2191,6 @@ form .adress {
     }
 }
 
+.date-filters .un {
+    margin-bottom: 10px !important;
+}

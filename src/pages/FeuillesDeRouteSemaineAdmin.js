@@ -214,7 +214,7 @@ function FeuillesDeRouteSemaineAdmin({ onReturn }) {
             </header>
             <div className='content'>
                 <div className='search'>
-                    <label>Recherche par nom ou prénom</label>
+                    <label>Filtres</label>
                     <input
                         type="text"
                         value={searchTerm}
@@ -232,13 +232,13 @@ function FeuillesDeRouteSemaineAdmin({ onReturn }) {
                     )}
 
                     <label>Date de début</label>
-                    <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
+                    <input className='custom-select' type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
 
                     <label>Date de fin</label>
-                    <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
+                    <input className='custom-select' type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
 
                     <div className="checkbox-group margin">
-                        <label>
+                        <label className='input'>
                             <input
                                 type="checkbox"
                                 className='checkbox'
@@ -247,7 +247,7 @@ function FeuillesDeRouteSemaineAdmin({ onReturn }) {
                             />
                             Feuilles de route de la semaine
                         </label><br></br>
-                        <label>
+                        <label  className='input'>
                             <input
                                 type="checkbox"
                                 className='checkbox'

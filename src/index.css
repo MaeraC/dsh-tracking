@@ -841,6 +841,10 @@ textarea {
     margin-bottom: 10px;
     display: inline-block;
 }
+.feuilles-de-route-section .search .input {
+    font-size: 16px;
+    color: black;
+}
 .feuilles-de-route-section .button-colored {
     margin-bottom: 20px;
 }
@@ -2072,6 +2076,15 @@ form .adress {
     }
     .fdr-section-admin .results .feuille-jj {
         width: 90%;
+    }
+}
+@media screen and (max-width: 600px) {
+    .fdr-section-admin .content {
+        padding-top: 0;
+    }
+    .fdr-section-admin .search,
+    .fdr-section-admin .results .feuille-jj {
+        width: 100%;
     }
 }
 

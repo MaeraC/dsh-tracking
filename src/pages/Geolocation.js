@@ -645,7 +645,7 @@ function Geolocation({ uid }) {
                         )}
 
                         {isTerminerVisible && (
-                            <button className="button-colored" onClick={() => setIsModalEndingOpen(true)}>Terminer mon parcours</button>
+                            <button className="button-colored xx" onClick={() => setIsModalEndingOpen(true)}>Terminer mon parcours</button>
                         )}
                                                   
                         <div className="distance-results">

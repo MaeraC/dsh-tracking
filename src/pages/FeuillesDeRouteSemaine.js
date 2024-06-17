@@ -574,7 +574,7 @@ function FeuillesDeRouteSemaine({ uid, onReturn }) {
                                     <label>Distance totale</label>
                                     <p className='total-dist'>{feuilleDuJour.totalKm?.toFixed(2)}{feuilleDuJour.unitTotalKm}</p>
                                     
-                                    {feuilleDuJour.stops.map((stop, index) => (
+                                    {feuilleDuJour.stops?.map((stop, index) => (
                                         <div key={index}>
                                             <label className='title-visit'>Visite {index + 1} </label>
                                             <input type="text" value={stop.name} 

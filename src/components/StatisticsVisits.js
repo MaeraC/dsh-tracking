@@ -3,15 +3,15 @@
 
 import { collection, getDocs, where, query } from "firebase/firestore";
 import { db } from "../firebase.config.js";
-import { useEffect, useState } from "react";
+import { useEffect, useState } from "react";  
 import search from "../assets/searchb.png"
 import close from "../assets/close.png"
+import { startOfWeek, isWithinInterval } from "date-fns";
 
 function StatisticsVisits({ uid }) {
-    const [visitsCount, setVisitsCount] = useState(0);
-    const [daysWithoutVisitsCount, setDaysWithoutVisitsCount] = useState(0);
-    const [totalDistance, setTotalDistance] = useState(0);
-    const [unit, setUnit] = useState("")
+    const [visitsCount, setVisitsCount] = useState(0)
+    const [daysWithoutVisitsCount, setDaysWithoutVisitsCount] = useState(0)
+    const [totalDistance, setTotalDistance] = useState(0)
     const [clientVisitsCount, setClientVisitsCount] = useState(0);
     const [prospectVisitsCount, setProspectVisitsCount] = useState(0);
     const [modalOpen, setModalOpen] = useState(false);
@@ -30,40 +30,50 @@ function StatisticsVisits({ uid }) {
                 let distance = 0;
                 let clientVisits = 0;
                 let prospectVisits = 0;
+                const weekStart = startOfWeek(new Date());
 
                 feuillesDeRouteData.forEach(feuille => {
-                    if (feuille.isVisitsStarted) {
-                        visits += feuille.stops.length;
-                        feuille.stops.forEach(stop => {
-                            distance += stop.distance;
+                    const feuilleDate = feuille.date.toDate ? feuille.date.toDate() : new Date(feuille.date);
 
-                            const units = stop.unitDistance || 'km';
-                            setUnit(units)
+                    if (isWithinInterval(feuilleDate, { start: weekStart, end: new Date() })) {
+                        if (feuille.isVisitsStarted) {
+                            const stops = feuille.stops;
+                            const numberOfStops = stops.length;
 
-                            if (stop.status === "Client") {
-                                clientVisits++;
-                            } 
-                            else if (stop.status === "Prospect") {
-                                prospectVisits++;
+                            if (numberOfStops > 1) {
+                                // Exclure le dernier stop
+                                visits += (numberOfStops - 1);
+
+                                stops.slice(0, -1).forEach(stop => {
+                                    const units = stop.unitDistance || 'km';
+                                    console.log(units)
+                                    if (stop.status === "Client") {
+                                        clientVisits++;
+                                    } else if (stop.status === "Prospect") {
+                                        prospectVisits++;
+                                    }
+                                });
                             }
-                        });
-                    } else {
-                        daysWithoutVisits++;
+                            distance += feuille.totalKm || 0; // Additionner la distance totale parcourue pour la semaine
+                        } else {
+                            daysWithoutVisits++;
+                        }
                     }
                 });
 
                 setVisitsCount(visits); 
                 setDaysWithoutVisitsCount(daysWithoutVisits);
-                setTotalDistance(distance)
+                setTotalDistance(distance / 1000)
                 setClientVisitsCount(clientVisits);
                 setProspectVisitsCount(prospectVisits);
+                
             } catch (error) {
                 console.error('Erreur lors de la récupération des statistiques :', error);
             }
         };
 
         fetchStatistics();
-    }, [uid, unit]);
+    }, [uid]);
 
     const handleModalOpen = () => {
         setModalOpen(true);
@@ -91,27 +101,38 @@ function StatisticsVisits({ uid }) {
             let distance = 0;
 
             feuillesDeRouteData.forEach(feuille => {
-                const feuilleDate = feuille.date.toDate();  // Conversion du timestamp en objet Date
+                const feuilleDate = feuille.date.toDate ? feuille.date.toDate() : new Date(feuille.date);
+
                 if (feuilleDate >= startDate && feuilleDate < endDate) {
                     if (feuille.isVisitsStarted) {
-                        visits += feuille.stops.length;
-                        feuille.stops.forEach(stop => {
-                            distance += stop.distance;
-                        });
+                        const stops = feuille.stops;
+                        const numberOfStops = stops.length;
+
+                        if (numberOfStops > 1) {
+                            // Exclure le dernier stop
+                            visits += (numberOfStops - 1);
+
+                            stops.slice(0, -1).forEach(stop => {
+                                const units = stop.unitDistance || 'km';
+                                console.log(units)
+                            });
+                        }
+                        distance += feuille.totalKm || 0; // Additionner la distance totale parcourue pour la période sélectionnée
                     } else {
                         daysWithoutVisits++;
                     }
                 }
             });
 
-            setResult({ visits, daysWithoutVisits, distance });
+            setResult({ visits, daysWithoutVisits, distance: distance / 1000 });
         } catch (error) {
             console.error('Erreur lors de la récupération des statistiques :', error);
         }
     };
-
+ 
     return (
-        <section className="stats-section">
+        <section className="stats-section">      
+
             <div className="title-stats">
                 <h2>Statistiques de la semaine</h2>
                 <button onClick={handleModalOpen}><img src={search} alt="rechercher" /></button>
@@ -140,7 +161,7 @@ function StatisticsVisits({ uid }) {
 
             <div className="nb total">
                 <p>Kilomètres parcourus</p>
-                <span>{totalDistance.toFixed(2) + " " + unit}</span> 
+                <span>{totalDistance.toFixed(2)}</span> 
             </div> 
 
             {modalOpen && (

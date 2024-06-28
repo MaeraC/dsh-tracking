@@ -10,6 +10,7 @@ function StatisticsAdmin() {
     const [visitsCount, setVisitsCount] = useState(0);
     const [daysWithoutVisitsCount, setDaysWithoutVisitsCount] = useState(0);
     const [totalDistance, setTotalDistance] = useState(0);
+     //eslint-disable-next-line 
     const [unit, setUnit] = useState("");
     const [clientVisitsCount, setClientVisitsCount] = useState(0);
     const [prospectVisitsCount, setProspectVisitsCount] = useState(0);
@@ -32,13 +33,10 @@ function StatisticsAdmin() {
 
                 feuillesDeRouteData.forEach(feuille => {
                     if (feuille.isVisitsStarted) {
-                        visits += feuille.stops.length;
-                        feuille.stops.forEach(stop => {
-                            distance += stop.distance;
+                        visits += feuille.stops.length > 0 ? feuille.stops.length - 1 : 0;  // Ne pas comptabiliser le dernier stop
+                        distance += feuille.totalKm;
 
-                            const units = stop.unitDistance || 'km';
-                            setUnit(units);
-
+                        feuille.stops.slice(0, -1).forEach(stop => {  // Ne pas comptabiliser le dernier stop
                             if (stop.status === "Client") {
                                 clientVisits++;
                             } else if (stop.status === "Prospect") {
@@ -52,7 +50,7 @@ function StatisticsAdmin() {
 
                 setVisitsCount(visits);
                 setDaysWithoutVisitsCount(daysWithoutVisits);
-                setTotalDistance(distance);
+                setTotalDistance(distance / 1000);
                 setClientVisitsCount(clientVisits);
                 setProspectVisitsCount(prospectVisits);
             } catch (error) {
@@ -62,8 +60,6 @@ function StatisticsAdmin() {
 
         fetchStatistics();
     }, [unit]);
-
-
 
     const handleModalOpen = () => {
         setModalOpen(true);
@@ -94,17 +90,15 @@ function StatisticsAdmin() {
                 const feuilleDate = feuille.date?.toDate(); // Conversion du timestamp en objet Date
                 if (feuilleDate >= startDate && feuilleDate < endDate) {
                     if (feuille.isVisitsStarted) {
-                        visits += feuille.stops?.length;
-                        feuille.stops.forEach(stop => {
-                            distance += stop.distance;
-                        });
+                        visits += feuille.stops?.length > 0 ? feuille.stops.length - 1 : 0;  // Ne pas comptabiliser le dernier stop
+                        distance += feuille.totalKm;
                     } else {
                         daysWithoutVisits++;
                     }
                 }
             });
 
-            setResult({ visits, daysWithoutVisits, distance });
+            setResult({ visits, daysWithoutVisits, distance: distance / 1000 });
         } catch (error) {
             console.error('Erreur lors de la récupération des statistiques :', error);
         }
@@ -140,7 +134,7 @@ function StatisticsAdmin() {
 
             <div className="nb total">
                 <p>Kilomètres parcourus</p>
-                <span>{totalDistance.toFixed(2) + " " + unit}</span>
+                <span>{totalDistance.toFixed(2) + " "}</span>
             </div>
 
             {modalOpen && (

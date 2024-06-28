@@ -7,7 +7,6 @@ import Account                                              from "./Account"
 import SearchVisits                                         from "./SearchVisits"
 import Loader                                               from "../components/Loader"
 import Fiches                                               from "./Fiches"
-import FeuillesDeRouteSemaine                               from "./FeuillesDeRouteSemaine.js"
 import Geolocation                                          from "./Geolocation"
 import { useNavigate }                                      from "react-router-dom"
 import { doc, getDoc }                                      from "firebase/firestore"
@@ -22,6 +21,7 @@ function DashboardComm () {
     const [email, setEmail]                                 = useState("")
     const [loading, setLoading]                             = useState(true)
     const [uid, setUid]                                     = useState(null)
+
     const navigate                                          = useNavigate() 
 
    useEffect(() => {
@@ -55,7 +55,7 @@ function DashboardComm () {
     if (loading) {
         return <Loader />
     }
-
+  
     return (
         <>
         <HeaderCom activeTab={activeTab} onTabChange={setActiveTab} />
@@ -67,18 +67,17 @@ function DashboardComm () {
             <Geolocation uid={uid} />
         </div>
 
-        <div style={{ display: activeTab === "mon-compte" ? "block" : "none" }}>
-            <Account firstname={firstname} lastname={lastname} email={email} />
+        <div style={{ display: activeTab === "mon-compte" ? "block" : "none" }}> 
+            <Account firstname={firstname} lastname={lastname} email={email} uid={uid} />
         </div>
         <div style={{ display: activeTab === "recherche-visites" ? "block" : "none" }}>
             <SearchVisits />
         </div>
         <div style={{ display: activeTab === "fiches" ? "block" : "none" }}>
-            <Fiches uid={uid} />
+            <Fiches uid={uid}  />
         </div>
-        <div style={{ display: activeTab === "feuilles-de-route-de-la-semaine" ? "block" : "none" }}>
-            <FeuillesDeRouteSemaine uid={uid} />
-        </div>
+
+        
         </>
     );
 };

@@ -282,7 +282,7 @@ export default Login
 */
 
 import "../index.css"
-import { Link, useNavigate } from "react-router-dom"
+import { useNavigate } from "react-router-dom"
 import { useState } from "react"
 import { signOut, setPersistence, browserLocalPersistence, signInWithEmailAndPassword } from "firebase/auth"
 import { auth, db } from "../firebase.config.js"
@@ -296,12 +296,10 @@ function Login() {
     const [password, setPassword] = useState("")
     const [message, setMessage] = useState("")
     const [messageType, setMessageType] = useState("")
-
     const navigate = useNavigate()
 
     const handleLogin = async (e) => {
         e.preventDefault()
-
         try {
             await setPersistence(auth, browserLocalPersistence)
             const userCredential = await signInWithEmailAndPassword(auth, email, password)
@@ -327,7 +325,6 @@ function Login() {
                 )
                 const unavailabilitySnapshot = await getDocs(unavailabilityQuery)
                 const now = Timestamp.now()
-
                 let isUnavailable = false
 
                 unavailabilitySnapshot.forEach((doc) => {
@@ -343,13 +340,13 @@ function Login() {
                     await signOut(auth)
                     return
                 }
-
+/*
                 if (isHolidayOrWeekend()) {
                     setMessage("Impossible de se connecter durant les week-ends et jours fériés.")
                     setMessageType("error")
                     await signOut(auth)
                     return
-                }
+                }*/
 
                 setMessage("Connexion réussie avec succès !")
                 setMessageType("success")
@@ -364,22 +361,17 @@ function Login() {
             setMessageType("error")
         }
     }
-
+/*
     const isHolidayOrWeekend = () => {
         const today = new Date()
         const day = today.getDay()
         const holidays = ["2024-01-01", "2024-12-25", "2024-05-09", "2024-11-1", "2024-04-01", "2024-05-20", "2024-11-11", "2024-05-01", "2024-07-14", "2024-05-08", "2024-08-15", "2025-01-01", "2025-05-29", "2025-11-01", "2025-04-21", "2025-06-09", "2025-11-11", "2025-05-01", "2025-07-14", "2025-12-25", "2025-05-08", "2025-08-15"]
-
         const todayString = today.toISOString().split("T")[0]
 
-        if (day === 6 || day === 0) {
-            return true
-        }
-        if (holidays.includes(todayString)) {
-            return true
-        }
+        if (day === 6 || day === 0) {  return true }
+        if (holidays.includes(todayString)) { return true }
         return false
-    }
+    }*/
 
     return (
         <div className="login-page">
@@ -409,7 +401,7 @@ function Login() {
                 )}
 
                 <button onClick={handleLogin} className="button-white">Me connecter</button>
-                <Link to="/inscription" className="link-signup">M'inscrire</Link>
+                {/*<Link to="/inscription" className="link-signup">M'inscrire</Link>*/}
             </form>
         </div>
     )

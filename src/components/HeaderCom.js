@@ -27,6 +27,7 @@ function HeaderCom ({ activeTab, onTabChange }) {
            
             case "mon-compte":
                 return activeTab === "mon-compte" ? userB : user
+
             default:
                 return null
         }

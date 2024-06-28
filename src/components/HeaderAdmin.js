@@ -41,7 +41,7 @@ function HeaderAdmin({ activeTab, onTabChange }) {
                 </button>
 
                 <button className={activeTab === "fiches" ? "active" : ""}  onClick={() => handleTabClick("fiches")} >
-                    <img src={getIcon("questionnaires")} alt="Questionnaires" />
+                    <img src={getIcon("fiches")} alt="Questionnaires" />
                 </button>
                 
                 <button className={activeTab === "mon-compte" ? "active" : ""} onClick={() => handleTabClick("mon-compte")} >

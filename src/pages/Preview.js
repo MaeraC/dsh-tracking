@@ -1,6 +1,7 @@
 
 // Fichier Preview
 
+import RecapCom from "../components/RecapCom"
 import StatisticsVisits from "../components/StatisticsVisits"
 
 function Preview({ firstname, uid }) {
@@ -15,8 +16,10 @@ function Preview({ firstname, uid }) {
                 <p>Voici les statistiques de vos visites effectuées.</p>
             </div>
             
-
-            <StatisticsVisits uid={uid} />
+            <div style={{width: "100%", display: "flex", justifyContent: "space-around"}}>
+                <StatisticsVisits uid={uid} />
+                <RecapCom uid={uid} />
+            </div>
         </div>
     )
 }

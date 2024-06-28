@@ -5,7 +5,7 @@ import "../index.css"
 import { useState } from "react"
 import { createUserWithEmailAndPassword } from "firebase/auth"
 import { auth, db } from "../firebase.config.js"
-import { doc, setDoc } from "firebase/firestore"
+import { doc, setDoc, addDoc, collection } from "firebase/firestore"
 import { Link, useNavigate } from "react-router-dom"
 import emailImg from "../assets/email.png"
 import mdpImg from "../assets/mdp.png"
@@ -19,7 +19,6 @@ function SignUp() {
     const [message, setMessage] = useState("")
     const [messageType, setMessageType] = useState("")
     const [role, setRole] = useState("")
-
     const navigate = useNavigate()
 
     const handleSignUp = async (e) => {
@@ -29,7 +28,6 @@ function SignUp() {
             setMessage("Le mot de passe doit contenir au moins 6 caractères.")
             setMessageType("error")
         }
-
         if (!role) {
             setMessage("Veuillez sélectionner un rôle.")
             return
@@ -48,10 +46,15 @@ function SignUp() {
                 role: role,
             }) 
 
+            await addDoc(collection(db, "historiqueAdmin"), {
+                userId: user.uid,
+                date: new Date(),
+                action: `Nouvel utilisateur: ${firstname} ${lastname}, inscrit par l'admin`, 
+            })
+
             setMessage("Inscription réussie")
             setMessageType("success")
-            navigate("/connexion")
-            
+            navigate("/connexion") 
         }
         catch (error) {
             console.error("Erreur lors de l'inscription", error)
@@ -60,10 +63,8 @@ function SignUp() {
         }
     }
 
-
     return (
         <div className="signup-page">
-            
             <form className="signup-form">
                 <h1>INSCRIPTION</h1>
 
@@ -83,9 +84,6 @@ function SignUp() {
                     <img src={mdpImg} alt="icone email" />   
                     <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Mot de passe" />
                 </div>
-                
-                
-
                 <label><input className="checkbox" type="radio" value="administrateur" checked={role === "administrateur"} onChange={(e) => setRole(e.target.value)} />Compte administrateur</label><br></br>
                 <label><input className="checkbox" type="radio" value="commercial" checked={role === "commercial"} onChange={(e) => setRole(e.target.value)} />Compte commercial</label>
 
@@ -110,5 +108,4 @@ function SignUp() {
         </div>
     )
 }
-
 export default SignUp

@@ -12,7 +12,6 @@ import { doc, getDoc }                                      from "firebase/fires
 import { auth, db }                                         from "../firebase.config.js"
 import { onAuthStateChanged }                               from "firebase/auth"
 import HeaderAdmin from "../components/HeaderAdmin.js" 
-import FeuillesDeRouteSemaineAdmin from "./FeuillesDeRouteSemaineAdmin.js"
 
 function DashAdmin () {
     const [activeTab, setActiveTab]                         = useState("apercu")
@@ -71,9 +70,6 @@ function DashAdmin () {
         </div>
         <div style={{ display: activeTab === "fiches" ? "block" : "none" }}>
             <FichesAdmin uid={uid} />
-        </div>
-        <div style={{ display: activeTab === "feuilles-de-route-de-la-semaine" ? "block" : "none" }}>
-            <FeuillesDeRouteSemaineAdmin uid={uid} />
         </div>
         </>
     );

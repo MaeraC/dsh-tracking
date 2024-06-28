@@ -19,7 +19,10 @@ function SearchFeuillesDuJour() {
     const [nombreVisites, setNombreVisites] = useState(0);
     const [nombreVisitesClient, setNombreVisitesClient] = useState(0);
     const [nombreVisitesProspect, setNombreVisitesProspect] = useState(0);
-    const [format, setFormat] = useState('daily')
+    const [format, setFormat] = useState('')
+    const [selectedMonthYear, setSelectedMonthYear] = useState('')
+
+
 
     // récupère le nom des users
     useEffect(() => {
@@ -40,7 +43,8 @@ function SearchFeuillesDuJour() {
     }, []);
 
     useEffect(() => {
-        if (!selectedUser || !startDate || !endDate) {
+        /*
+        if (!selectedUser  || !startDate || !endDate ) {   
             setFeuillesDeRoute([]);
             setNombreVisites(0);
             setNombreVisitesClient(0);
@@ -73,11 +77,55 @@ function SearchFeuillesDuJour() {
             } catch (error) {
                 console.error("Erreur lors de la récupération des feuilles de route : ", error);
             }
-        };
+        };*/
+
+        if (!selectedUser || (!startDate && !endDate && !selectedMonthYear)) {
+            setFeuillesDeRoute([]);
+            setNombreVisites(0);
+            setNombreVisitesClient(0);
+            setNombreVisitesProspect(0);
+            return;
+        }
+    
+        const fetchFeuillesDeRoute = async () => {
+            const feuillesDeRouteRef = collection(db, 'feuillesDeRoute');
+    
+            let q = query(feuillesDeRouteRef, where('userId', '==', selectedUser.userId));
+    
+            if (startDate && endDate) {
+                const startTimestamp = Timestamp.fromDate(new Date(startDate));
+                const endTimestamp = Timestamp.fromDate(new Date(endDate));
+                q = query(q, where('date', '>=', startTimestamp), where('date', '<=', endTimestamp));
+            } else if (selectedMonthYear) {
+                const [selectedYear, selectedMonth] = selectedMonthYear.split('-').map(Number);
+                const startOfMonth = new Date(selectedYear, selectedMonth - 1, 1);
+                const endOfMonth = new Date(selectedYear, selectedMonth, 0); // Dernier jour du mois
+                const startTimestamp = Timestamp.fromDate(startOfMonth);
+                const endTimestamp = Timestamp.fromDate(endOfMonth);
+                q = query(q, where('date', '>=', startTimestamp), where('date', '<=', endTimestamp));
+            }
+    
+            try {
+                const querySnapshot = await getDocs(q);
+                if (!querySnapshot.empty) {
+                    const feuilles = querySnapshot.docs.map(doc => doc.data());
+                    setFeuillesDeRoute(feuilles);
+                    calculateVisites(feuilles);
+                } else {
+                    setFeuillesDeRoute([]);
+                    setNombreVisites(0);
+                    setNombreVisitesClient(0);
+                    setNombreVisitesProspect(0);
+                }
+            } catch (error) {
+                console.error("Erreur lors de la récupération des feuilles de route : ", error);
+            }
+        }; 
     
         fetchFeuillesDeRoute();
         // eslint-disable-next-line
-    }, [selectedUser, startDate, endDate, showResults])
+    }, [selectedUser, startDate, endDate, showResults, selectedMonthYear])
+    console.log(feuillesDeRoute) 
 
     const formatTimestamp = (timestamp) => {
         if (!timestamp) {
@@ -149,16 +197,18 @@ function SearchFeuillesDuJour() {
     };
 
     const handleSubmit = () => {
-        setShowResults(true); 
-        console.log(feuillesDeRoute)
-        // eslint-disable-next-line
-        feuillesDeRoute.map(feuille => {
-            console.log(feuille.signatureDate)
-        })
+        setShowResults(true);
     };
 
     const handleFormatChange = (event) => { 
         setFormat(event.target.value);
+    };
+
+    // Fonction pour gérer la sélection du mois
+    const handleMonthChange = (event) => {
+        setShowResults(true);
+        const newMonthYear = event.target.value;
+        setSelectedMonthYear(newMonthYear);
     };
 
     return (
@@ -184,6 +234,10 @@ function SearchFeuillesDuJour() {
                         <label className='label'>Date de fin </label><br></br>
                         <input type="date" value={endDate} onChange={handleEndDateChange} />
                     </div>
+                    <div className='input-admin'>
+                        <label className='label'>Sélectionner un mois</label><br></br>
+                        <input type="month" value={selectedMonthYear} onChange={handleMonthChange} />
+                    </div>
                     <div className='input-admin' style={{alignSelf: "center"}}> 
                         <div>
                             <input type="radio" id="daily" name="format" value="daily" checked={format === 'daily'} onChange={handleFormatChange} className='checkbox' />
@@ -193,10 +247,6 @@ function SearchFeuillesDuJour() {
                             <input type="radio" className='checkbox' id="weekly" name="format" value="weekly" checked={format === 'weekly'} onChange={handleFormatChange} />
                             <label>Feuilles hebdomadaires</label>
                         </div><br></br>
-                        <div>
-                            <input type="radio" className='checkbox' id="weekly" name="format" value="monthly" checked={format === 'monthly'} onChange={handleFormatChange} />
-                            <label>Feuilles mensuelles</label>
-                        </div>
                     </div>
                 </div>
                
@@ -284,8 +334,8 @@ function SearchFeuillesDuJour() {
                 <FeuillesHebdoAdmin feuillesDeRoute={feuillesDeRoute} startDate={startDate} endDate={endDate} />
             )}
 
-            {showResults && format === 'monthly' && feuillesDeRoute.length > 0 && (
-                <FeuillesMensuellesAdmin feuillesDeRoute={feuillesDeRoute} startDate={startDate} endDate={endDate} />
+            {showResults  && selectedMonthYear && selectedUser && (
+                <FeuillesMensuellesAdmin feuillesDeRoute={feuillesDeRoute} selectedMonthYear={selectedMonthYear} selectedUser={selectedUser} />
             )}
         </div>
     )

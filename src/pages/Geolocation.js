@@ -8,7 +8,7 @@ import startIcon                                        from "../assets/start.pn
 import plus                                             from "../assets/plus.png"
 import refresh                                          from "../assets/refresh.png"
 import { db }                                           from "../firebase.config"
-import { collection, addDoc, setDoc, doc, getDoc,getDocs, updateDoc, query, where, arrayUnion, deleteDoc, arrayRemove, Timestamp } from "firebase/firestore"
+import { collection, addDoc, setDoc, doc, getDoc,getDocs, updateDoc, query, where, arrayUnion, deleteDoc, arrayRemove } from "firebase/firestore"
 
 const mapContainerStyle = {
     width: '96vw',
@@ -63,7 +63,8 @@ function Geolocation({ uid }) {
     const [selectedSalon, setSelectedSalon]             = useState(null)
     const [recentlyAddedSalon, setRecentlyAddedSalon] = useState(false);
     const [recentlyAddedAction, setRecentlyAddedAction] = useState(false)
-    const [initialStatus, setInitialStatus] = useState("");
+    // eslint-disable-next-line
+    const [initialStatus, setInitialStatus] = useState("");  
     const [isTracking, setIsTracking]                   = useState(false)
     const [isParcoursStarted, setIsParcoursStarted]     = useState(false)
     const [isParcoursEnded, setIsParcoursEnded]         = useState(false)
@@ -91,7 +92,9 @@ function Geolocation({ uid }) {
 const [userAddressLng, setUserAddressLng] = useState(null)
 const [newHomeBackAddressLat, setNewHomeBackAddressLat] = useState(null)
 const [newHomeBackAddressLng, setNewHomeBackAddressLng] = useState(null)
+// eslint-disable-next-line
 const [arrivalTime, setArrivalTime] = useState(null);
+// eslint-disable-next-line
 const [departureTime, setDepartureTime] = useState(null);
     const [newHomeDistance, setNewHomeDistance]               = useState(0) //
     const [newHomeBackAddress, setNewHomeBackAddress] = useState('');
@@ -102,6 +105,7 @@ const [departureTime, setDepartureTime] = useState(null);
     const [errorMessage, setErrorMessage]               = useState("")
     const [feuilleDuJour, setFeuilleDuJour] = useState(null)
     const [isModalTimeOpen,  setIsModalTimeOpen ]= useState(false)
+    // eslint-disable-next-line
     const [showModal, setShowModal]                     = useState(false);
     const mapRef                                        = useRef(null)
     const markerRef                                     = useRef(null)

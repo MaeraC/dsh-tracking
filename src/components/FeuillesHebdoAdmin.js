@@ -3,7 +3,7 @@ import React from 'react';
 const FeuillesHebdoAdmin = ({ feuillesDeRoute, startDate, endDate }) => {
     const days = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi']
 
-    const getDayName = (timestamp) => {
+    const getDayName = (timestamp) => { 
         const date = new Date(timestamp.seconds * 1000);
         return date.toLocaleDateString('fr-FR', { weekday: 'long' }).charAt(0).toUpperCase() + date.toLocaleDateString('fr-FR', { weekday: 'long' }).slice(1);
     } 
@@ -77,8 +77,8 @@ const FeuillesHebdoAdmin = ({ feuillesDeRoute, startDate, endDate }) => {
                                 <tr>
                                     <th style={{ width: '10%', background: "#3D9B9B", color: "white"  }}>Total <strong>{formatDistance(totalKmAll)}</strong></th>
                                     
-                                    {days.map(day => (
-                                        <th key={day} style={{ width: '18%', background: "#c7c7c7" }}>{day}</th>
+                                    {days.map((day, dayIndex) => (
+                                        <th key={dayIndex} style={{ width: '18%', background: "#c7c7c7" }}>{day}</th>
                                     ))}
                                 </tr>
                             </thead>

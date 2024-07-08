@@ -2701,6 +2701,16 @@ form input {
     margin-bottom: 50px;
 }
 
+@media screen and (max-width: 600px) {
+    .all-btns button {
+        width: 90%;
+        margin: 0px 20px !important;
+        margin-top: 10px !important;
+    }
+    .info-client {
+        padding-left: 20px !important ;
+    }
+}
 
 .filters-search-crd {
     box-shadow: 2px 2px 15px #cfcfcf ;
@@ -2801,6 +2811,9 @@ form input {
         margin-bottom: 10px;
         margin-right: 0px;
     }
+    .all-fiches-client ul li {
+        width: 100%;
+    }
 }
 
 /********************* PREVIEW ADMIN *************************/
@@ -2876,6 +2889,7 @@ form input {
 @media screen and (max-width: 500px) {
     .preview-admin .content {
         margin: 0 20px;
+        padding-bottom: 30px;
     }
     .preview-admin .stats-section {
         width: 100%;
@@ -2943,11 +2957,12 @@ form input {
 .tableau-indispo {
     padding: 20px !important;
     padding-top: 30px !important;
-    position: absolute !important;
+    position: fixed !important;
     top: 0;
     left: 0;
     width: 100%;
-    height: 100%;
+    height: 100vh;
+    overflow: scroll;
     background: white;
     z-index: 99;
 }
@@ -3054,6 +3069,7 @@ form input {
 @media screen and (max-width: 600px) {
     .modal-content {
         width: 90%;
+        padding: 40px 20px !important;
     }
 }
 .mini-buttons {
@@ -3089,9 +3105,10 @@ form input {
 .modal-page {
     background: white;
     padding: 20px;
-    position: absolute;
+    position: fixed;
     width: 100%;
-    height: 100%;
+    overflow: scroll;
+    height: 100vh;
     top: 0;
     left: 0;
 }
@@ -3190,5 +3207,19 @@ form input {
     }
     .date-inputs div, .date-inputs button {
         width: 100%;
+    }
+}
+.visible {
+    display: none;
+}
+@media screen and (max-width: 1000px) {
+    .invisible {
+        display: none;
+    }
+    .visible {
+        display: flex;
+        text-align: center;
+        margin: 20px;
+        margin-top: 30px;
     }
 }

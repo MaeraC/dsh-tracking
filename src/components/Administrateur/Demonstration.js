@@ -206,7 +206,7 @@ function Demonstration({ uid, onReturn }) {
     return (
         <div className="demonstration-section">
             <div className="title-fiche">
-                <h1>Formulaire du Compte rendu de RDV de Démonstration</h1>
+                <h1>Formulaire du CR de RDV de Démonstration</h1>
                 <button onClick={onReturn} className="button-back"><img src={back} alt="retour" /></button>
             </div>
 
@@ -222,7 +222,11 @@ function Demonstration({ uid, onReturn }) {
             </div>
 
             {salonInfo && (
-                <button  style={{margin: "20px", marginLeft: "40px", padding: "10px 30px", marginBottom: "10px"}} className="button-colored" onClick={handleShowAllCR}>Voir toutes les fiches enregistrées de ce salon</button>
+                <>
+                <p className="visible">Si vous souhaitez visionner les fiches dans un format adapté, veuillez effectuer votre recherche sur un ordinateur.</p>
+                
+                <button style={{margin: "20px", marginLeft: "40px", padding: "10px 30px", marginBottom: "10px"}} className="button-colored invisible" onClick={handleShowAllCR}>Voir toutes les fiches enregistrées de ce salon</button>
+                </>
             )}
 
             {salonInfo && allCR.length > 0 && showAllCR && (

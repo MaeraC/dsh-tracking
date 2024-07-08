@@ -334,17 +334,17 @@ function SearchFeuillesDuJour({ uid }) {
                         </div>
                         <div  style={{width: "30%", marginRight: "30px"}}>
                             <label  className='label'>Date de début </label><br></br>
-                            <input type="date" value={startDate} onChange={handleStartDateChange} />
+                            <input className='custom-select' type="date" value={startDate} onChange={handleStartDateChange} />
                         </div>
                         <div  style={{width: "30%", marginRight: "30px"}}>
                             <label className='label'>Date de fin </label><br></br>
-                            <input type="date" value={endDate} onChange={handleEndDateChange} />
+                            <input className='custom-select' type="date" value={endDate} onChange={handleEndDateChange} />
                         </div>
                     </div>
                     <div className='input-admin-mini'> 
                         <div  style={{width: "30%", marginRight: "30px"}}>
                             <label className='label'>Sélectionner un mois</label><br></br>
-                            <input style={{padding: "5px 10px"}} type="month" value={selectedMonthYear} onChange={handleMonthChange} />
+                            <input className='custom-select' style={{padding: "5px 10px"}} type="month" value={selectedMonthYear} onChange={handleMonthChange} />
                         </div>
                         <div style={{width: "20%", marginRight: "0px"}}>
                             <input type="radio" id="daily" name="format" value="daily" checked={format === 'daily'} onChange={handleFormatChange} className='checkbox' />

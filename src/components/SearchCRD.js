@@ -192,11 +192,12 @@ function SearchCRD({onReturn, uid}) {
     return (
         <div>
              <div className="title-fiche">
-                <h1>Recherche de Compte rendu de RDV de Démonstration</h1>
+                <h1>Recherche de CR de RDV de Démonstration</h1>
                 <button onClick={onReturn} className="button-back"><img src={back} alt="retour" /></button>
             </div>
 
-            <div className="filters-search-crd">
+            <p className="visible">Si vous souhaitez visionner les fiches dans un format adapté, veuillez effectuer votre recherche sur un ordinateur.</p>
+            <div className="filters-search-crd invisible">
                 <div className="filter1">
                     <h2>Filtrer les comptes rendus</h2>
                     <div>
@@ -222,7 +223,7 @@ function SearchCRD({onReturn, uid}) {
                 </div>
             </div>
 
-            <div className="all-fiches-client">
+            <div className="all-fiches-client invisible">
                 <div ref={pageRef} style={{paddingTop: "20px", fontSize: "16px"}}>
                     <h4 style={{textAlign: "center", fontSize: "20px", marginBottom: "20px"}}>Comptes rendu de RDV de Démonstration</h4>
                     <ul>

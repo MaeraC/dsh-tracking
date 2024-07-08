@@ -485,7 +485,7 @@ function FicheDemonstration({ uid, onReturn }) {
             </div>
 
             {salonInfo && (
-                <button  style={{margin: "20px", marginLeft: "40px", padding: "10px 30px", marginBottom: "10px"}} className="button-colored" onClick={handleShowAllCR}>Voir toutes les fiches enregistrées de ce salon</button>
+                <button  style={{margin: "20px", marginLeft: "40px", padding: "10px 30px", marginBottom: "10px"}} className="button-colored invisible" onClick={handleShowAllCR}>Voir toutes les fiches enregistrées de ce salon</button>
             )}
 
             {salonInfo && showForm && (

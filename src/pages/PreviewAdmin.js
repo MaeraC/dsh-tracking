@@ -190,7 +190,7 @@ function PreviewAdmin({ firstname, uid }) {
             {signUpModal && (
                 <div className="modal">
                     <div className="modal-content">
-                        <p>Vous allez être redirigé vers la page d'inscription.<br></br>Êtes-vous sûr de vouloir inscrire un nouvel utilisateur ?</p>
+                        <p>Vous allez être redirigé vers la page d'inscription.<br></br><br></br>Êtes-vous sûr de vouloir inscrire un nouvel utilisateur ?</p>
                         <div className="mini-buttons">
                             <button onClick={() => navigate("/inscription")}>Oui</button>
                             <button onClick={() => setSignUpModal(false)}>Non</button>

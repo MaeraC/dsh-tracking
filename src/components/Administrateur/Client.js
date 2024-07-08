@@ -326,15 +326,16 @@ function Client({ onReturn, uid }) {
 
                 {salonInfo && formVisible && (
                     <> 
-                    <div className="filter-client">
+                    <p className="visible">Si vous souhaitez visionner les fiches dans un format adapté, veuillez effectuer votre recherche sur un ordinateur.</p>
+                    <div className="filter-client invisible">
                         <div className="filter-input">
                             <div>
                                 <label className="label">Date de début</label><br></br>
-                                <input type="date" name="startDate" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
+                                <input className="custom-select" type="date" name="startDate" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
                             </div>
                             <div>
                                 <label className="label">Date de fin</label><br></br>
-                                <input type="date" name="endDate" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
+                                <input className="custom-select" type="date" name="endDate" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
                             </div>
                             
                             <button className="button-colored" onClick={handleFilterByDate}>Filtrer par période</button>
@@ -349,15 +350,15 @@ function Client({ onReturn, uid }) {
                 )} 
 
                 {salonInfo && isAllFichesVisible  &&  (
-                        <div className="all-fiches-client" > 
+                        <div className="all-fiches-client all-btns" > 
                             <button style={{margin: "20px", marginLeft: "40px", padding: "10px 30px", marginBottom: "10px"}} className="button-colored" onClick={() => {setFormVisible(true); setIsAllFichesVisible(false)}} >Retour</button>
                             <button style={{ padding: "10px 30px" }} onClick={downloadPDF} className='button-colored'>Télécharger les fiches clients</button>
                             <div ref={pageRef} style={{paddingTop: "20px", fontSize: "16px"}}>
-                            <h4 style={{textAlign: "center", fontSize: "20px", marginBottom: "20px"}}>Fiches de suivi client du salon {selectedSalon}</h4>  
+                            <h4 style={{textAlign: "center", fontSize: "20px", margin: "20px"}}>Fiches de suivi client du salon {selectedSalon}</h4>  
                             <ul> 
                                 {allFiches.map((fiche, index) => ( 
                                       <li key={index}>
-                                      <div style={{paddingLeft: "100px"}}>Enregistré le : <strong>{formatDate(fiche.createdAt)}</strong>, par <strong>{usersMap[fiche.userId].firstname} {usersMap[fiche.userId].lastname}</strong></div>
+                                      <div className="info-client" style={{paddingLeft: "100px"}}>Enregistré le : <strong>{formatDate(fiche.createdAt)}</strong>, par <strong>{usersMap[fiche.userId].firstname} {usersMap[fiche.userId].lastname}</strong></div>
                                       
                                       <ResultsFicheClient 
                                           data={{ 

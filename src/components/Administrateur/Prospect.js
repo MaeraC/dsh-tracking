@@ -320,7 +320,8 @@ function Prospect({uid, onReturn}) {
 
                 {salonInfo && formVisible && (
                     <>
-                    <div className="filter-client">
+                    <p className="visible">Si vous souhaitez visionner les fiches dans un format adapté, veuillez effectuer votre recherche sur un ordinateur.</p>
+                    <div className="filter-client invisible">
                         <div className="filter-input">
                             <div>
                                 <label className="label">Date de début</label><br></br>

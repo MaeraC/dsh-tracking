@@ -2,19 +2,18 @@
 // Fichier FichesAmin.js 
 
 import { useState }                                             from "react"
-import FicheClient                                              from "../components/FicheClient"
-import FicheProspect                                            from "../components/FicheProspect"
+import Client                                              from "../components/Administrateur/Client"
 import FicheDemonstration                                       from "../components/FicheDemonstration"
-import FichePresentation                                        from "../components/FichePresentation"
 import Historique                                               from "../components/Historique"
-import RecapAdmin from "../components/RecapAdmin"
-import FeuilleJournaliereAdmin from "../components/FeuilleJournaliereAdmin"
-import RapportVisitesAdmin from "../components/RapportVisitesAdmin"
+import RecapAdmin from "../components/Administrateur/RecapAdmin"
+import FeuilleJournaliereAdmin from "../components/Administrateur/FeuilleJournaliereAdmin"
+import RapportVisitesAdmin from "../components/Administrateur/RapportVisitesAdmin"
+import SearchCRD from "../components/SearchCRD"
+import Prospect from "../components/Administrateur/Prospect" 
+import Demonstration from "../components/Administrateur/Demonstration"
   
 function FichesAmin({ uid }) {
     const [currentComponent, setCurrentComponent]               = useState(null)
-
-
 
     const openFdj = () => {
         setCurrentComponent("fdj")
@@ -36,8 +35,8 @@ function FichesAmin({ uid }) {
         setCurrentComponent("Démonstration")
     }
 
-    const openPresentation = () => {
-        setCurrentComponent("Présentation")
+    const openCRD = () => {
+        setCurrentComponent("SearchCRD")
     }
 
     const openHistorique = () => {
@@ -65,30 +64,30 @@ function FichesAmin({ uid }) {
                     <div className="titre-fiche">
                         <h1>Feuilles de route</h1>
                     </div> 
-                    <div style={{width: "100%" , display: "flex", flexWrap: "wrap", padding: "20px", justifyContent: "center"}}>
+                    <div style={{width: "100%" , display: "flex", flexWrap: "wrap", padding: "20px", justifyContent: "space-evenly"}}>
                         <button style={{width: "40%", marginRight: "20px"}} className="button" onClick={openFdj}>Feuilles de route</button>
-                        <button style={{width: "40%", marginRight: "20px"}}  className="button" onClick={openRapportVisites}>Rapport Visites</button>
+                        <button style={{width: "40%", marginRight: "20px"}}  className="button" onClick={openRapportVisites}>Rapport des visites réalisées</button>
                     </div>
                     <div className="titre-fiche">
                         <h1>Fiches de suivi</h1>
                     </div>
-                    <div style={{display: "flex", flexWrap: "wrap", padding: "20px", justifyContent: "center"}}>
-                        <button style={{width: "40%", marginRight: "20px"}}  className="button" onClick={openFicheClient}>Fiche de suivi Client</button>
-                        <button style={{width: "40%", marginRight: "20px"}}  className="button" onClick={openFicheProspect}>Fiche de suivi Prospect</button>
+                    <div style={{display: "flex", flexWrap: "wrap", padding: "20px", justifyContent: "space-evenly"}}>
+                        <button style={{width: "40%", marginRight: "20px"}}  className="button" onClick={openFicheClient}>Fiches de suivi Client</button>
+                        <button style={{width: "40%", marginRight: "20px"}}  className="button" onClick={openFicheProspect}>Fiches de suivi Prospect</button>
                     </div>
                     <div className="titre-fiche">
                         <h1>Fiches de Compte rendu</h1>
                     </div>
-                    <div style={{display: "flex", flexWrap: "wrap", padding: "20px", justifyContent: "center"}}>
-                        <button style={{width: "40%", marginRight: "20px"}}  className="button" onClick={openDemonstration}>CR de RDV de Démonstration</button>
-                        <button style={{width: "40%", marginRight: "20px"}}  className="button" onClick={openPresentation}>CR de RDV de Présentation</button>
+                    <div style={{display: "flex", flexWrap: "wrap", padding: "20px", justifyContent: "space-evenly"}}>
+                        <button style={{width: "40%", marginRight: "20px"}}  className="button" onClick={openDemonstration}>CR de RDV de Démonstration (formulaire)</button>
+                        <button style={{width: "40%", marginRight: "20px"}}  className="button" onClick={openCRD}>CR de RDV de Démonstration (recherche)</button>
                     </div>
                     <div className="titre-fiche">
                         <h1>A définir</h1>
                     </div>
-                    <div style={{display: "flex", flexWrap: "wrap", padding: "20px", justifyContent: "center"}}>
+                    <div style={{display: "flex", flexWrap: "wrap", padding: "20px", justifyContent: "space-evenly"}}>
                         <button style={{width: "40%", marginRight: "20px"}}  className="button" onClick={openHistorique}>Historique des salons</button>
-                        <button style={{width: "40%", marginRight: "20px"}}  className="button" onClick={openTableauVisites}>Tableau des visites</button>
+                        <button style={{width: "40%", marginRight: "20px"}}  className="button" onClick={openTableauVisites}>Rapport des visites effectuées</button>
                     </div>
                     </>
                 )}
@@ -103,19 +102,19 @@ function FichesAmin({ uid }) {
             )}
 
             {currentComponent === "Client" && (
-                <FicheClient uid={uid} onReturn={returnBack} />
+                <Client uid={uid} onReturn={returnBack} />
             )}
 
             {currentComponent === "Prospect" && (
-                <FicheProspect uid={uid} onReturn={returnBack} />
+                <Prospect uid={uid} onReturn={returnBack} />
             )}
 
             {currentComponent === "Démonstration" && (
-                <FicheDemonstration uid={uid} onReturn={returnBack} />
+                <Demonstration uid={uid} onReturn={returnBack} />
             )}
 
-            {currentComponent === "Présentation" && (
-                <FichePresentation uid={uid} onReturn={returnBack} />
+            {currentComponent === "SearchCRD" && (
+                <SearchCRD uid={uid} onReturn={returnBack} /> 
             )}
 
             {currentComponent === "Historique" && (

@@ -2,7 +2,7 @@
 // Fichier SignUp.js
 
 import "../index.css" 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { createUserWithEmailAndPassword } from "firebase/auth"
 import { auth, db } from "../firebase.config.js"
 import { doc, setDoc, addDoc, collection } from "firebase/firestore"
@@ -10,6 +10,7 @@ import { Link, useNavigate } from "react-router-dom"
 import emailImg from "../assets/email.png"
 import mdpImg from "../assets/mdp.png"
 import userImg from "../assets/users.png"
+import closeImg from "../assets/close-white.png"
 
 function SignUp() {
     const [firstname, setFirstname] = useState("")
@@ -19,8 +20,12 @@ function SignUp() {
     const [message, setMessage] = useState("")
     const [messageType, setMessageType] = useState("")
     const [role, setRole] = useState("")
-    const navigate = useNavigate()
+    const [departments, setDepartments] = useState([])
+    const [selectedDepartments, setSelectedDepartments] = useState([])
+    const [searchTerm, setSearchTerm] = useState("")
 
+    const navigate = useNavigate()
+ 
     const handleSignUp = async (e) => {
         e.preventDefault()
 
@@ -44,12 +49,13 @@ function SignUp() {
                 lastname: lastname,
                 email: email,
                 role: role,
+                departments: role === "commercial" ? selectedDepartments : []
             }) 
 
             await addDoc(collection(db, "historiqueAdmin"), {
                 userId: user.uid,
                 date: new Date(),
-                action: `Nouvel utilisateur: ${firstname} ${lastname}, inscrit par l'admin`, 
+                action: `Nouvel utilisateur inscrit : `, 
             })
 
             setMessage("Inscription réussie")
@@ -61,6 +67,42 @@ function SignUp() {
             setMessage("Inscription échouée")
             setMessageType("error")
         }
+    }
+
+    useEffect(() => {
+        if (role === "commercial" && searchTerm) {
+            const service = new window.google.maps.places.AutocompleteService();
+            service.getPlacePredictions(
+                {
+                    input: searchTerm,
+                    componentRestrictions: { country: 'fr' },
+                    types: ['(regions)']
+                },
+                (predictions, status) => {
+                    if (status === window.google.maps.places.PlacesServiceStatus.OK && predictions) {
+                        const filteredDepartments = predictions
+                            .filter(prediction => prediction.types.includes('administrative_area_level_2')) 
+                            .filter(prediction => prediction.description.endsWith(", France"))  
+                            .map(prediction => prediction.description.replace(", France", ""))
+                        setDepartments(filteredDepartments)
+                    }
+                }
+            )
+        } else {
+            setDepartments([])
+        }
+    }, [role, searchTerm])
+
+    const handleAddDepartment = (department) => {
+        if (!selectedDepartments.includes(department)) {
+            setSelectedDepartments([...selectedDepartments, department])
+            setSearchTerm("")
+            setDepartments([])
+        }
+    }
+
+    const handleRemoveDepartment = (department) => {
+        setSelectedDepartments(selectedDepartments.filter(dep => dep !== department))
     }
 
     return (
@@ -87,8 +129,34 @@ function SignUp() {
                 <label><input className="checkbox" type="radio" value="administrateur" checked={role === "administrateur"} onChange={(e) => setRole(e.target.value)} />Compte administrateur</label><br></br>
                 <label><input className="checkbox" type="radio" value="commercial" checked={role === "commercial"} onChange={(e) => setRole(e.target.value)} />Compte commercial</label>
 
-                {messageType === "success" && (
+                {role === "commercial" && (
+                    <div>
+                        <input className="input-dpt" type="text" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder="Attribuer un département" />
+                        {departments.length > 0 && (
+                            <ul>
+                                {departments.map((department, index) => (
+                                    <li key={index} style={{background: "white", padding: "5px", borderBottom: "1px solid #cfcfcf", cursor: "pointer"}} onClick={() => handleAddDepartment(department)}>
+                                        {department}
+                                    </li>
+                                ))}
+                            </ul>
+                        )}
+                        <div style={{color: "white"}}>
+                            <p style={{marginBottom: "10px", fontWeight: "bold"}}>Départements attribués :</p>
+                            <ul>
+                                {selectedDepartments.map((department, index) => (
+                                    <div style={{display: "flex", alignItems: "center", marginBottom: "5px"}}>
+                                        <li key={index} >{department} </li>
+                                        <img onClick={() => handleRemoveDepartment(department)} className="delete-dpt" src={closeImg} alt="retirer le département" />
+                                    </div>
+                                    
+                                ))}
+                            </ul>
+                        </div>
+                    </div>
+                )}
 
+                {messageType === "success" && (
                     <div className="success-animation">
                         <div className="circle"> 
                             <div className="checkmark"></div>

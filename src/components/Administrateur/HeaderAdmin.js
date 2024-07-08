@@ -1,15 +1,14 @@
 
 // fichier HeaderAdmin
 
-import "../index.css"
-import React from "react";
-import "../index.css";
-import home from "../assets/home.png"
-import homeB from "../assets/homeb.png"
-import survey from "../assets/survey.png"
-import surveyB from "../assets/surveyb.png"
-import user from "../assets/user.png"
-import userB from "../assets/userb.png" 
+import                      "../../index.css"
+import React                from "react"
+import home                 from "../../assets/home.png"
+import homeB                from "../../assets/homeb.png"
+import survey               from "../../assets/survey.png"
+import surveyB              from "../../assets/surveyb.png"
+import user                 from "../../assets/user.png"
+import userB                from "../../assets/userb.png"  
 
 function HeaderAdmin({ activeTab, onTabChange }) {
     
@@ -49,8 +48,8 @@ function HeaderAdmin({ activeTab, onTabChange }) {
                 </button>
             </nav>
         </header>
-    );
-};
+    )
+}
 
 export default HeaderAdmin
 

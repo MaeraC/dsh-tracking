@@ -11,7 +11,7 @@ import { useNavigate }                                      from "react-router-d
 import { doc, getDoc }                                      from "firebase/firestore"
 import { auth, db }                                         from "../firebase.config.js"
 import { onAuthStateChanged }                               from "firebase/auth"
-import HeaderAdmin from "../components/HeaderAdmin.js" 
+import HeaderAdmin from "../components/Administrateur/HeaderAdmin.js" 
 
 function DashAdmin () {
     const [activeTab, setActiveTab]                         = useState("apercu")

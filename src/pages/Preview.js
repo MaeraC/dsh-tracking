@@ -1,8 +1,8 @@
 
 // Fichier Preview
 
-import RecapCom from "../components/RecapCom"
-import StatisticsVisits from "../components/StatisticsVisits"
+import RecapCom from "../components/Commercial/RecapCom"
+import StatisticsVisits from "../components/Commercial/StatisticsVisits"
 
 function Preview({ firstname, uid }) {
 
@@ -16,7 +16,7 @@ function Preview({ firstname, uid }) {
                 <p>Voici les statistiques de vos visites effectuées.</p>
             </div>
             
-            <div style={{width: "100%", display: "flex", justifyContent: "space-around"}}>
+            <div className="content-prev">   
                 <StatisticsVisits uid={uid} />
                 <RecapCom uid={uid} />
             </div>

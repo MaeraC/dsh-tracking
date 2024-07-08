@@ -1,83 +1,29 @@
+    
 
-// fichier ResultsFiches.js
-
-import { useRef } from "react";
-import jsPDF from "jspdf";   
-import html2canvas from "html2canvas";
-import download from "../assets/download.png"   
-import closeIcon from "../assets/back.png"     
-
-function ResultsFiches({ data, onClose }) {
-    const pageRef = useRef()
+function ResultsFiches({ data }) { 
     const { colorationsAvecAmmoniaque, colorationsSansAmmoniaque, colorationsVégétales } = data;
-
-    const downloadPDF = () => {
-        const input = pageRef.current;
-        if (!input) {
-            console.error('Erreur : référence à l\'élément non valide');
-            return;
-        }
-    
-        html2canvas(input, {
-            windowWidth: document.documentElement.offsetWidth,
-            windowHeight: document.documentElement.offsetHeight,
-            scrollX: window.scrollX,
-            scrollY: window.scrollY,
-        })
-        .then(canvas => {
-            const imgData = canvas.toDataURL('image/png');
-            const pdf = new jsPDF();
-            const pdfWidth = pdf.internal.pageSize.getWidth();
-            const pdfHeight = pdf.internal.pageSize.getHeight();
-            const ratio = canvas.width / canvas.height;
-            const width = pdfWidth;
-            const height = width / ratio;
-            let position = 0;
-    
-            if (height > pdfHeight) {
-                 //eslint-disable-next-line 
-                const pageHeight = pdf.internal.pageSize.height;
-                 //eslint-disable-next-line 
-                while (height > 0) {
-                     //eslint-disable-next-line 
-                    pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, pdfHeight);
-                     //eslint-disable-next-line 
-                    height -= pdfHeight;
-                    position -= pageHeight;
-                    if (height > 0) {
-                        pdf.addPage();
-                    }
-                }
-            } else {
-                pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, height);
-            }
-    
-            pdf.save("statistics.pdf");
-        })
-        .catch(error => {
-            console.error('Erreur lors de la génération du PDF :', error);
-        });
-    };
-    
+    const formatDate2 = (dateStr) => {
+        if (!dateStr) return '';
+        const options = { day: '2-digit', month: '2-digit', year: 'numeric' }
+        return new Date(dateStr).toLocaleDateString('fr-FR', options)
+    }
     return (
-        <div className="results-fiches"  ref={pageRef}>
-            <button className="close-btn button-colored" onClick={onClose}><img src={closeIcon} alt="" /></button>
-            <button className="download button-colored" onClick={downloadPDF}><img src={download} alt="" /></button>
+        <div className="results-fiches" style={{background: "white"}}>
 
             <p className='title-grid'>SALON DE COIFFURE / INSTITUT DE BEAUTE</p>
             <div className='infos-salon'>
                 <div className='infos-generales'>
                     <div className='line'>
                         <p className='title-table'>Nom</p>
-                        <p className='txt-table'></p>
+                        <p className='txt-table'>{data.name}</p>
                     </div>
                     <div className='line'>
                         <p className='title-table'>Adresse</p>
-                        <p className='txt-table'>Adresse à récupérée</p>
+                        <p className='txt-table'>{data.adresse}</p>
                     </div>
                     <div className='line'>
                         <p className='title-table'>Ville</p>
-                        <p className='txt-table'>Ville à récupérée</p>
+                        <p className='txt-table'>{data.city}</p>
                     </div>
                     <div className='line'>
                         <p className='title-table'>Téléphone</p>
@@ -136,7 +82,7 @@ function ResultsFiches({ data, onClose }) {
                     </div>
                     <div className='col col2'>
                         <p className='title-col'>Nb de personnes</p>
-                        <p className='txt-col'>Nb à récupéré</p>
+                        <p className='txt-col'>{data.nombreDePersonnes}</p>
                     </div>
                     <div className='col col2'>
                         <p className='title-col'>origine de la visite</p>
@@ -160,10 +106,10 @@ function ResultsFiches({ data, onClose }) {
                         </div>
                         <div className='tables'>
                             <div className='line2'>
-                                <p style={{width:"30%", borderRight: "1px solid #cfcfcf"}} className='title-table3'>Avec ammoniaque</p>
+                                <p style={{width:"30%", borderRight: "1px solid #cfcfcf", padding: "10px"}} className='title-table3'>Avec ammoniaque</p>
                                 <div style={{width:"70%"}} className="sous-line-box">
-                                    {colorationsAvecAmmoniaque.map((item, index) => (
-                                        <div className='sous-line' key={`avec-ammoniaque-${index}`}>
+                                    {colorationsAvecAmmoniaque && colorationsAvecAmmoniaque.map((item, index) => (
+                                        <div className='sous-line' key={`avec-ammoniaque-${index}`} style={{background: "white"}}>
                                             <p style={{width:"60%", borderRight: "1px solid #cfcfcf", paddingLeft: "10px"}} className='txt-table3'>{item.nom}</p>
                                             <p style={{width:"20%", borderRight: "1px solid #cfcfcf", paddingLeft: "10px"}} className='txt-table3'>{item.prix}€</p>
                                             <p style={{width:"20%", borderRight: "1px solid #cfcfcf", paddingLeft: "10px"}} className='txt-table3'>{item.ml}ml</p>
@@ -172,10 +118,10 @@ function ResultsFiches({ data, onClose }) {
                                 </div>
                             </div>  
                             <div className='line2'>
-                                <p style={{width:"30%", borderRight: "1px solid #cfcfcf"}} className='title-table3'>Sans ammoniaque</p>
+                                <p style={{width:"30%", borderRight: "1px solid #cfcfcf", padding: "10px"}} className='title-table3'>Sans ammoniaque</p>
                                 <div style={{width:"70%"}} className="sous-line-box">
-                                    {colorationsSansAmmoniaque.map((item, index) => (
-                                        <div className='sous-line' key={`sans-ammoniaque-${index}`}>
+                                    {colorationsSansAmmoniaque && colorationsSansAmmoniaque.map((item, index) => (
+                                        <div className='sous-line' key={`sans-ammoniaque-${index}`}  style={{background: "white"}}>
                                             <p style={{width:"60%", borderRight: "1px solid #cfcfcf", paddingLeft: "10px"}} className='txt-table3'>{item.nom}</p>
                                             <p style={{width:"20%", borderRight: "1px solid #cfcfcf", paddingLeft: "10px"}} className='txt-table3'>{item.prix}€</p>
                                             <p style={{width:"20%", borderRight: "1px solid #cfcfcf", paddingLeft: "10px"}} className='txt-table3'>{item.ml}ml</p>
@@ -183,11 +129,11 @@ function ResultsFiches({ data, onClose }) {
                                     ))}
                                 </div>
                             </div>
-                                                       <div className='line2'>
-                                <p style={{width:"30%", borderRight: "1px solid #cfcfcf"}} className='title-table3'>Végétales</p>
+                            <div className='line2'>
+                                <p style={{width:"30%", borderRight: "1px solid #cfcfcf", padding: "10px"}} className='title-table3'>Végétales</p>
                                 <div style={{width:"70%"}} className="sous-line-box">
-                                    {colorationsVégétales.map((item, index) => (
-                                        <div className='sous-line' key={`végétales-${index}`}>
+                                    {colorationsVégétales && colorationsVégétales.map((item, index) => (
+                                        <div className='sous-line' key={`végétales-${index}`} style={{background: "white"}}>
                                             <p style={{width:"60%", borderRight: "1px solid #cfcfcf", paddingLeft: "10px"}} className='txt-table3'>{item.nom}</p>
                                             <p style={{width:"20%", borderRight: "1px solid #cfcfcf", paddingLeft: "10px"}} className='txt-table3'>{item.prix}€</p>
                                             <p style={{width:"20%", borderRight: "1px solid #cfcfcf", paddingLeft: "10px"}} className='txt-table3'>{item.ml}ml</p>
@@ -197,22 +143,22 @@ function ResultsFiches({ data, onClose }) {
                             </div>
                         </div>
                     </div>
-                    <div className='infos-generales2 infos-generales2-col'>
+                    <div className='infos-generales2 infos-generales2-col' style={{ border: "1px solid #cfcfcf"}}>
                         <div className='col col2'>
-                            <p className='title-col'>Poudre</p>
-                            <p style={{background: "white"}} className='txt-col'>{data.autresMarques.poudre}</p>
+                            <p style={{padding: "5px"}} className='title-col'>Poudre</p>
+                            <p style={{background: "white", padding: "5px"}} className='txt-col'>{data?.autresMarques?.poudre}</p>
                         </div>
                         <div className='col col2'>
-                            <p className='title-col'>Permanente</p>
-                            <p style={{background: "white"}} className='txt-col'>{data.autresMarques.permanente}</p>
+                            <p style={{padding: "5px"}} className='title-col'>Permanente</p>
+                            <p style={{background: "white", padding: "5px"}} className='txt-col'>{data?.autresMarques?.permanente}</p>
                         </div>
                         <div className='col col2'>
-                            <p className='title-col'>Revente</p>
-                            <p style={{background: "white"}} className='txt-col'>{data.autresMarques.revente}</p>
+                            <p style={{padding: "5px"}} className='title-col'>Revente</p>
+                            <p style={{background: "white", padding: "5px"}} className='txt-col'>{data?.autresMarques?.revente}</p>
                         </div>
                         <div className='col col2'>
-                            <p className='title-col'>BAC/TECH</p>
-                            <p style={{background: "white"}} className='txt-col'>{data.autresMarques.bac}</p> 
+                            <p style={{padding: "5px"}} className='title-col'>BAC/TECH</p>
+                            <p style={{background: "white", padding: "5px"}} className='txt-col'>{data?.autresMarques?.bac}</p> 
                         </div>
                     </div>
                 </div> 
@@ -220,14 +166,14 @@ function ResultsFiches({ data, onClose }) {
 
             <div style={{width: "90%", display: "flex",  background: "#f0f0f0"}} className='infos-salon3'>
                 <div style={{width: "40%"}}>
-                    <div style={{display: "flex", width: "100%", border: "1px solid #cfcfcf", background: "#3D9B9B", padding: "10px"}}> 
-                        <div style={{width: "50%", color: "white"}}>
-                            <p>Date de visite</p>
-                            <p>{data.dateDeVisite}</p>
+                    <div style={{display: "flex", width: "100%", border: "1px solid #cfcfcf"}}> 
+                        <div style={{width: "50%",  border: "1px solid #cfcfcf", display: "flex", alignItems: "center"}}>
+                            <p style={{padding: "10px", width: "60%"}} className="bold">Date de visite : </p>
+                            <p style={{marginLeft: "10px", width: "40%", background: "white",  borderLeft: "1px solid #cfcfcf", padding: "10px",}}>{formatDate2(data.dateDeVisite)}</p>
                         </div>
-                        <div style={{width: "50%", color: "white"}}>
-                            <p>Responsable présente ?</p>
-                            <p>{data.responsablePrésente}</p>
+                        <div style={{width: "50%",  border: "1px solid #cfcfcf",  display: "flex",  alignItems: "center"}}>
+                            <p style={{padding: "10px", width: "60%"}} className="bold">Responsable présente ?</p>
+                            <p style={{marginLeft: "10px", width: "40%", background: "white",  borderLeft: "1px solid #cfcfcf", padding: "10px",}}>{data.responsablePrésent}</p>
                         </div>
                     </div>
                     <div style={{border: "1px solid #cfcfcf", padding: "10px", background: "white"}}>
@@ -243,7 +189,7 @@ function ResultsFiches({ data, onClose }) {
                         <p>{data.pointsPourLaProchaineVisite}</p>
                     </div>
                 </div>
-                <div style={{width: "40%"}}>
+                <div style={{width: "35%"}}>
                     <div style={{border: "1px solid #cfcfcf", padding: "10px", background: "white"}}>
                         <p style={{fontWeight : "bold", marginBottom: "5px"}}>Intéressés par ?</p>
                         <p>{data.intéressésPar}</p>
@@ -253,29 +199,39 @@ function ResultsFiches({ data, onClose }) {
                         <p>{data.autresPoints}</p>
                     </div>
                     <div style={{border: "1px solid #cfcfcf", padding: "10px", background: "white"}}>
-                        <p style={{fontWeight : "bold", marginBottom: "5px"}}>Observations ou motifs si Abandon</p>
+                        <p style={{fontWeight : "bold", marginBottom: "5px"}}>Observations (éléments à retenir) ou motifs si Abandon</p>
                         <p>{data.observations}</p>
                     </div>
                 </div>
-                <div style={{width: "20%"}}>
-                    <div style={{border: "1px solid #cfcfcf", padding: "10px", background: "white"}}>
-                        <p style={{fontWeight : "bold", marginBottom: "5px"}}>Abandon ?</p>
-                        <p>{data.statut}</p>
-                        <p style={{fontWeight : "bold", marginBottom: "5px"}}>À revoir ?</p>
-                        <p>{data.aRevoir}</p>
+                <div style={{width: "25%"}}>
+                    <div style={{border: "1px solid #cfcfcf", background: "white", display: "flex"}}>
+                        <p style={{fontWeight : "bold", marginBottom: "5px", background: "#e0e0e0",  padding: "5px 10px"}}>Abandon ou à revoir ?</p>
+                        <p style={{ padding: "5px 10px"}}>{data.statut}</p>
                     </div>
-                    <div style={{border: "1px solid #cfcfcf", padding: "10px", background: "white"}}>
-                        <p style={{fontWeight : "bold", marginBottom: "5px"}}>RDV obtenu ? </p>
-                        <p>{data.rdvObtenu}</p>
-                        <p style={{fontWeight : "bold", marginBottom: "5px"}}>RDV Prévu pour le :</p>
-                        <p>{data.rdvPrévuLe}</p>
-                        <p style={{fontWeight : "bold", marginBottom: "5px"}}>RDV Prévu pour :</p>
-                        <p>{data.typeDeRdv}</p>
+                    <div style={{border: "1px solid #cfcfcf", background: "white", display: "flex"}}>
+                        <p style={{fontWeight : "bold", marginBottom: "5px", background: "#e0e0e0",  padding: "5px 10px"}}>RDV obtenu ?</p>
+                        <p style={{ padding: "5px 10px"}}>{data.rdvObtenu}</p>
                     </div>
-                    <div style={{border: "1px solid #cfcfcf", padding: "10px", background: "white"}}>
-                        <p style={{fontWeight : "bold", marginBottom: "5px"}}>Commande ?</p>
-                        <p>{data.commande}</p>
-                    </div>
+                    <div style={{border: "1px solid #cfcfcf", background: "white", display: "flex"}}>
+                        <p style={{fontWeight : "bold", marginBottom: "5px", background: "#e0e0e0",  padding: "5px 10px"}}>Si Oui, RDV Prévu le ?</p>
+                        <p style={{ padding: "5px 10px"}}>{data.rdvPrévuLe}</p>
+                    </div> 
+                    <div style={{border: "1px solid #cfcfcf", background: "white", display: "flex"}}>
+                        <p style={{fontWeight : "bold", marginBottom: "5px", background: "#e0e0e0",  padding: "5px 10px"}}>Si Oui, RDV Prévu pour ?</p>
+                        <p style={{ padding: "5px 10px"}}>{data.typeDeRdv}</p>
+                    </div> 
+                    <div style={{border: "1px solid #cfcfcf", background: "white"}}>
+                        <p style={{fontWeight : "bold", marginBottom: "5px", background: "#e0e0e0",  padding: "5px 10px"}}>Si démonstration, quel type :</p>
+                        <div style={{display: "flex", flexWrap: "wrap"}}>
+                        {data.typeDeDémonstration.map((item, index) => (
+                            <p key={index} style={{ padding: "2px 5px", display: "flex", flexWrap: "wrap", fontSize: "14px"}}>{item}</p> 
+                        ))} 
+                        </div>
+                    </div> 
+                    <div style={{border: "1px solid #cfcfcf", background: "white", display: "flex"}}>
+                        <p style={{fontWeight : "bold", marginBottom: "5px", background: "#e0e0e0",  padding: "5px 10px"}}>Commande ?</p>
+                        <p style={{ padding: "5px 10px"}}>{data.commande}</p>
+                    </div> 
                 </div>
             </div>
         </div>

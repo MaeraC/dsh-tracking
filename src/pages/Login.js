@@ -319,10 +319,12 @@ function Login() {
 
             // Vérifier les indisponibilités pour les commerciaux
             if (userData.role === "commercial") {
+
                 const unavailabilityQuery = query(
                     collection(db, "unavailabilities"),
                     where("userId", "==", user.uid)
                 )
+
                 const unavailabilitySnapshot = await getDocs(unavailabilityQuery)
                 const now = Timestamp.now()
                 let isUnavailable = false
@@ -340,7 +342,7 @@ function Login() {
                     await signOut(auth)
                     return
                 }
-/*
+                /*
                 if (isHolidayOrWeekend()) {
                     setMessage("Impossible de se connecter durant les week-ends et jours fériés.")
                     setMessageType("error")
@@ -361,7 +363,7 @@ function Login() {
             setMessageType("error")
         }
     }
-/*
+    /*
     const isHolidayOrWeekend = () => {
         const today = new Date()
         const day = today.getDay()
@@ -401,7 +403,6 @@ function Login() {
                 )}
 
                 <button onClick={handleLogin} className="button-white">Me connecter</button>
-                {/*<Link to="/inscription" className="link-signup">M'inscrire</Link>*/}
             </form>
         </div>
     )

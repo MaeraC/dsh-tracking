@@ -12,7 +12,7 @@ import { useNavigate }                                      from "react-router-d
 import { doc, getDoc }                                      from "firebase/firestore"
 import { auth, db }                                         from "../firebase.config.js"
 import { onAuthStateChanged }                               from "firebase/auth"
-import HeaderCom                                            from "../components/HeaderCom.js"
+import HeaderCom                                            from "../components/Commercial/HeaderCom.js" 
 
 function DashboardComm () {
     const [activeTab, setActiveTab]                         = useState("apercu")

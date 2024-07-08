@@ -2,8 +2,8 @@
 
 import React, { useEffect, useState, useRef } from 'react'
 import { collection, getDocs, query, where } from 'firebase/firestore'
-import { db } from "../firebase.config"
-import back from "../assets/back.png"
+import { db } from "../../firebase.config"
+import back from "../../assets/back.png"
 import jsPDF from "jspdf";   
 import html2canvas from "html2canvas"
 
@@ -30,44 +30,76 @@ function FeuillesMensuelles({ uid, onReturn }) {
         fetchFeuillesRoute();
     }, [uid]);
 
+    const getCurrentMonthName = () => {
+        const currentDate = new Date();
+        return currentDate.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+    }
+
     const groupStopsByWeek = () => {
         const weeks = [];
+        const currentDate = new Date();
+        const currentYear = currentDate.getFullYear();
+        const currentMonth = currentDate.getMonth(); 
+        const start = new Date(currentYear, currentMonth, 1);
+        const end = new Date(currentYear, currentMonth + 1, 0);
+        let current = new Date(start);
+
+        while (current <= end) {
+            const weekStart = new Date(current);
+            const weekEnd = new Date(current);
+            weekEnd.setDate(weekEnd.getDate() + 6);
+
+            const stopsByDay = Array(7).fill().map(() => ({
+                date: null,
+                stops: [],
+                motif: null
+            }));
+
+            weeks.push({
+                startDate: new Date(weekStart),
+                endDate: new Date(weekEnd),
+                stopsByDay,
+                totalKmByDay: Array(7).fill(0)
+            })
+            current.setDate(current.getDate() + 7);
+        }
 
         feuillesRoute.forEach(feuille => {
             const date = new Date(feuille.date.seconds * 1000);
-            const dayOfWeek = date.getDay();
-            const weekIndex = Math.floor((date.getDate() - 1) / 7);
+            const weekIndex = weeks.findIndex(week => date >= week.startDate && date <= week.endDate);
 
-            if (!weeks[weekIndex]) {
-                weeks[weekIndex] = {
-                    stopsByDay: Array(7).fill().map((_, index) => ({
-                        date: null,
-                        stops: []
-                    })),
-                    totalKmByDay: Array(7).fill(0)
-                };
+            if (weekIndex !== -1) {
+                const dayOfWeek = date.getDay();
+                weeks[weekIndex].stopsByDay[dayOfWeek].date = `${daysOfWeek[dayOfWeek]} ${date.getDate()} ${date.toLocaleDateString('fr-FR', { month: 'long' })}`;
+
+              
+                if (feuille.isVisitsStarted === false && feuille.motif) {
+                    weeks[weekIndex].stopsByDay[dayOfWeek].motif = feuille.motif;
+                } else {
+                    feuille?.stops?.forEach(stop => {
+                        weeks[weekIndex].stopsByDay[dayOfWeek].stops.push({ ...stop });
+                        weeks[weekIndex].totalKmByDay[dayOfWeek] += stop.distance || 0;
+                    });
+                }
             }
-
-            weeks[weekIndex].stopsByDay[dayOfWeek].date = `${date.getDate()} ${date.toLocaleDateString('fr-FR', { month: 'long' })}`;
-            feuille.stops.forEach(stop => {
-                weeks[weekIndex].stopsByDay[dayOfWeek].stops.push({ ...stop });
-                weeks[weekIndex].totalKmByDay[dayOfWeek] += stop.distance || 0;
-            });
         });
 
-        // Ajouter les dates manquantes
         weeks.forEach(week => {
             week.stopsByDay.forEach((day, dayIndex) => {
                 if (!day.date) {
-                    const weekStartDate = new Date(new Date().setDate(new Date().getDate() - new Date().getDay()));
-                    const currentDayDate = new Date(weekStartDate.setDate(weekStartDate.getDate() + dayIndex));
-                    day.date = `${currentDayDate.getDate()} ${currentDayDate.toLocaleDateString('fr-FR', { month: 'long' })}`;
+                    const currentDay = new Date(week.startDate);
+                    currentDay.setDate(currentDay.getDate() + dayIndex);
+                    day.date = `${daysOfWeek[dayIndex]} ${currentDay.getDate()} ${currentDay.toLocaleDateString('fr-FR', { month: 'long' })}`;
+                }
+                if (day.stops.length === 0) {
+                    day.stops.push(null); // Ajouter un objet vide si aucun arrêt n'est présent
                 }
             });
-        });
-
+        })
         return weeks;
-    };
+    }
+    const weeks = groupStopsByWeek();
+    const thisMonth = getCurrentMonthName()
 
     const formatDistance = (distance) => {
         if (distance < 1000) {
@@ -75,8 +107,6 @@ function FeuillesMensuelles({ uid, onReturn }) {
         }
         return `${(distance / 1000).toFixed(2)} km`;
     };
-
-    const weeks = groupStopsByWeek();
 
     const getVisitCountsForMonth = () => {
         let totalVisits = 0;
@@ -99,22 +129,21 @@ function FeuillesMensuelles({ uid, onReturn }) {
         });
     
         return { totalVisits, clientVisits, prospectVisits };
-    };
-     
-    const visitCounts = getVisitCountsForMonth();
+    }
+    const visitCounts = getVisitCountsForMonth()
 
     const generatePDF = (input, filename) => {
         if (!input) {
             console.error('Erreur : référence à l\'élément non valide');
             return;
         }
-
+    
         html2canvas(input, {
             useCORS: true,
             scale: 2, // Augmente la résolution du canvas pour une meilleure qualité
         }).then(canvas => {
             const imgData = canvas.toDataURL('image/png');
-            const pdf = new jsPDF('l', 'mm', 'a3'); // 'l' pour landscape, 'a3' pour format A3
+            const pdf = new jsPDF('p', 'mm', 'a4');
             const pdfWidth = pdf.internal.pageSize.getWidth();
             const pdfHeight = pdf.internal.pageSize.getHeight();
             const canvasWidth = canvas.width;
@@ -122,11 +151,20 @@ function FeuillesMensuelles({ uid, onReturn }) {
             const ratio = canvasWidth / canvasHeight;
             const width = pdfWidth;
             const height = width / ratio;
-
+    
             let position = 0;
-
+    
+            const totalPages = height > pdfHeight
+                ? Math.ceil(canvasHeight / (canvasWidth * pdfHeight / pdfWidth))
+                : 1;
+    
+            const addPageNumber = (pdf, pageNumber, totalPages) => {
+                pdf.setFontSize(10);
+                const pageNumText = `Page ${pageNumber} / ${totalPages}`;
+                pdf.text(pageNumText, pdfWidth / 2, pdfHeight - 10, { align: 'center' });
+            };
+    
             if (height > pdfHeight) {
-                const totalPages = Math.ceil(canvasHeight / (canvasWidth * pdfHeight / pdfWidth));
                 for (let i = 0; i < totalPages; i++) {
                     const pageCanvas = document.createElement('canvas');
                     pageCanvas.width = canvasWidth;
@@ -138,45 +176,47 @@ function FeuillesMensuelles({ uid, onReturn }) {
                         pdf.addPage();
                     }
                     pdf.addImage(pageImgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+                    addPageNumber(pdf, i + 1, totalPages);
                     position += pageCanvas.height;
                 }
             } else {
                 pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, height);
+                addPageNumber(pdf, 1, totalPages);
             }
-
+    
             pdf.save(filename);
         }).catch(error => {
             console.error('Erreur lors de la génération du PDF :', error);
         });
     };
-
     const downloadPDF = () => {
         const input = pageRef.current;
-        generatePDF(input, "feuille-du-jour-hebdomadaire.pdf");
-    };
-
+        generatePDF(input, "feuille-mensuelle.pdf");
+    }
     const handleDownloadDoc = () => {
         downloadPDF();
-    };
+    }
+
+    
 
     return (
-        <div style={{ margin: "20px", position: "relative" }}>
+        <div style={{  position: "relative" }}>
             <div className='titre-fiche'> 
                 <h1>Feuille de route mensuelle</h1>
                 <button onClick={onReturn} className="button-back"><img src={back} alt="retour" /></button>
             </div>
 
-            <button onClick={handleDownloadDoc} className='button-colored'>Télécharger la feuille de route</button>
+            <button onClick={handleDownloadDoc} style={{padding: "5px 20px", marginTop: "20px", marginLeft: "30px"}} className='button-colored'>Télécharger la feuille de route</button>
 
-            <div ref={pageRef} style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
-                <div className='hebdo-stats'>
-                        <p>Nombre total de visites effectuées ce mois-ci <span>{visitCounts.totalVisits}</span></p>
-                        <p>Nombre de visites clients effectuées ce mois-ci <span>{visitCounts.clientVisits}</span></p>
-                        <p>Nombre de visites prospects effectuées ce mois-ci <span>{visitCounts.prospectVisits}</span></p>
+            <div ref={pageRef} style={{ margin: "0 20px", padding: '20px', fontFamily: 'Arial, sans-serif' }}>
+                <div className='hebdo-stats-print' style={{justifyContent: "space-around"}}>
+                        <p>Nombre total de visites effectuées <span>{visitCounts.totalVisits}</span></p>
+                        <p>Nombre de visites clients effectuées  <span>{visitCounts.clientVisits}</span></p>
+                        <p>Nombre de visites prospects effectuées  <span>{visitCounts.prospectVisits}</span></p>
                     </div>
-                    <div>AFFICHER LE MOIS</div>
+                    <div style={{color: "grey", fontStyle: "italic", margin: "20px", textTransform: "uppercase"}}>Feuille mensuelle du mois de : {thisMonth}</div>   
                 {weeks.map((week, weekIndex) => (
-                    <div key={weekIndex}>
+                    <div key={weekIndex}> 
                         <table border="1" style={{ width: '100%', borderCollapse: 'collapse', marginBottom: "20px", fontSize: "15px" }}>
                             <thead>
                                 <tr>
@@ -206,15 +246,22 @@ function FeuillesMensuelles({ uid, onReturn }) {
                                             <td key={dayIndex} style={{ verticalAlign: 'top' }}>
                                                 {day.stops[rowIndex] ? (
                                                     <div style={{display: "flex", flexDirection: "column", justifyContent: "space-around", padding: "5px", height: "100%", fontSize: "14px"}}>
-                                                        <p>{day.stops[rowIndex].name}</p>
-                                                        <p>{day.stops[rowIndex].status}</p>
-                                                        <p>{day.stops[rowIndex].address} {day.stops[rowIndex].city}</p>
-                                                        <p>{formatDistance(day.stops[rowIndex].distance)}</p>
-                                                        <p>{day.stops[rowIndex].arrivalTime}</p>
-                                                        <p>{day.stops[rowIndex].departureTime}</p>
+                                                        <p><strong>{day.stops[rowIndex].name}</strong></p><br />
+                                                        <p>{day.stops[rowIndex].status}</p><br />
+                                                        <p>{day.stops[rowIndex].address} {day.stops[rowIndex].postalCode} {day.stops[rowIndex].city}</p><br />
+                                                        <p>{formatDistance(day.stops[rowIndex].distance)}</p><br />
+                                                        <p>{day.stops[rowIndex].arrivalTime}</p><br />
+                                                        <p>{day.stops[rowIndex].departureTime}</p><br />
                                                     </div>
                                                 ) : (
-                                                    <div></div> // Afficher la date si aucun arrêt n'est présent
+                                                    <div style={{ height: "220px", background: "#e0e0e0", padding: "10px", textAlign: "center" }}>
+                                                        { rowIndex === 0 && day.motif && (
+                                                            <div>
+                                                                <p style={{marginBottom: "5px"}}>Pas de déplacements</p>
+                                                                <p>Motif : <strong>{day.motif}</strong></p>
+                                                            </div>
+                                                        )}
+                                                    </div>
                                                 )}
                                             </td>
                                         ))}

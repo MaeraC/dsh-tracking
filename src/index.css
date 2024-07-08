@@ -14,6 +14,7 @@ a, button {
 }
 li {
     list-style: none;
+    align-content: flex-start;
 }
 input,
 select {
@@ -119,10 +120,21 @@ textarea {
 }
 .entry h1 {
     color: white;
-    margin-bottom: 100px;
+    margin-bottom: 30px;
+}
+.entry p {
+    color: white;margin-bottom: 50px;
 }
 .entry a {
     margin-bottom: 30px;
+}
+.entry a:hover {
+    transform: scale(1.02);
+    transition: 0.3s;
+}
+button:hover {
+    transform: scale(1.02);
+    transition: 0.3s;
 }
 .signup-page,
 .login-page {
@@ -153,6 +165,7 @@ textarea {
     padding-left: 40px;
     margin-bottom: 30px;
     color: white;
+    width: 350px;
 }
 .login-form input::placeholder,
 .signup-form input::placeholder {
@@ -247,17 +260,45 @@ textarea {
     text-decoration: underline;
     margin: 10px 0;
 }
-
-
+.modal-fdj {
+    position: absolute !important;
+}
+.modal-fdj input {
+    padding: 5px 10px;
+}
+.input-dpt {
+    padding-left: 10px !important;
+    border: 1px solid white !important;
+}
+.delete-dpt {
+    position: initial !important;
+    width: 15px !important;
+    height: 15px !important;
+    cursor: pointer;
+    margin-left: 5px;
+}
 /********* HEADER COMPONENT **************************/
+.button-delete {
+    cursor: pointer;
+    background: none;
+    border: none;
 
+}
+.button-delete img {
+    width: 20px;
+    height: 20px;
+    margin-left: 5px;
+}
+.btn-test {
+    display: flex;
+    align-items: center;
+}
 .header {
-    position: fixed;
+    position: absolute;
     top: 0;
-    right: 0;
-    width: 15%;
+    right: 00px;
     background: white;
-    z-index: 99;
+    z-index: 999;
 }
 .header nav {
     display: flex;
@@ -289,11 +330,11 @@ textarea {
 .fiches-section header,
 .feuilles-de-route-section header {
     border-bottom: 1px solid #cfcfcf;
-    margin-bottom: 20px;
     padding: 20px;
 }
 .geo-header {
-    padding: 20px 0;
+    padding: 20px;
+    border-bottom: 1px solid #cfcfcf;
 }
 .preview-section header h1,
 .geo-header h1,
@@ -316,6 +357,11 @@ textarea {
 }
 .preview-section .hello p {
     margin-top: 5px;
+}
+.preview-section .content-prev {
+    width: 100%;
+    display: flex;
+    justify-content: space-evenly;
 }
 .stats-section {
     margin: 20px 0;
@@ -401,8 +447,10 @@ textarea {
 .stats-section .modal-stats .content label {
     color: grey;
     display: inline-block;
-    margin-bottom: 10px;
+    margin-bottom: 5px;
     font-size: 14px;
+    text-align: start;
+    width: 100%;
 }
 .stats-section .modal-stats .div h3 {
     margin-bottom: 20px;
@@ -435,20 +483,21 @@ textarea {
     margin-right: 10px;
 }
 .recap {
-    width: 67%;
+    width: 60%;
     margin-top: 50px;
     padding: 20px;
 }
 .recap h2 {
     margin-bottom: 20px;
 }
-.recap input {
+.recap input,
+.recap select {
     padding: 5px 10px;
     width: initial ;
     margin-top: 10px;
     margin-bottom: 0;
     box-shadow: none;
-    font-size: 12px;
+    font-size: 15px;
     font-family: "Roboto";
 }
 .recap thead {
@@ -456,7 +505,7 @@ textarea {
     color: white;
 }
 .recap td {
-    padding: 10px; 
+    padding: 20px 10px; 
     text-align: center;
 }
 .recap th {
@@ -464,6 +513,38 @@ textarea {
 }
 .recap .colonne {
     background: #cfcfcf;
+}
+@media screen and (max-width: 1150px) {
+    .preview-section .content-prev {
+        flex-direction: column;
+        align-items: center;
+    }
+    .stats-section {
+        margin: 20px 0;
+        margin-top: 50px;
+        width: 60%;
+    }
+    .recap {
+        width: 90%;
+        margin-top: 50px;
+        padding: 20px;
+    }
+}
+@media screen and (max-width: 800px) {
+    .stats-section {
+        width: 60%;
+    }
+    .recap {
+        width: 99%;
+        margin-top: 0px;
+        overflow-x: scroll;
+    }
+}
+@media screen and (max-width: 600px) {
+    .stats-section {
+        width: 100%;
+        padding: 0 20px;
+    }
 }
 
 
@@ -528,26 +609,7 @@ textarea {
     font-size: 15px;
     color: red;
 }
-.modale {
-    height: 100vh;
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: #b4b4b48a;
-}
-.modale .content {
-    background: white;
-    width: 90%;
-    padding: 30px;
-    box-shadow: 2px 2Px 15px #c4c3c3;
-    border-radius: 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-}
+
 #Client {
     margin-left: 20px !important;
 }
@@ -608,7 +670,7 @@ textarea {
     padding-bottom: 0;
 }
 .distance-results .arrets li p {
-    margin-bottom: 15px;
+    margin-bottom: 5px;
     color: grey;
     line-height: 25px;
 }
@@ -646,6 +708,7 @@ textarea {
     text-align: center;
     line-height: 25px;
     margin: 40px 10px;
+    margin-bottom: 20px;
 }
 .congrats .error-message {
     margin-top: 20px;
@@ -687,6 +750,10 @@ textarea {
 }
 .start-adress {
     padding: 20px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 .start-adress .confirm {
     text-align: center;
@@ -697,23 +764,9 @@ textarea {
     text-align: center;
     margin-bottom: 20px;
 }
-.start-adress .btns {
-    display: flex;
-    justify-content: center;
+.start-adress .mini-buttons {
     margin-bottom: 20px;
-}
-.start-adress .btns button {
-    background: #3D9B9B;
-    color: white;
-    padding: 8px 20px;
-    border: none;
-    font-family: "Roboto";
-    font-size: 15px;
-    border-radius: 5px;
-    cursor: pointer;
-}
-.start-adress .btns button:nth-child(1) {
-    margin-right: 20px;
+    margin-top: 0 !important;
 }
 .start-adress .info {
     color: grey;
@@ -722,6 +775,22 @@ textarea {
     margin-bottom: 20px;
     margin-top: 10px;
     text-align: center;
+}
+.start-adress .inputadresse,
+.start-adress .démarrer {
+    width: 35%;
+}
+@media screen and (max-width: 950px) {
+    .start-adress .inputadresse,
+    .start-adress .démarrer {
+        width: 50%;
+    }
+}
+@media screen and (max-width: 600px) {
+    .start-adress .inputadresse,
+    .start-adress .démarrer {
+        width: 90%;
+    }
 }
 .btn-cancel {
     text-align: center;
@@ -756,7 +825,7 @@ textarea {
     margin-right: 20px;
 }
 .back-home-btn {
-    width: 90%;
+    width: 40%; 
 }
 .geoloc-section .modal {
     position: fixed;
@@ -784,7 +853,7 @@ textarea {
     line-height: 25px;
 }
 .geoloc-section .modal .modal-content input {
-    margin-bottom: 0px;
+    margin-bottom: 15px;
     margin-top: 10px;
 }
 .geoloc-section .modal .modal-content .cancel {
@@ -801,12 +870,20 @@ textarea {
 .city-suggestions {
     background: white;
     border: #c5c5c5 1px solid;
+    width: 35%;
 }
 .city-suggestions li {
     padding: 8px;
     border-bottom: 1px solid #c5c5c5;
     cursor: pointer;
 }
+.parcours {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
 
 
 
@@ -1102,7 +1179,7 @@ textarea {
 .historique-section .button-back {
     position: absolute;
     left: 10px;
-    top: 0;
+    top: 10px;
 }
 .filter-historique .select-sugg {
     width: 100%;
@@ -1155,7 +1232,6 @@ form h2 {
     font-size: 23px;
 }
 form .adress {
-    margin-bottom: 30px;
     text-align: center;
     color: grey;
     font-size: 15px;
@@ -1510,7 +1586,13 @@ form input {
 
 .form-FSC {
     background: #DCF1F2;
-    padding: 20px;
+    padding: 20px 50px;
+    width: 60%;
+}
+.form-FSC input,
+.form-FSP input,
+.form-CRD input {
+    width: 100%;
 }
 .form-FSP {
     background: #DCF1F2;
@@ -1638,8 +1720,9 @@ form input {
 
 
 
-.historique-section {
-    padding: 0 20px;
+
+.historique-section input, .filter-historique button {
+    width: 100%;
 }
 .historique-section .btn-v {
     margin-bottom: 10px;
@@ -1662,6 +1745,9 @@ form input {
     background: white;
     padding: 5px;
 }
+.historique-content {
+    padding: 20px 50px;
+}
 .historique-formdata thead {
     padding: 5px;
 }
@@ -1669,19 +1755,12 @@ form input {
     padding: 0 !important;
 }
 .results-fiches {
-    position: fixed;
-    width: 100%;
-    height: 100vh;
-    top: 0;
-    left: 0;
-    background: white;
+    font-size: 14px;
+    padding-top: 20px;
+    margin-bottom: 30px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    overflow-y: scroll;
-    font-size: 14px;
-    padding-bottom: 150px;
-    padding-top: 20px;
 }
 .results-fiches .close-btn {
     position: absolute;
@@ -1690,7 +1769,8 @@ form input {
 }
 .btn-h {
     font-size: 13px;
-    padding: 5px 6px !important;
+    padding: 5px 6px !important;  
+    width: 100%;
 }
 .results-fiches .close-btn {
     width: initial;
@@ -1704,7 +1784,6 @@ form input {
     align-items: center;
     width: 90%;
     height: 220px;
-    margin-bottom: 20px;
 }
 .infos-generales {
     display: flex;
@@ -1978,7 +2057,7 @@ form input {
     border: none;
     border-radius: 5px;
     padding: 10px;
-    font-size: 18px;
+    font-size: 16px;
     margin-right: 20px;
     width: 80px;
 }
@@ -2027,7 +2106,7 @@ form input {
 .geo-header .btns {
     position: absolute;
     z-index: 2;
-    bottom: -120px;
+    bottom: -130px;
     right: 20px;
     cursor: pointer;
     display: flex;
@@ -2038,11 +2117,11 @@ form input {
     background-color: #3D9B9B;
     border-radius: 50%;
     border: none;
-    padding: 13px;
-    padding-left: 12px;
-    padding-right: 12px;
-    padding-bottom:9px;
-    margin-top: 10px;
+    padding: 11px;
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-bottom:7px;
+    margin-top: 20px;
     cursor: pointer;
 }
 .geo-header .btns button img {
@@ -2118,95 +2197,14 @@ form input {
     padding: 10px;
     border-bottom: 1px #bebebe solid;
 }
-@media screen and (max-width: 1700px) {
+@media screen and (max-width: 2200px) {
     .fiche-client-section form,
-    .fiche-prospect-section form,
-    .demonstration-section form {
+    .fiche-prospect-section form {
         display: flex;
         justify-content: center;
     }
-    .form-FSC,
-    .form-FSP,
-    .form-CRD {
-        width: 70%;
-    }
 }
-@media screen and (max-width: 1300px) {
-    .fdr-section-admin .content {
-        flex-direction: column;
-        align-items: center;
-    }
-    .fdr-section-admin .search {
-        width: 70%;
-        height: initial;
-    }
-    .fdr-section-admin .results {
-        width: 70%;
-    }
-    .fdr-section-admin .results .feuille-jj {
-        width: 45%;
-    }
-    .fdr-section-admin .results .ad {
-        width: 100%;
-    }
-    .form-FSC,
-    .form-FSP,
-    .form-CRD {
-        width: 70%;
-    }
-}
-@media screen and (max-width: 1000px) {
-    .fdr-section-admin .search {
-        width: 90%;
-    }
-    .fdr-section-admin .results {
-        width: 100%;
-    }
-    .fdr-section-admin .results .feuille-jj {
-        width: 45%;
-    }
-    .historique-content {
-        flex-direction: column;
-    }
-    .filter-historique {
-        width: 100%;
-        margin-bottom: 20px;
-    }
-    .historique-results {
-        width: 100%;
-    }
-}
-@media screen and (max-width: 800px) {
-    .fdr-section-admin .results .feuille-jj {
-        width: 90%;
-    }
-    .form-FSC,
-    .form-FSP,
-    .form-CRD {
-        width: 90%;
-    }
-}
-@media screen and (max-width: 600px) {
-    .fdr-section-admin .content {
-        padding-top: 0;
-    }
-    .fdr-section-admin .search,
-    .fdr-section-admin .results .feuille-jj {
-        width: 100%;
-    }
-    .preview-admin .stats-section {
-        padding: 0;
-        padding-bottom: 20px;
-    }
-    .preview-admin .hello {
-        margin-left: 20px;
-    }
-    .form-FSC,
-    .form-FSP,
-    .form-CRD {
-        width: 100%;
-    }
-}
+
 
 .date-filters .un {
     margin-bottom: 10px !important;
@@ -2294,7 +2292,7 @@ form input {
     border-radius: 20px;
     margin: 20px;
     padding: 20px;
-    display: inline-block;
+    align-self: self-start;
 }
 .download {
     position: absolute;
@@ -2351,10 +2349,48 @@ form input {
     font-weight: bold;
     font-size: 15px;
 }
+.filter-feuilles-stats-admin {
+    background: #DCF1F2;
+    padding: 20px;
+    margin-bottom: 30px;
+    border-radius: 20px;
+    width: 60%;
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: space-between;
+}
+
+.filter-feuilles-stats-admin p {
+    margin-bottom: 10px;
+}
+.filter-feuilles-stats-admin .part1 {
+    width: 45%;
+}
+.filter-feuilles-stats-admin .part2 {
+    width: 45%;
+}
+.search-test {
+    padding: 30px;
+}
+
+.filter-feuilles-stats-admin .part2 p {
+    display: flex;
+    justify-content: space-between;
+}
+.filter-feuilles-stats-admin span {
+    background: #3D9B9B ;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 5px;
+    margin-left: 10px;
+    font-weight: bold;
+    font-size: 15px;
+}
 
 .fdr-section-admin .content {
     display: flex;
     justify-content: center;
+    flex-wrap: wrap;
 }
 .fdr-section-admin .feuille-du-jour {
     position: relative;
@@ -2362,7 +2398,8 @@ form input {
     border-radius: 20px;
     margin: 20px;
     padding: 20px;
-    width: 30%;
+    width: 30% !important;
+    align-self: self-start;
 }
 .fiches-section-admin .filter-feuilles-admin {
     width: 100% !important;
@@ -2377,19 +2414,61 @@ form input {
     box-shadow: 2px 2px 15px #cfcfcf; 
 }
 .filters-input-admin {
-    width: 75%;
+    width: 100%;
     display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
+    flex-direction: column;
+}
+.input-admin-mini {
+    display: flex;
+    align-items: center;
+}
+@media screen and (max-width: 1100px) {
+    .filter-feuilles-stats-admin {
+        width: 80%;
+    }
+}
+@media screen and (max-width: 900px) {
+    .filter-feuilles-stats-admin {
+        width: 100%;
+    }
+}
+@media screen and (max-width: 750px) {
+    .filter-feuilles-stats-admin {
+        flex-direction: column;
+        align-items: center;
+    }
+    .filter-feuilles-stats-admin .part1 {
+        margin-bottom: 20px;
+        width: 100%;
+    }
+    .filter-feuilles-stats-admin .part2 {
+        width: 100%;
+    }
+    .search-test {
+        padding: 10px;
+        padding-top: 30px;
+    }
+    .input-admin-mini {
+        flex-direction: column;
+     }
+     .input-admin-mini div {
+         width: 100% !important;
+         margin-left: 30px;
+     }
 }
 .input-admin {
     width: 20%;
 }
-.input-admin input {
+.input-admin-mini input {
     width: 100%;
 }
 .filters-admin button {
     width: 20%;
+}
+.mini {
+    align-self: last baseline;
+    margin-bottom: 30px;
+
 }
 @media screen and (max-width: 1420px) {
     .feuille-this-day {
@@ -2405,6 +2484,11 @@ form input {
         width: 90% !important;
     }
 }
+@media screen and (max-width: 1200px) {
+    .fdr-section-admin .feuille-du-jour {
+        width: 45% !important;
+    }
+}
 @media screen and (max-width: 1020px) {
     .fdr-content {
         flex-direction: column !important;
@@ -2418,7 +2502,12 @@ form input {
         width: 100% !important; 
     }
 }
-@media screen and (max-width: 700px) {
+@media screen and (max-width: 950px) {
+    .fdr-section-admin .feuille-du-jour {
+        width: 100% !important;
+    }
+}
+@media screen and (max-width: 800px) {
     .fdr-content {
         padding: 20px !important;
     }
@@ -2426,6 +2515,9 @@ form input {
         width: 100% !important;
         margin: 20px 0 !important; 
         margin-top: 10px !important;
+    }
+    .msg-no-feuille {
+        margin: 20px   !important;
     }
 }
 @media screen and (max-width: 650px) {
@@ -2446,23 +2538,39 @@ form input {
         margin-bottom: 20px
     }
 }
+@media screen and (max-width: 750px) {
+    .mini {
+        width: 40% !important;
+    }
+}
+@media screen and (max-width: 500px) {
+    .mini {
+        width: 100% !important;
+        margin-top: 20px;
+    }
+}
 
+.input-mdp {
+    margin-bottom: 25px !important;
+}
 
-
-.hebdo-stats {
+.hebdo-stats-print {
     background: #DCF1F2;
-    display: inline-block;
-    padding: 20px;
+    display: flex;
+    padding: 10px 20px;
     border-radius: 20px;
     padding-bottom: 10px;
+    font-size: 14px;
 }
-.hebdo-stats p {
+.hebdo-stats p,
+.hebdo-stats-print p {
     margin-bottom: 10px;
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
-.hebdo-stats span {
+.hebdo-stats span, 
+.hebdo-stats-print span  {
     background: #3D9B9B ;
     color: white;
     padding: 5px 10px;
@@ -2471,12 +2579,228 @@ form input {
     font-weight: bold;
     font-size: 15px;
 }
+.hebdo-stats-print span {
+    font-size: 14px;
+    margin-left: 10px;
+    margin-right: 10px;
+}
 .hebdo h2 {
     color: grey;
     font-size: 15px;
     margin-bottom: 10px;
     font-weight: 400;
     font-style: italic;
+}
+.hebdo .soussigne {
+    width: 80%;
+}
+.hebdo .print-table {
+    width: 70% ;
+}
+@media screen and (max-width: 900px) {
+    .hebdo .soussigne {
+        width: 90% !important;
+    }
+    .hebdo .print-table {
+        width: 95% !important;
+    }
+}
+
+
+.form-rapport input  {
+    width: 100%;
+}
+@media screen and (max-width: 1000px) {
+    .rapport-container {
+        flex-direction: column;
+        align-items: center !important;
+    }
+    .form-rapport {
+        width: 80% !important;
+        margin: 20px 0 !important;
+    }
+    .rapport-month {
+        width: 100% !important;
+    }
+}
+
+
+
+.filter-client {
+    display: flex;
+    width: 90%;
+    justify-content: space-between;
+    align-items: center;
+    justify-content: center;
+    margin: 20px 0;
+    margin-top: 30px;
+    box-shadow: 2px 2px 15px #cfcfcf; 
+    padding: 20px;
+    border-radius: 20px;
+}
+
+.filter-prospect {
+    align-items: flex-start;
+    justify-content: space-around;
+}
+.filter-input {
+    width: 65%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.filter-input div {
+    width: 30%;
+}
+.filter-prospect-input {
+    align-items: flex-start;
+}
+.filter-prospect-input div {
+    width: 45%;
+}
+.filter-input div input {
+    width: 100%;
+}
+.filter-input button {
+    width: 30%;
+    height: 50px;
+}
+.filter-prospect-input button {
+    width: 100%;
+}
+.filter-button {
+    display: flex;
+    flex-direction: column;
+    width: 30%;
+    height: 100%;
+    align-items: center;
+    justify-content: space-between;
+}
+.filter-prospect .filter-button {
+    margin-top: 30px;
+}
+.filter-prospect .filter-button button {
+    width: 80%;
+}
+.filter-button button:nth-child(1) {
+    margin-bottom: 10px;
+}
+.all-fiches-client {
+    width: 100%;
+
+}
+.all-fiches-client ul {
+    width: 100%;
+    padding:20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.all-fiches-client ul li {
+    width: 100%;
+    margin-bottom: 50px;
+}
+
+
+.filters-search-crd {
+    box-shadow: 2px 2px 15px #cfcfcf ;
+    padding: 20px;
+    margin: 20px;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    display: inline-block;
+}
+.filters-search-crd h2 {
+    margin-bottom: 16px;
+    font-size: 20px;
+}
+.filters-search-crd button {
+    width: 100%;
+    margin-bottom: 10px;
+    padding: 5px ;
+}
+.filters-search-crd input {
+    margin-right: 10px;
+}
+.filters-search-crd label input {
+    width: 100%;
+    margin-bottom: 10px !important;
+}
+.filters-search-crd label {
+    width: 100%;
+}
+@media screen and (max-width: 1100px) {
+    .historique-content {
+        flex-direction: column;
+        padding: 20px;
+    }
+    .filter-historique {
+        width: 100%;
+        margin-bottom: 20px;
+    }
+    .historique-results {
+        width: 100%;
+    }
+}
+@media screen and (max-width: 1000px) {
+    .filter-client {
+        flex-direction: column;
+        
+    }
+    .filter-input {
+        width: 100% !important;
+    }
+    .filter-button {
+        flex-direction: row;
+        justify-content: center;
+        width: 100%;
+    }
+    .filter-button button:nth-child(1) {
+        margin-bottom: 0;
+        margin-right: 20px;
+    }
+    .form-FSC,
+    .form-FSP {
+        width: 90%;
+    }
+    .form-FSP input,
+    .form-CRD input {
+        width: 100%;
+    }
+
+}
+@media screen and (max-width: 700px) {
+    .all-fiches-client ul li {
+        width: 80%;
+    }
+    .filter-input {
+        flex-direction: column;
+    }
+    .filter-input button {
+        margin-bottom: 20px;
+    }
+    .filter-input div , .filter-input button {
+        width: 100%;
+    }
+    .filter-button button {
+        width: 50%;
+    }
+    .filter-button {
+        margin-left: 0 !important;
+    }
+}
+@media screen and (max-width: 500px) {
+    .filter-button button {
+        width: 100% !important;
+    }
+    .filter-button {
+        flex-direction: column;
+    }
+    .filter-button button:nth-child(1) {
+        margin-bottom: 10px;
+        margin-right: 0px;
+    }
 }
 
 /********************* PREVIEW ADMIN *************************/
@@ -2490,16 +2814,18 @@ form input {
     padding-top: 50px;
 }
 .preview-admin .stats-section {
-    width: 40%;
+    width: 45%;
     margin: 0;
 }
 .preview-admin .hello {
     margin-left: 100px;
 }
+
 .droits-admin {
-    width: 30%;
+    width: 45%;
     display: flex;
     flex-direction: column;
+    margin-top: 10px;
 }
 .droits-admin h2 {
     color: grey;
@@ -2510,6 +2836,56 @@ form input {
 }
 .droits-admin button {
     margin-bottom: 30px;
+}
+@media screen and (max-width: 1400px) {
+    .preview-admin .hello {
+        margin-left: 40px;
+    }
+    .preview-admin .content {
+        margin: 0 100px;
+    }
+    .droits-admin {
+        width: 40%;
+    }
+}
+@media screen and (max-width: 900px) {
+    .preview-admin .content {
+        margin: 0 40px;
+    }
+    .preview-admin .stats-section {
+        width: 50%;
+    }
+}
+@media screen and (max-width: 750px) {
+    .preview-admin .content {
+        margin: 0 40px;
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 30px;
+    }
+    .preview-admin .stats-section {
+        width: 90%;
+    }
+    .droits-admin {
+        width: 90%;
+        display: flex;
+        flex-direction: column;
+        margin-top: 10px;
+    }
+}
+@media screen and (max-width: 500px) {
+    .preview-admin .content {
+        margin: 0 20px;
+    }
+    .preview-admin .stats-section {
+        width: 100%;
+    }
+    .droits-admin {
+        width: 100%;
+    }
+    .preview-admin .hello {
+        margin-left: 20px;
+    }
 }
 .modal-form {
     width: 35%;
@@ -2566,16 +2942,21 @@ form input {
 }
 .tableau-indispo {
     padding: 20px !important;
+    padding-top: 30px !important;
     position: absolute !important;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
     background: white;
+    z-index: 99;
 }
 .tableau-indispo h2 {
-    margin-bottom: 30px;
-    text-align: center;
+    margin-top: 30px;
+    margin-bottom: 10px;
+    font-size: 16px;
+    color: grey;
+    font-weight: 400;
 }
 .tableau-indispo table {
     background: #cfcfcf;
@@ -2596,6 +2977,26 @@ form input {
     position: absolute;
     top: 20px;
     left: 20px;
+}
+
+
+
+
+.rapport-month {
+    width: 65%;
+}
+
+.rapport-mensuel-visite {
+    margin: 20px;
+    padding: 20px;
+    border-radius: 20px;
+    box-shadow: 2px 2px 15px #cfcfcf !important; 
+}
+
+.rapport-header {
+    text-align: center;
+    font-size: 18px;
+    margin: 20px 0;
 }
 
 
@@ -2639,6 +3040,21 @@ form input {
     text-align: center;
     margin-bottom: 30px;
     border-radius: 20px;
+    width: 40%;
+}
+.modal-content input,
+.modal-content button {
+    width: 100%;
+}
+@media screen and (max-width: 800px) {
+    .modal-content {
+        width: 70%;
+    }
+}
+@media screen and (max-width: 600px) {
+    .modal-content {
+        width: 90%;
+    }
 }
 .mini-buttons {
     display: flex;
@@ -2667,6 +3083,7 @@ form input {
     border: none;
     text-align: center;
     margin: 20px 0;
+    margin-bottom: 0;
     cursor: pointer;
 }
 .modal-page {
@@ -2681,7 +3098,97 @@ form input {
 .tableau-action-admin {
     width: 100%;
 }
+.tableau-action-admin h2 {
+    margin-top: 30px;
+    margin-bottom: 10px;
+    font-size: 16px;
+    color: grey;
+    font-weight: 400;
+}
 .tableau-action-admin td,
 .tableau-action-admin th {
     padding: 10px;
+}
+.reset-form {
+    background: none;
+    border: none;
+    color: #3D9B9B;
+    text-decoration: underline;
+    text-align: start;
+    cursor: pointer;
+    width: 100% !important;
+}
+.download-f {
+    position: initial !important;
+}
+
+
+.recap-admin  {
+    width: 100%;
+    margin-top: 20px !important;
+}
+
+@media screen and (max-width: 1100px) {
+    .monthly-report-container {
+        flex-direction: column;
+    }
+    .monthly-report-container .form-report {
+        width: 95% !important;
+    }
+    .monthly-report {
+        width: 100% !important; 
+    }
+    .report {
+        justify-content: center !important;
+    }
+}
+@media screen and (max-width: 700px) {
+    .salon-report {
+        width: 100% !important; 
+    }
+}
+@media screen and (max-width: 650px) {
+    .fiches-section .content div {
+        flex-direction: column;
+        align-items: center;
+    }
+    .fiches-section .content div button {
+        width: 90% !important;
+        margin-bottom: 20px
+    };
+}
+@media screen and (max-width: 500px) {
+    .download-f {
+        width: 100% !important;
+        justify-content: center;
+    }
+}
+
+
+.date-inputs {
+    margin-top: 30px;
+    box-shadow: 2px 2px 15px #cfcfcf;
+    padding: 20px;
+    display: flex;
+    justify-content: space-around;
+    border-radius: 20px;
+    align-items: center;
+}
+.date-inputs button {
+    height: 50px;
+    width: 25%;
+}
+.date-inputs div  {
+    width: 30%;
+}
+.date-inputs div input {
+    width: 100%;
+}
+@media screen and (max-width: 900px) {
+    .date-inputs {
+        flex-direction: column;
+    }
+    .date-inputs div, .date-inputs button {
+        width: 100%;
+    }
 }

@@ -1,43 +1,24 @@
 
-// fichier Historique.js
+// fichier HistoriqueCom.js
 
-import back from "../assets/back.png"
+import back from "../../assets/back.png"
 import { useState, useEffect } from "react" 
-import { db } from "../firebase.config"
+import { db } from "../../firebase.config"
 import { query, collection, where, getDocs, getDoc, doc } from 'firebase/firestore'
 
-function Historique({ onReturn }) {
+function HistoriqueCom({ onReturn }) {
     const [suggestions, setSuggestions] = useState([])
     const [searchSalon, setSearchSalon] = useState("")
     const [selectedSalon, setSelectedSalon] = useState(null)
     const [historique, setHistorique] = useState([])
     const [loading, setLoading] = useState(false)
     const [nombreVisites, setNombreVisites] = useState(0)
-    const [startDate, setStartDate] = useState("");
-    const [endDate, setEndDate] = useState("");
-    const [usersMap, setUsersMap] = useState({})
-    const [searchCity, setSearchCity] = useState("");
-    const [citySuggestions, setCitySuggestions] = useState([]);
-    const [selectedCity, setSelectedCity] = useState(null);
+    const [startDate, setStartDate] = useState("")
+    const [endDate, setEndDate] = useState("")
+    const [searchCity, setSearchCity] = useState("")
+    const [citySuggestions, setCitySuggestions] = useState([])
+    const [selectedCity, setSelectedCity] = useState(null)
     const [message, setMessage] = useState(false)
-    // eslint-disable-next-line
-    const [filteredHistorique, setFilteredHistorique] = useState([]);
-
-    useEffect(() => {
-        const fetchUsersData = async () => {
-            const usersData = {};
-            try {
-                const usersSnapshot = await getDocs(collection(db, 'users'));
-                usersSnapshot.forEach((doc) => {
-                    usersData[doc.id] = doc.data();
-                });
-                setUsersMap(usersData);
-            } catch (error) {
-                console.error("Erreur lors de la récupération des utilisateurs : ", error);
-            }
-        }; 
-        fetchUsersData();
-    }, [])
 
     const handleSearch = async (e) => {
         const searchValue = e.target.value
@@ -113,7 +94,7 @@ function Historique({ onReturn }) {
             const entryDate = entry.date.toDate()
             return entryDate >= start && entryDate <= end
         })
-        
+
         return filteredData
     }
     const handleSubmit = async (e) => {
@@ -139,15 +120,18 @@ function Historique({ onReturn }) {
             const salonDoc = await getDoc(salonRef)
     
             if (salonDoc.exists()) {
+
                 const data = salonDoc.data()
                 const historiqueData = data.historique || []
                 const filteredData = filterHistoriqueByDate(historiqueData)
+
                 filteredData.sort((a, b) => b.date.seconds - a.date.seconds)
                 setHistorique(filteredData)
                 
                 const visitesCount = filteredData.filter(entry => entry.action === "Nouvelle visite").length
                 setNombreVisites(visitesCount)
-            } else {
+            } 
+            else {
                 setHistorique([])
                 setNombreVisites(0)
             }
@@ -167,74 +151,69 @@ function Historique({ onReturn }) {
                 <button onClick={onReturn} className="button-back"><img src={back} alt="retour" /></button>
             </div>
             <div className="historique-content">
-            <div className="filter-historique">
-                <label>Filtrer par nom</label>
-                <input type="text" placeholder="Rechercher un salon" value={searchSalon} onChange={handleSearch} />
-                <div className="select-sugg">
-                    {suggestions.map((salon) => (
-                        <div key={salon.id} onClick={() => handleSelectSuggestion(salon)}
-                            style={{ cursor: "pointer", padding: "5px", borderBottom: "1px solid #ccc" }} >
-                            {salon.name}
-                        </div>
-                    ))}
-                </div>
-                <label>Filtrer par ville</label>
-                <input type="text" placeholder="Rechercher une ville" value={searchCity} onChange={handleCitySearch} required />
-                <div className="select-sugg">
-                        {citySuggestions.map((city) => (
-                            <div key={city.id} onClick={() => handleSelectCitySuggestion(city)}
+                <div className="filter-historique">
+                    <label>Filtrer par nom</label>
+                    <input type="text" placeholder="Rechercher un salon" value={searchSalon} onChange={handleSearch} />
+                    <div className="select-sugg">
+                        {suggestions.map((salon) => (
+                            <div key={salon.id} onClick={() => handleSelectSuggestion(salon)}
                                 style={{ cursor: "pointer", padding: "5px", borderBottom: "1px solid #ccc" }} >
-                                {city.name}
+                                {salon.name}
                             </div>
                         ))}
                     </div>
-                <div>
-                    <label>Date de début</label>
-                    <input type="date"  className='custom-select' value={startDate} onChange={(e) => setStartDate(e.target.value)} /><br></br>
-                    <label>Date de fin </label>
-                    <input type="date"  className='custom-select'value={endDate} onChange={(e) => setEndDate(e.target.value)} />  <br></br>
-                    <p style={{textAlign: "center"}} className="error-message">{message}</p>
-                    <button className="button-colored" type="submit" onClick={handleSubmit}>valider la recherche</button>
+                    <label>Filtrer par ville</label>
+                    <input type="text" placeholder="Rechercher une ville" value={searchCity} onChange={handleCitySearch} required />
+                    <div className="select-sugg">
+                            {citySuggestions.map((city) => (
+                                <div key={city.id} onClick={() => handleSelectCitySuggestion(city)}
+                                    style={{ cursor: "pointer", padding: "5px", borderBottom: "1px solid #ccc" }} >
+                                    {city.name}
+                                </div>
+                            ))}
+                        </div>
+                    <div> 
+                        <label>Date de début</label>
+                        <input type="date"  className='custom-select' value={startDate} onChange={(e) => setStartDate(e.target.value)} /><br></br>
+                        <label>Date de fin </label>
+                        <input type="date"  className='custom-select'value={endDate} onChange={(e) => setEndDate(e.target.value)} />  <br></br>
+                        <p style={{textAlign: "center"}} className="error-message">{message}</p>
+                        <button className="button-colored" type="submit" onClick={handleSubmit}>valider la recherche</button>
+                    </div>
                 </div>
-            </div>
 
-            {loading ? (
-                <div>Loading...</div>
-            
-            ) : selectedSalon && historique.length > 0 ? (
-                <div className="historique-results">
-                    <h2>Historique du salon {selectedSalon.name}</h2>
-                    <p className="nb-visit">Nombre de visites: <span>{nombreVisites}</span></p>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Action</th>
-                                <th>Date</th>
-                                <th>Fait par</th>
-                               
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {historique.map((entry, index) => {
-                                return (
-                                    <tr key={index}>
-                                    <td>{entry.action}</td>
-                                    <td>{new Date(entry.date.seconds * 1000).toLocaleString('fr-FR', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit'})}</td>
-                                    <td>{usersMap[entry.userId]?.lastname} {usersMap[entry.userId]?.firstname}</td>
+                {loading ? (
+                    <div>Loading...</div>
+                
+                ) : selectedSalon && historique.length > 0 ? (
+                    <div className="historique-results">
+                        <h2>Historique du salon {selectedSalon.name}</h2>
+                        <p className="nb-visit">Nombre de visites: <span>{nombreVisites}</span></p>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Action</th>
+                                    <th>Date</th>
                                 </tr>
-                                )
-                            })}
-                        </tbody>
-                    </table>
-                </div>
-            ) : (
-                selectedSalon && (<div>Appuyer sur le bouton de recherche</div>)
-            )}
+                            </thead>
+                            <tbody>
+                                {historique.map((entry, index) => {
+                                    return (
+                                        <tr key={index}>
+                                        <td>{entry.action}</td>
+                                        <td>{new Date(entry.date.seconds * 1000).toLocaleString('fr-FR', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit'})}</td>
+                                    </tr>
+                                    )
+                                })}
+                            </tbody>
+                        </table>
+                    </div>
+                ) : (
+                    selectedSalon && (<div>Appuyer sur le bouton de recherche</div>)
+                )}
             </div>
-            
-           
         </div>
     )
 }
 
-export default Historique 
+export default HistoriqueCom

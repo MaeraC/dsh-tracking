@@ -1,17 +1,15 @@
 // Fichier StatisticsVisits.js
 
 import { collection, getDocs, query } from "firebase/firestore"; // Removed 'where'
-import { db } from "../firebase.config.js";
+import { db } from "../../firebase.config.js";
 import { useEffect, useState } from "react";
-import search from "../assets/searchb.png";
-import close from "../assets/close.png";
+import search from "../../assets/searchb.png";
+import close from "../../assets/close.png";
 
 function StatisticsAdmin() {
     const [visitsCount, setVisitsCount] = useState(0);
     const [daysWithoutVisitsCount, setDaysWithoutVisitsCount] = useState(0);
     const [totalDistance, setTotalDistance] = useState(0);
-     //eslint-disable-next-line 
-    const [unit, setUnit] = useState("");
     const [clientVisitsCount, setClientVisitsCount] = useState(0);
     const [prospectVisitsCount, setProspectVisitsCount] = useState(0);
     const [modalOpen, setModalOpen] = useState(false);
@@ -32,9 +30,10 @@ function StatisticsAdmin() {
                 let prospectVisits = 0;
 
                 feuillesDeRouteData.forEach(feuille => {
-                    if (feuille.isVisitsStarted) {
+                    if (feuille.isClotured) {
                         visits += feuille.stops.length > 0 ? feuille.stops.length - 1 : 0;  // Ne pas comptabiliser le dernier stop
-                        distance += feuille.totalKm;
+                        distance += feuille?.totalKm;
+                        console.log(feuille?.totalKm)
 
                         feuille.stops.slice(0, -1).forEach(stop => {  // Ne pas comptabiliser le dernier stop
                             if (stop.status === "Client") {
@@ -43,14 +42,14 @@ function StatisticsAdmin() {
                                 prospectVisits++;
                             }
                         });
-                    } else {
+                    }  else if (feuille.isVisitsStarted === false) {
                         daysWithoutVisits++;
                     }
                 });
 
                 setVisitsCount(visits);
                 setDaysWithoutVisitsCount(daysWithoutVisits);
-                setTotalDistance(distance / 1000);
+                setTotalDistance(distance);
                 setClientVisitsCount(clientVisits);
                 setProspectVisitsCount(prospectVisits);
             } catch (error) {
@@ -59,7 +58,7 @@ function StatisticsAdmin() {
         };
 
         fetchStatistics();
-    }, [unit]);
+    }, []);
 
     const handleModalOpen = () => {
         setModalOpen(true);
@@ -89,20 +88,27 @@ function StatisticsAdmin() {
             feuillesDeRouteData.forEach(feuille => {
                 const feuilleDate = feuille.date?.toDate(); // Conversion du timestamp en objet Date
                 if (feuilleDate >= startDate && feuilleDate < endDate) {
-                    if (feuille.isVisitsStarted) {
+                    if (feuille.isClotured) {
                         visits += feuille.stops?.length > 0 ? feuille.stops.length - 1 : 0;  // Ne pas comptabiliser le dernier stop
                         distance += feuille.totalKm;
-                    } else {
+                    } else if (feuille.isVisitsStarted === false) {
                         daysWithoutVisits++;
                     }
                 }
             });
 
-            setResult({ visits, daysWithoutVisits, distance: distance / 1000 });
+            setResult({ visits, daysWithoutVisits, distance});
         } catch (error) {
             console.error('Erreur lors de la récupération des statistiques :', error);
         }
     };
+
+    const formatDistance = (distance) => {
+        if (distance < 1000) {
+            return `${distance.toFixed(0)} m`;
+        }
+        return `${(distance / 1000).toFixed(2)} km`;
+    }
 
     return (
         <section className="stats-section">
@@ -134,12 +140,12 @@ function StatisticsAdmin() {
 
             <div className="nb total">
                 <p>Kilomètres parcourus</p>
-                <span>{totalDistance.toFixed(2) + " "}</span>
+                <span>{formatDistance(totalDistance)}</span>
             </div>
 
             {modalOpen && (
-                <div className="modal-stats">
-                    <div className="content">
+                <div className="modal-stats modal">
+                    <div className="content modal-content" style={{flexDirection: "column"}}>   
                         <span className="close" onClick={handleModalClose}><img src={close} alt="fermer" /></span>
                         <h3 className="h3">Sélectionner une période</h3>
                         <label>Date de début </label>
@@ -148,11 +154,11 @@ function StatisticsAdmin() {
                         <label>Date de fin :</label>
                         <input type="date" id="end-date" />
 
-                        <button className="button-colored" onClick={handleDateRangeSelect}>Valider</button>
-                        <div>
+                        <button className="button-colored" onClick={handleDateRangeSelect}>Valider</button>  
+                        <div style={{display: "flex", flexDirection: "column", alignItems: "flex-start"}}>  
                             <p><span>{result.visits}</span> Visites réalisées</p>
                             <p><span>{result.daysWithoutVisits}</span> Jours sans visites</p>
-                            <p><span>{result.distance.toFixed(2)}{result.unit}</span> Kilomètres parcourus</p>
+                            <p><span>{formatDistance(result.distance)}</span> Kilomètres parcourus</p>
                         </div>
                     </div>
                 </div>

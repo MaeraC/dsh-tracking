@@ -2,25 +2,18 @@
 // Fichier Fiches.js 
 
 import { useState }                                             from "react"
-import FeuillesDeRouteSemaine                                   from "./FeuillesDeRouteSemaine"
-import FicheClient                                              from "../components/FicheClient"
+import FicheClient                                              from "../components/Commercial/FicheClient"
 import FicheProspect                                            from "../components/FicheProspect"
 import FicheDemonstration                                       from "../components/FicheDemonstration"
-import FichePresentation                                        from "../components/FichePresentation"
-import Historique                                               from "../components/Historique"
-import FeuillesHebdo from "../components/FeuillesHebdo"
-import FeuilleJournalière from "../components/FeuilleJournalière"
-import RapportMensuelVisites from "../components/RapportMensuelVisites"
-import SearchFeuillesDuJour from "../components/SearchFeuillesDuJour"
-import FeuillesMensuelles from "../components/FeuillesMensuelles"
-import RapportVisitesAdmin from "../components/RapportVisitesAdmin"
+import SearchCRD                                        from "../components/SearchCRD"
+import FeuillesHebdo from "../components/Commercial/FeuillesHebdo"
+import FeuilleJournalière from "../components/Commercial/FeuilleJournalière"
+import RapportMensuelVisites from "../components/Commercial/RapportMensuelVisites"
+import FeuillesMensuelles from "../components/Commercial/FeuillesMensuelles"
+import HistoriqueCom from "../components/Commercial/HistoriqueCom"
   
 function Fiches({ uid }) {
     const [currentComponent, setCurrentComponent]               = useState(null)
-
-    const openFDR = () => {
-        setCurrentComponent("FDR")
-    } 
 
     const openFeuillesDeRoute = () => {
         setCurrentComponent("FeuillesDeRoute")
@@ -36,10 +29,6 @@ function Fiches({ uid }) {
 
     const openDemonstration = () => {
         setCurrentComponent("Démonstration")
-    }
-
-    const openPresentation = () => {
-        setCurrentComponent("Présentation")
     }
 
     const openHistorique = () => {
@@ -58,14 +47,6 @@ function Fiches({ uid }) {
         setCurrentComponent("RapportMensuel")
     }
 
-    const openRapportAdmin = () => {
-        setCurrentComponent("RapportAdmin")
-    }
-
-    const openSearchFeuillesDuJour = () => {
-        setCurrentComponent("SearchFdj")
-    }
-
     const returnBack = () => {
         setCurrentComponent(null)
     }
@@ -77,7 +58,6 @@ function Fiches({ uid }) {
             </header>
 
             <div>
-                
                 {!currentComponent && (
                     <>
                     <div className="titre-fiche">
@@ -88,7 +68,6 @@ function Fiches({ uid }) {
                         <button style={{margin: "20px", width: "40%"}} className="button" onClick={openFeuillesHebdo}>Feuilles de route Hebdomadaires</button>
                         <button style={{margin: "20px", width: "40%"}} className="button" onClick={openFeuillesMensuelles}>Feuilles de route mensuelles</button>
                         <button style={{margin: "20px", width: "40%"}} className="button" onClick={openRapportMensuel}>Rapport des visites réalisées</button>
-                        <button style={{margin: "20px", width: "40%"}} className="button" onClick={openRapportAdmin}>Rapport des ADMIN</button>
                     </div>
                     <div className="titre-fiche">
                         <h1>Fiches de suivi</h1>
@@ -101,27 +80,13 @@ function Fiches({ uid }) {
                         <h1>Fiches de Compte rendu</h1>
                     </div>
                     <div style={{display: "flex", flexWrap: "wrap", padding: "20px", justifyContent: "center"}}>
-                        <button style={{margin: "20px", width: "40%"}} className="button" onClick={openDemonstration}>CR de RDV de Démonstration</button>
-                        <button style={{margin: "20px", width: "40%"}} className="button" onClick={openPresentation}>CR de RDV de Présentation</button>
-                    </div>
-                    <div className="titre-fiche">
-                        <h1>A définir</h1>
-                    </div>
-                    <div style={{display: "flex", flexWrap: "wrap", padding: "20px", justifyContent: "center"}}>
-                        <button style={{margin: "20px", width: "40%"}} className="button" onClick={openFDR}>Feuilles de route de la semaine</button>
+                        <button style={{margin: "20px", width: "40%"}} className="button" onClick={openDemonstration}>CR de RDV de Démonstration (formulaire)</button>
                         <button style={{margin: "20px", width: "40%"}} className="button" onClick={openHistorique}>Historique des salons</button>
-                        <button style={{margin: "20px", width: "40%"}} className="button" onClick={openSearchFeuillesDuJour}>ADMIN ! Rechercher feuilles du jour par date</button>
                     </div>
-
-                        
-                        
                     </>
                 )}
             </div>
-
-            {currentComponent === "FDR" && (
-                <FeuillesDeRouteSemaine uid={uid} onReturn={returnBack}  />
-            )}
+ 
 
             {currentComponent === "FeuillesDeRoute" && (
                 <FeuilleJournalière uid={uid} onReturn={returnBack}  />
@@ -139,12 +104,8 @@ function Fiches({ uid }) {
                 <FicheDemonstration uid={uid} onReturn={returnBack} />
             )}
 
-            {currentComponent === "Présentation" && (
-                <FichePresentation uid={uid} onReturn={returnBack} />
-            )}
-
             {currentComponent === "Historique" && (
-                <Historique uid={uid} onReturn={returnBack} />
+                <HistoriqueCom uid={uid} onReturn={returnBack} />
             )}
  
             {currentComponent === "FeuillesHebdo" && ( 
@@ -157,14 +118,6 @@ function Fiches({ uid }) {
 
             {currentComponent === "RapportMensuel" && ( 
                 <RapportMensuelVisites uid={uid} onReturn={returnBack} />
-            )}
-
-            {currentComponent === "RapportAdmin" && ( 
-                <RapportVisitesAdmin uid={uid} onReturn={returnBack} />
-            )}
-
-            {currentComponent === "SearchFdj" && ( 
-                <SearchFeuillesDuJour uid={uid} onReturn={returnBack} />
             )}
         </div>
     )

@@ -3,9 +3,12 @@
 
 import back from "../assets/back.png"
 import plus from "../assets/plusplus.png"
-import { useState, useCallback } from "react"
+import { useState, useCallback, useRef, useEffect } from "react"
 import { db } from "../firebase.config"
 import { collection, query, where, getDocs, doc, updateDoc, getDoc, arrayUnion } from "firebase/firestore"
+import jsPDF from "jspdf"
+import html2canvas from "html2canvas" 
+import ResultsFiches from "./ResultsFiches"
 
 function FicheProspect({uid, onReturn}) {
     const [searchSalon, setSearchSalon] = useState("")
@@ -20,15 +23,30 @@ function FicheProspect({uid, onReturn}) {
     const [isViewAllFichesOpen, setIsViewAllFichesOpen] = useState(false)
     const [isViewFilteredFichesOpen, setIsViewFilteredFichesOpen] = useState(false)
     const [filteredFiches, setFilteredFiches] = useState([])
+    // eslint-disable-next-line
     const [rdvPresentationCount, setRdvPresentationCount] = useState(0)
+    const [formVisible, setFormVisible] = useState(true)
+    const [fichesThisYear, setFichesThisYear] = useState([])
+    const [thisYearOpen, setThisYearOpen] = useState(false)
+    const [selectedSalon, setSelectedSalon] = useState('')
+    const [currentYear, setCurrentYear] = useState("")
+    const [usersMap, setUsersMap] = useState({})
+    const [otherDemonstration, setOtherDemonstration] = useState('');
+    const [isOtherChecked, setIsOtherChecked] = useState(false);
+    
+    const pageRef = useRef()
+    const pageRef2 = useRef()
+    const pageRef3 = useRef()
 
     const createdAt = new Date()
 
     const initialFormData = { 
         adresseDuSalon: "",
         téléphoneDuSalon: "",
+        département: "",
         tenueDuSalon: "",
         salonTenuPar: "",
+        nombreDePersonnes:  "",
         département: "",
         jFture: "",
         nomDuResponsable: "",
@@ -59,7 +77,7 @@ function FicheProspect({uid, onReturn}) {
         rdvObtenu: "",
         rdvPrévuLe: "",
         rdvPrévuPour: "",
-        rdvType: "",
+        typeDeRdv: "",
         typeDeDémonstration: [],
         commande: "",
         createdAt: createdAt,
@@ -68,39 +86,81 @@ function FicheProspect({uid, onReturn}) {
     }
     const [formData, setFormData] = useState(initialFormData) 
 
+    useEffect(() => {
+        const fetchUsersData = async () => {
+            const usersData = {};
+            try {
+                const usersSnapshot = await getDocs(collection(db, 'users'));
+                usersSnapshot.forEach((doc) => {
+                    const userData = doc.data();
+                    usersData[doc.id] = { firstname: userData.firstname, lastname: userData.lastname, departments: userData.departments }; // Assurez-vous que les champs firstname et lastname existent
+                });
+                setUsersMap(usersData)
+            } catch (error) {
+                    console.error("Erreur lors de la récupération des utilisateurs : ", error);
+            }
+        };
+    
+        fetchUsersData()
+    }, [])
+
     const handleInputChange = (e) => {
-            const { name, value, type, checked } = e.target;
-            if (type === "checkbox") {
+        const { name, value, type, checked } = e.target;
+        if (type === "checkbox") {
+            if (name === "otherDemonstrationCheckbox") {
+                setIsOtherChecked(checked);
+                if (!checked) {
+                    setOtherDemonstration('');
+                }
+            } else {
                 const newTypeDeDémonstration = checked
                     ? [...formData.typeDeDémonstration, value]
                     : formData.typeDeDémonstration.filter(item => item !== value);
                 setFormData({ ...formData, typeDeDémonstration: newTypeDeDémonstration });
-            } else {
-                setFormData({ ...formData, [name]: value });
             }
+        } else {
+            let updatedFormData = { ...formData, [name]: value };
+            
+            // Reset typeDeDémonstration if typeDeRdv changes to anything other than "Démonstration"
+            if (name === "typeDeRdv" && value !== "Démonstration") {
+                updatedFormData.typeDeDémonstration = [];
+            }
+            
+            setFormData(updatedFormData);
+        }
     };
-
+    
+    const handleOtherDemonstrationChange = (e) => {
+        setOtherDemonstration(e.target.value);
+    };
+    
+    const handleOtherDemonstrationBlur = () => {
+        if (isOtherChecked && otherDemonstration.trim() !== '') {
+            setFormData({
+                ...formData,
+                typeDeDémonstration: [...formData.typeDeDémonstration, otherDemonstration.trim()]
+            });
+        }
+    };
+    
     const handleAddColorationAmmoniaque = () => {
         setFormData({
             ...formData,
             colorationsAvecAmmoniaque: [...formData.colorationsAvecAmmoniaque, { nom: "", prix: "", ml: "" }]
         })
     }
-
     const handleAddColorationSansAmmoniaque = () => {
         setFormData({
             ...formData,
             colorationsSansAmmoniaque: [...formData.colorationsSansAmmoniaque, { nom: "", prix: "", ml: "" }]
         })
     }
-
     const handleAddColorationVegetale = () => {
         setFormData({
             ...formData,
             colorationsVégétales: [...formData.colorationsVégétales, { nom: "", prix: "", ml: "" }]
         })
     }
-
     const handleColorationChange = (index, type, field, value) => {
         const newColorations = formData[type].map((coloration, i) => {
             if (i === index) {
@@ -125,7 +185,12 @@ function FicheProspect({uid, onReturn}) {
                 querySnapshot.forEach((doc) => {
                     const data = doc.data();
                     if (data.status === "Prospect") {
-                        searchResults.push({ id: doc.id, ...data });
+                        const salonDepartment = data.department || "" 
+                        const userDepartments = usersMap[uid]?.departments || []
+
+                        if (userDepartments.includes(salonDepartment)) {
+                            searchResults.push({ id: doc.id, ...data });
+                        }
                     }
                 }); 
                 setSuggestions(searchResults);
@@ -137,7 +202,6 @@ function FicheProspect({uid, onReturn}) {
             setSuggestions([]);
         }
     }
-
     const handleSelectSuggestion = async (salon) => {
         setSalonInfo(salon)
         setSuggestions([])
@@ -146,6 +210,7 @@ function FicheProspect({uid, onReturn}) {
         const salonSnapshot = await getDoc(salonRef)
 
         if (salonSnapshot.exists()) {
+            setSelectedSalon(salon.name)
             const data = salonSnapshot.data()
             const suiviProspect = data.suiviProspect ? data.suiviProspect[data.suiviProspect.length - 1] : {}
 
@@ -153,10 +218,12 @@ function FicheProspect({uid, onReturn}) {
                 adresse: salon.address || "",
                 city: salon.city || "",
                 name: salon.name || "",
-                téléphoneDuSalon: suiviProspect.téléphoneDuSalon || "",
+                postalCode: salon.postalCode || "",
+                département: salon.department || "",
+                téléphoneDuSalon:  salon.phoneNumber || suiviProspect.téléphoneDuSalon ||  "",
                 tenueDuSalon: suiviProspect.tenueDuSalon || "",
                 salonTenuPar: suiviProspect.salonTenuPar || "",
-                département: suiviProspect.département || "",
+                nombreDePersonnes: suiviProspect.nombreDePersonnes || "",
                 jFture: suiviProspect.jFture || "",
                 nomDuResponsable: suiviProspect.nomDuResponsable ||  "",
                 âgeDuResponsable: suiviProspect.âgeDuResponsable || "",
@@ -195,7 +262,6 @@ function FicheProspect({uid, onReturn}) {
             })
         }
     }
-
     const updateSalonHistory = useCallback(async (updatedData) => {
         if (salonInfo) {
             try {
@@ -219,9 +285,7 @@ function FicheProspect({uid, onReturn}) {
                 console.error("Erreur lors de la mise à jour de l'historique du salon : ", error);
             }
         }
-    }, [salonInfo, uid]); 
-
-    // Soumission du formulaire
+    }, [salonInfo, uid])
     const handleSubmit = async (e) => {
         e.preventDefault()
   
@@ -275,6 +339,8 @@ function FicheProspect({uid, onReturn}) {
                 const allFiches = salonData.suiviProspect || [] 
                 setAllFiches(allFiches)
                 setIsViewAllFichesOpen(true)
+                    setFormVisible(false)
+                    setThisYearOpen(false)
             } else {
                 console.error("Document de visite non trouvé.")
             }
@@ -282,7 +348,6 @@ function FicheProspect({uid, onReturn}) {
             console.error("Erreur lors de la récupération des fiches : ", error)
         }
     }
-
     const handleFilterByDate = async () => {
         try {
             const salonRef = doc(db, "salons", salonInfo.id);
@@ -292,13 +357,16 @@ function FicheProspect({uid, onReturn}) {
                 const salonData = salonSnapshot.data();
                 const allFiches = salonData.suiviProspect || [];
     
-                // Filtrer les fiches par période
-                const filteredFiches = allFiches.filter((fiche) => {
-                    const ficheDate = new Date(fiche.dateDeVisite);
-                    const start = new Date(startDate);
-                    const end = new Date(endDate);
-                    return ficheDate >= start && ficheDate <= end;
-                });
+                  // Convertir les dates de début et de fin en objets Date
+                  const start = new Date(startDate);
+                  const end = new Date(endDate);
+      
+                  // Filtrer les fiches par période
+                  const filteredFiches = allFiches.filter((fiche) => {
+                      const ficheDate = fiche.createdAt instanceof Date ? fiche.createdAt : fiche.createdAt.toDate();
+                      console.log("Date de la fiche : ", ficheDate);
+                      return ficheDate >= start && ficheDate <= end;
+                  });
 
                  // Calcul du nombre de rdv de présentation
                 const rdvPresentationCount = filteredFiches.reduce((total, fiche) => {
@@ -308,14 +376,15 @@ function FicheProspect({uid, onReturn}) {
                 setFilteredFiches(filteredFiches);
                 setIsViewFilteredFichesOpen(true);
                 setRdvPresentationCount(rdvPresentationCount)
+                setFormVisible(false)
+                setThisYearOpen(false)
             } else {
                 console.error("Document de visite non trouvé.");
             }
         } catch (error) {
             console.error("Erreur lors de la récupération des fiches : ", error);
         }
-    };
-
+    }
     const handleViewFichesCurrentYear = async () => {
         try {
             const salonRef = doc(db, "salons", salonInfo.id);
@@ -323,38 +392,108 @@ function FicheProspect({uid, onReturn}) {
     
             if (salonSnapshot.exists()) {
                 const salonData = salonSnapshot.data();
-                const allFiches = salonData.suiviProspect || [];
-    
-                // Récupérer l'année en cours
+                const allFiches = salonData.suiviProspect || []
                 const currentYear = new Date().getFullYear();
+                setCurrentYear(currentYear)
+               const currentYearFiches = allFiches.filter((fiche) => {
+                const ficheDate = fiche.createdAt instanceof Date ? fiche.createdAt : fiche.createdAt.toDate();
+                return ficheDate.getFullYear() === currentYear;
+            });
     
-                // Filtrer les fiches pour l'année en cours
-                const currentYearFiches = allFiches.filter((fiche) => {
-                    const ficheDate = new Date(fiche.dateDeVisite);
-                    return ficheDate.getFullYear() === currentYear;
-                });
-
-                 // Calcul du nombre de rdv de présentation
-                const rdvPresentationCount = filteredFiches.reduce((total, fiche) => {
-                    return total + (fiche.crPresentation ? fiche.crPresentation.length : 0);
-                }, 0);
-    
-                setFilteredFiches(currentYearFiches);
-                setIsViewFilteredFichesOpen(true);
+                setFichesThisYear(currentYearFiches); 
+                setIsViewFilteredFichesOpen(false);
                 setRdvPresentationCount(rdvPresentationCount)
+                setFormVisible(false)
+                setThisYearOpen(true)
             } else {
                 console.error("Document de visite non trouvé.");
             }
         } catch (error) {
             console.error("Erreur lors de la récupération des fiches : ", error);
         }
-    };
-    
-    const handleCloseFilteredFiches = () => {
-        setIsViewFilteredFichesOpen(false);
-        setFilteredFiches([]);
-    };
+    }
+    const formatDate = (date) => {
+        if (!date || !date.seconds) {
+            return 'Date non disponible';
+        }
+        const days = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi']
+        const months = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre']
 
+        const d = new Date(date.seconds * 1000)
+        const dayName = days[d.getUTCDay()]
+        const day = d.getUTCDate()
+        const month = months[d.getUTCMonth()]
+        const year = d.getUTCFullYear()
+
+        return `${dayName} ${day} ${month} ${year}`
+    }
+    const formatDate2 = (dateStr) => {
+        const date = new Date(dateStr);
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+        return `${day}/${month}/${year}`;
+    }
+
+    const generatePDF = (input, filename) => {
+        if (!input) {
+            console.error('Erreur : référence à l\'élément non valide');
+            return;
+        }
+
+        html2canvas(input, {
+            useCORS: true,
+            scale: 2, // Augmente la résolution du canvas pour une meilleure qualité
+        }).then(canvas => {
+            const imgData = canvas.toDataURL('image/png');
+            const pdf = new jsPDF('p', 'mm', 'a4');
+            const pdfWidth = pdf.internal.pageSize.getWidth();
+            const pdfHeight = pdf.internal.pageSize.getHeight();
+            const canvasWidth = canvas.width;
+            const canvasHeight = canvas.height;
+            const ratio = canvasWidth / canvasHeight;
+            const width = pdfWidth;
+            const height = width / ratio;
+
+            let position = 0;
+
+            if (height > pdfHeight) {
+                const totalPages = Math.ceil(canvasHeight / (canvasWidth * pdfHeight / pdfWidth));
+                for (let i = 0; i < totalPages; i++) {
+                    const pageCanvas = document.createElement('canvas');
+                    pageCanvas.width = canvasWidth;
+                    pageCanvas.height = canvasWidth * pdfHeight / pdfWidth;
+                    const pageContext = pageCanvas.getContext('2d');
+                    pageContext.drawImage(canvas, 0, position, canvasWidth, pageCanvas.height, 0, 0, pageCanvas.width, pageCanvas.height);
+                    const pageImgData = pageCanvas.toDataURL('image/png');
+                    if (i > 0) {
+                        pdf.addPage();
+                    }
+                    pdf.addImage(pageImgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+                    position += pageCanvas.height;
+                }
+            } else {
+                pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, height);
+            }
+
+            pdf.save(filename);
+        }).catch(error => {
+            console.error('Erreur lors de la génération du PDF :', error);
+        });
+    }
+    const downloadPDF = () => {
+        const input = pageRef.current;
+        generatePDF(input, "fiche-prospect-all.pdf")
+    }
+    const downloadPDF2 = () => {
+        const input = pageRef2.current;
+        generatePDF(input, "fiche-prospect-periode.pdf")
+    }
+    const downloadPDF3 = () => {
+        const input = pageRef3.current;
+        generatePDF(input, "fiche-prospect-annee-en-cours.pdf")
+    }
+    
     return (
         <div className="fiche-prospect-section">
             <div className="title-fiche">
@@ -369,29 +508,35 @@ function FicheProspect({uid, onReturn}) {
                     ))}
                 </div>
 
-                {salonInfo && (
+                {salonInfo && formVisible && (
                     <>
-                    <div style={{display: "flex", margin: "20px 0", justifyContent: "center"}}>  
-                        <button onClick={handleViewAllFiches} style={{marginRight: "20px"}} className="button-colored">Toutes les fiches enregistrées</button>
-                        <button onClick={handleViewFichesCurrentYear} className="button-colored">Fiches de l'année en cours</button>
-                    </div>
-                    
-                    <div style={{padding: "20px", boxShadow: "2px 2px 15px #cfcfcf", borderRadius: "20px", marginBottom: "10px"}}>
-                        <label className="label">Date de début</label>
-                        <input type="date" name="startDate" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
-                        <label className="label">Date de fin</label>
-                        <input type="date" name="endDate" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
-                        <button onClick={handleFilterByDate} style={{width: "100%"}} className="button-colored">Filtrer par période</button>
-                    </div>
+                    <div className="filter-client">
+                        <div className="filter-input">
+                            <div>
+                                <label className="label">Date de début</label><br></br>
+                                <input type="date" name="startDate" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
+                            </div>
+                            <div>
+                                <label className="label">Date de fin</label><br></br>
+                                <input type="date" name="endDate" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
+                            </div>
+                            
+                            <button className="button-colored" onClick={handleFilterByDate}>Filtrer par période</button>
+                        </div>
+                        <div className="filter-button">
+                            <button style={{marginTop: "0px", padding: "10px", fontSize: "14px"}} className="button-colored" onClick={handleViewAllFiches}>Voir toutes les fiches enregistrées</button>
+                            <button style={{padding: "10px", fontSize: "14px"}} onClick={handleViewFichesCurrentYear} className="button-colored">Voir les fiches de l'année en cours</button>
+                        </div>
+                    </div> 
 
                     <form onSubmit={handleSubmit}>
                         <div className="form-FSP">
                             <h2>{salonInfo.name}</h2>
                             <p className="adress">{salonInfo.address}</p>
                             <p className="city">{salonInfo.city}</p>
+                            <p style={{color: "grey", textAlign: "center", textTransform: "uppercase", marginBottom: "30px", marginTop: "10px"}}>{salonInfo.department}</p>
 
                             <input type="text" name="téléphoneDuSalon" placeholder="Téléphone fixe" value={formData.téléphoneDuSalon} onChange={handleInputChange} />
-                            <input type="text" name="département" placeholder="Département" value={formData.département} onChange={handleInputChange} /> <br></br>
                             <input type="text" name="jFture" placeholder="J.Fture" value={formData.jFture} onChange={handleInputChange} /><br></br><br></br>
                     
                             <div className="space">
@@ -410,6 +555,7 @@ function FicheProspect({uid, onReturn}) {
                                     <label className="margin"><input className="checkbox" type="radio" name="salonTenuPar" value="Salarié" checked={formData.salonTenuPar === "Salarié"} onChange={handleInputChange} />Salarié</label>
                                 </div>
                             </div><br></br>
+                            <input type="text" name="nombreDePersonnes" placeholder="Nombre de personnes" value={formData.nombreDePersonnes} onChange={handleInputChange} /><br></br><br></br>
 
                             <div className="space">
                                 <label className="bold margin">Responsable présent :</label>
@@ -591,7 +737,26 @@ function FicheProspect({uid, onReturn}) {
                                                 <label className="margin"><input className="checkbox" type="checkbox" name="typeDeDémonstration" value="LaVégétale" checked={formData.typeDeDémonstration.includes("LaVégétale")} onChange={handleInputChange} />La Végétale</label><br></br>
                                                 <label className="margin"><input className="checkbox" type="checkbox" name="typeDeDémonstration" value="DécolorationPermanente" checked={formData.typeDeDémonstration.includes("DécolorationPermanente")} onChange={handleInputChange} />Décoloration permanente</label><br></br>
                                                 <label className="margin"><input className="checkbox" type="checkbox" name="typeDeDémonstration" value="ByDSH" checked={formData.typeDeDémonstration.includes("ByDSH")} onChange={handleInputChange} />By DSH</label><br></br>
-                                                <label className="margin"><input className="checkbox" type="checkbox" name="typeDeDémonstration" value="Olyzea" checked={formData.typeDeDémonstration.includes("Olyzea")} onChange={handleInputChange} />Olyzea</label>
+                                                <label className="margin"><input className="checkbox" type="checkbox" name="typeDeDémonstration" value="Olyzea" checked={formData.typeDeDémonstration.includes("Olyzea")} onChange={handleInputChange} />Olyzea</label><br></br>
+                                                <label className="margin"><input className="checkbox" type="checkbox" name="typeDeDémonstration" value="ThalassoBac" checked={formData.typeDeDémonstration.includes("ThalassoBac")} onChange={handleInputChange} />Thalasso Bac</label><br></br>
+                                                <label className="margin"><input className="checkbox" type="checkbox" name="typeDeDémonstration" value="ManufacturesABoucles" checked={formData.typeDeDémonstration.includes("ManufacturesABoucles")} onChange={handleInputChange} />Manufactures à boucles</label><br></br>
+                                                <label className="margin"><input className="checkbox" type="checkbox" name="typeDeDémonstration" value="DoubleLecture" checked={formData.typeDeDémonstration.includes("DoubleLecture")} onChange={handleInputChange} />Double lecture</label><br></br>
+                                                <label className="margin"><input className="checkbox" type="checkbox" name="typeDeDémonstration" value="StylingPro" checked={formData.typeDeDémonstration.includes("StylingPro")} onChange={handleInputChange} />Styling Pro</label><br></br>
+                                                <label className="margin"><input className="checkbox" type="checkbox" name="typeDeDémonstration" value="PersonalTouch" checked={formData.typeDeDémonstration.includes("PersonalTouch")} onChange={handleInputChange} />Personal Touch</label><br></br>
+                                                <label className="margin">
+                    <input className="checkbox" type="checkbox" name="otherDemonstrationCheckbox" checked={isOtherChecked} onChange={handleInputChange} />
+                    Autre:
+                    {isOtherChecked && (
+                        <input
+                            type="text"
+                            name="otherDemonstration"
+                            value={otherDemonstration}
+                            onChange={handleOtherDemonstrationChange}
+                            onBlur={handleOtherDemonstrationBlur}
+                            placeholder="Précisez si autre"
+                        />
+                    )}
+                </label>
                                             </div>
                                         </div>
                                     )}
@@ -613,159 +778,191 @@ function FicheProspect({uid, onReturn}) {
                             <button type="submit" className="button-colored">Enregistrer</button>
                         </div>
                     </form>  
-
-                    {isViewAllFichesOpen && (
-                        <div className="modal-fiches">
-                            <div className="content">
-                                <h2>Toutes les fiches enregistrées</h2>
-                                {allFiches.map((fiche, index) => (
-                                    <div key={index} className="fiche-item">
-                                        <h3>Fiche {index + 1}</h3>
-                                        <p><strong>Adresse du salon :</strong> {fiche.adresseDuSalon}</p>
-                                        <p><strong>Téléphone du salon :</strong> {fiche.téléphoneDuSalon}</p>
-                                        <p><strong>Tenue du salon :</strong> {fiche.tenueDuSalon}</p>
-                                        <p><strong>Salon tenu par :</strong> {fiche.salonTenuPar}</p>
-                                        <p><strong>Département :</strong> {fiche.département}</p>
-                                        <p><strong>J.Fture :</strong> {fiche.jFture}</p>
-                                        <p><strong>Nom du responsable :</strong> {fiche.nomDuResponsable}</p>
-                                        <p><strong>Âge du responsable :</strong> {fiche.âgeDuResponsable}</p>
-                                        <p><strong>Numéro du responsable :</strong> {fiche.numéroDuResponsable}</p>
-                                        <p><strong>E-mail du responsable :</strong> {fiche.emailDuResponsable}</p>
-                                        <p><strong>Facebook :</strong> {fiche.facebook}</p>
-                                        <p><strong>Instagram :</strong> {fiche.instagram}</p>
-                                        <p><strong>Origine de la visite :</strong> {fiche.origineDeLaVisite}</p>
-                                        
-                                        <p><strong>Colorations avec ammoniaque :</strong></p>
-                                        <ul>
-                                            {fiche.colorationsAvecAmmoniaque.map((coloration, idx) => (
-                                                <li key={idx}>{coloration.nom}, Prix: {coloration.prix}, ML: {coloration.ml}</li>
-                                            ))}
-                                        </ul>
-
-                                        <p><strong>Colorations sans ammoniaque :</strong></p>
-                                        <ul>
-                                            {fiche.colorationsSansAmmoniaque.map((coloration, idx) => (
-                                                <li key={idx}>{coloration.nom}, Prix: {coloration.prix}, ML: {coloration.ml}</li>
-                                            ))}
-                                        </ul>
-
-                                        <p><strong>Colorations végétales :</strong></p>
-                                        <ul>
-                                            {fiche.colorationsVégétales.map((coloration, idx) => (
-                                                <li key={idx}>{coloration.nom}, Prix: {coloration.prix}, ML: {coloration.ml}</li>
-                                            ))}
-                                        </ul>
-
-                                        <p><strong>Autres marques :</strong></p>
-                                        <p>Poudre: {fiche.autresMarques.poudre}</p>
-                                        <p>Permanente: {fiche.autresMarques.permanente}</p>
-                                        <p>BAC: {fiche.autresMarques.bac}</p>
-                                        <p>Revente: {fiche.autresMarques.revente}</p>
-
-                                        <p><strong>Date de visite :</strong> {fiche.dateDeVisite}</p>
-                                        <p><strong>Responsable présent :</strong> {fiche.responsablePrésent}</p>
-                                        <p><strong>Concepts proposés :</strong> {fiche.conceptsProposés}</p>
-                                        <p><strong>Animation proposée :</strong> {fiche.animationProposée}</p>
-                                        <p><strong>Points pour la prochaine visite :</strong> {fiche.pointsPourLaProchaineVisite}</p>
-                                        <p><strong>Intéressés par :</strong> {fiche.intéressésPar}</p>
-                                        <p><strong>Autres points à aborder :</strong> {fiche.autresPoints}</p>
-                                        <p><strong>Observations :</strong> {fiche.observations}</p>
-                                        <p><strong>Statut :</strong> {fiche.statut}</p>
-                                        <p><strong>RDV obtenu :</strong> {fiche.rdvObtenu}</p>
-                                        {fiche.rdvObtenu === "OUI" && (
-                                            <>
-                                                <p><strong>RDV prévu le :</strong> {fiche.rdvPrévuLe}</p>
-                                                <p><strong>Type de RDV :</strong> {fiche.typeDeRdv}</p>
-                                                {fiche.typeDeRdv === "Démonstration" && (
-                                                    <p><strong>Type de démonstration :</strong> {fiche.typeDeDémonstration.join(', ')}</p>
-                                                )}
-                                            </>
-                                        )}
-                                    </div>
-                                ))}
-                                <button onClick={() => setIsViewAllFichesOpen(false)}>Fermer</button>
-                            </div>
-                        </div>
-                    )}
-
-                    {isViewFilteredFichesOpen && (
-                        <div className="modal-fiches">
-                            <div className="content">
-                                <h2>Fiches filtrées</h2>
-                                <p>Nombre de RDV de présentation : {rdvPresentationCount}</p>
-                                {filteredFiches.map((fiche, index) => (
-                                    <div key={index} className="fiche-item">
-                                        <p><strong>Adresse du salon :</strong> {fiche.adresseDuSalon}</p>
-                                        <p><strong>Téléphone du salon :</strong> {fiche.téléphoneDuSalon}</p>
-                                        <p><strong>Tenue du salon :</strong> {fiche.tenueDuSalon}</p>
-                                        <p><strong>Salon tenu par :</strong> {fiche.salonTenuPar}</p>
-                                        <p><strong>Département :</strong> {fiche.département}</p>
-                                        <p><strong>J.Fture :</strong> {fiche.jFture}</p>
-                                        <p><strong>Nom du responsable :</strong> {fiche.nomDuResponsable}</p>
-                                        <p><strong>Âge du responsable :</strong> {fiche.âgeDuResponsable}</p>
-                                        <p><strong>Numéro du responsable :</strong> {fiche.numéroDuResponsable}</p>
-                                        <p><strong>E-mail du responsable :</strong> {fiche.emailDuResponsable}</p>
-                                        <p><strong>Facebook :</strong> {fiche.facebook}</p>
-                                        <p><strong>Instagram :</strong> {fiche.instagram}</p>
-                                        <p><strong>Origine de la visite :</strong> {fiche.origineDeLaVisite}</p>
-                                        
-                                        <p><strong>Colorations avec ammoniaque :</strong></p>
-                                        <ul>
-                                            {fiche.colorationsAvecAmmoniaque.map((coloration, idx) => (
-                                                <li key={idx}>{coloration.nom}, Prix: {coloration.prix}, ML: {coloration.ml}</li>
-                                            ))}
-                                        </ul>
-
-                                        <p><strong>Colorations sans ammoniaque :</strong></p>
-                                        <ul>
-                                            {fiche.colorationsSansAmmoniaque.map((coloration, idx) => (
-                                                <li key={idx}>{coloration.nom}, Prix: {coloration.prix}, ML: {coloration.ml}</li>
-                                            ))}
-                                        </ul>
-
-                                        <p><strong>Colorations végétales :</strong></p>
-                                        <ul>
-                                            {fiche.colorationsVégétales.map((coloration, idx) => (
-                                                <li key={idx}>{coloration.nom}, Prix: {coloration.prix}, ML: {coloration.ml}</li>
-                                            ))}
-                                        </ul>
-
-                                        <p><strong>Autres marques :</strong></p>
-                                        <p>Poudre: {fiche.autresMarques.poudre}</p>
-                                        <p>Permanente: {fiche.autresMarques.permanente}</p>
-                                        <p>BAC: {fiche.autresMarques.bac}</p>
-                                        <p>Revente: {fiche.autresMarques.revente}</p>
-
-                                        <p><strong>Date de visite :</strong> {fiche.dateDeVisite}</p>
-                                        <p><strong>Responsable présent :</strong> {fiche.responsablePrésent}</p>
-                                        <p><strong>Concepts proposés :</strong> {fiche.conceptsProposés}</p>
-                                        <p><strong>Animation proposée :</strong> {fiche.animationProposée}</p>
-                                        <p><strong>Points pour la prochaine visite :</strong> {fiche.pointsPourLaProchaineVisite}</p>
-                                        <p><strong>Intéressés par :</strong> {fiche.intéressésPar}</p>
-                                        <p><strong>Autres points à aborder :</strong> {fiche.autresPoints}</p>
-                                        <p><strong>Observations :</strong> {fiche.observations}</p>
-                                        <p><strong>Statut :</strong> {fiche.statut}</p>
-                                        <p><strong>RDV obtenu :</strong> {fiche.rdvObtenu}</p>
-                                        {fiche.rdvObtenu === "OUI" && (
-                                            <>
-                                                <p><strong>RDV prévu le :</strong> {fiche.rdvPrévuLe}</p>
-                                                <p><strong>Type de RDV :</strong> {fiche.typeDeRdv}</p>
-                                                {fiche.typeDeRdv === "Démonstration" && (
-                                                    <p><strong>Type de démonstration :</strong> {fiche.typeDeDémonstration.join(', ')}</p>
-                                                )}
-                                            </>
-                                        )}
-                                    </div>
-                                ))}
-                                <button onClick={handleCloseFilteredFiches}>Fermer</button>
-                            </div>
-                        </div>
-                    )}
-
-
                     </>
                 )}
-                </div> 
+            </div>  
+            
+
+                {salonInfo && isViewAllFichesOpen && (
+                    <div className="all-fiches-client">
+                        <button style={{margin: "20px", marginLeft: "40px", padding: "10px 30px"}} className="button-colored" onClick={() => {setFormVisible(true); setIsViewAllFichesOpen(false)}} >Voir le formulaire</button>
+                        <button style={{ padding: "10px 30px" }} onClick={downloadPDF} className='button-colored'>Télécharger les fiches prospect</button>
+                        <div ref={pageRef} style={{paddingTop: "20px", fontSize: "16px"}}>
+                            <h4 style={{textAlign: "center", fontSize: "20px", marginBottom: "20px"}}>Fiches de suivi prospect du salon {selectedSalon}</h4>
+                            <ul>
+                                {allFiches.map((fiche, index) => (
+                                    <li key={index}>
+                                        <div style={{paddingLeft: "100px"}}>Enregistré le : <strong>{formatDate(fiche.createdAt)}</strong>, par <strong>{usersMap[fiche.userId].firstname} {usersMap[fiche.userId].lastname}</strong></div>
+                                        
+                                        <ResultsFiches 
+                                            data={{ 
+                                                name: selectedSalon,
+                                                adresse: salonInfo.address,
+                                                city: salonInfo.city, 
+                                                département: salonInfo.department, 
+                                                téléphoneDuSalon:  salonInfo.phoneNumber || fiche.téléphoneDuSalon,
+                                                tenueDuSalon: fiche.tenueDuSalon,
+                                                salonTenuPar: fiche.salonTenuPar,
+                                                nombreDePersonnes: fiche.nombreDePersonnes, // à ajouter 
+                                                jFture: fiche.jFture,
+                                                responsablePrésent: fiche.responsablePrésent,
+                                                nomDuResponsable: fiche.nomDuResponsable,
+                                                âgeDuResponsable: fiche.âgeDuResponsable,
+                                                numéroDuResponsable: fiche.numéroDuResponsable,
+                                                emailDuResponsable: fiche.emailDuResponsable,
+                                                facebook: fiche.facebook,
+                                                instagram: fiche.instagram,
+                                                dateDeVisite: fiche.dateDeVisite,
+                                                origineDeLaVisite: fiche.origineDeLaVisite,
+                                                conceptsProposés: fiche.conceptsProposés,
+                                                animationProposée: fiche.animationProposée,
+                                                pointsPourLaProchaineVisite: fiche.pointsPourLaProchaineVisite,
+                                                intéressésPar: fiche.intéressésPar,
+
+                                                colorationsAvecAmmoniaque: fiche.colorationsAvecAmmoniaque,
+                                                colorationsSansAmmoniaque: fiche.colorationsSansAmmoniaque,
+                                                colorationsVégétales: fiche.colorationsVégétales,
+                                                autresMarques: fiche.autresMarques,
+
+                                                autresPoints: fiche.autresPoints,
+                                                observations: fiche.observations,
+                                                statut: fiche.statut,
+                                                aRevoir: fiche.aRevoir, // ?? 
+                                                rdvObtenu: fiche.rdvObtenu,
+                                                rdvPrévuLe: fiche.rdvPrévuLe,
+                                                typeDeRdv: fiche.typeDeRdv,
+                                                typeDeDémonstration: fiche.typeDeDémonstration,
+                                                commande: fiche.commande,
+                                                savedAt: createdAt,
+                                            }}
+                                        />
+                                    </li>
+                                ))}
+                            </ul> 
+                        </div>
+                    </div>
+                )}
+
+                {salonInfo && isViewFilteredFichesOpen && (
+                    <div className="all-fiches-client">
+                        <button  style={{margin: "20px", marginLeft: "40px", padding: "10px 30px"}} className="button-colored" onClick={() => {setFormVisible(true); setIsViewFilteredFichesOpen(false)}} >Voir le formulaire</button>
+                        <button style={{ padding: "10px 30px" }} onClick={downloadPDF2} className='button-colored'>Télécharger les fiches prospect</button>
+                        <div ref={pageRef2} style={{paddingTop: "20px", fontSize: "16px"}}>
+                        <h3  style={{textAlign: "center", fontSize: "20px", marginBottom: "20px"}}>Fiches prospect du salon {selectedSalon} enregistrées entre le {formatDate2(startDate)} et le {formatDate2(endDate)}</h3>
+                            <ul>
+                                {filteredFiches.map((fiche, index) => (
+                                    <li key={index}>
+                                    <div style={{paddingLeft: "100px"}}>Enregistré le : <strong>{formatDate(fiche.createdAt)}</strong>, par <strong>{usersMap[fiche.userId].firstname} {usersMap[fiche.userId].lastname}</strong></div>
+                                    
+                                    <ResultsFiches 
+                                        data={{ 
+                                            name: selectedSalon,
+                                            adresse: salonInfo.address,
+                                            city: salonInfo.city, 
+                                            département: salonInfo.department, 
+                                            téléphoneDuSalon:  salonInfo.phoneNumber || fiche.téléphoneDuSalon,
+                                            tenueDuSalon: fiche.tenueDuSalon,
+                                            salonTenuPar: fiche.salonTenuPar,
+                                            nombreDePersonnes: fiche.nombreDePersonnes, // à ajouter 
+                                            jFture: fiche.jFture,
+                                            responsablePrésent: fiche.responsablePrésent,
+                                            nomDuResponsable: fiche.nomDuResponsable,
+                                            âgeDuResponsable: fiche.âgeDuResponsable,
+                                            numéroDuResponsable: fiche.numéroDuResponsable,
+                                            emailDuResponsable: fiche.emailDuResponsable,
+                                            facebook: fiche.facebook,
+                                            instagram: fiche.instagram,
+                                            dateDeVisite: fiche.dateDeVisite,
+                                            origineDeLaVisite: fiche.origineDeLaVisite,
+                                            conceptsProposés: fiche.conceptsProposés,
+                                            animationProposée: fiche.animationProposée,
+                                            pointsPourLaProchaineVisite: fiche.pointsPourLaProchaineVisite,
+                                            intéressésPar: fiche.intéressésPar,
+
+                                            colorationsAvecAmmoniaque: fiche.colorationsAvecAmmoniaque,
+                                            colorationsSansAmmoniaque: fiche.colorationsSansAmmoniaque,
+                                            colorationsVégétales: fiche.colorationsVégétales,
+                                            autresMarques: fiche.autresMarques,
+
+                                            autresPoints: fiche.autresPoints,
+                                            observations: fiche.observations,
+                                            statut: fiche.statut,
+                                            aRevoir: fiche.aRevoir, // ?? 
+                                            rdvObtenu: fiche.rdvObtenu,
+                                            rdvPrévuLe: fiche.rdvPrévuLe,
+                                            typeDeRdv: fiche.typeDeRdv,
+                                            typeDeDémonstration: fiche.typeDeDémonstration,
+                                            commande: fiche.commande,
+                                            savedAt: createdAt,
+                                        }}
+                                    />
+                                </li>
+                                ))}
+                            </ul>
+                        </div>     
+                    </div>
+                )}
+
+                {salonInfo  && thisYearOpen && (
+                    <div className="all-fiches-client">
+                        <button style={{margin: "20px", marginLeft: "40px", padding: "10px 30px"}} className="button-colored" onClick={() => {setFormVisible(true); setThisYearOpen(false)}} >Voir le formulaire</button>
+                        <button style={{ padding: "10px 30px" }} onClick={downloadPDF3} className='button-colored'>Télécharger les fiches prospect de l'année en cours</button>
+                            <div ref={pageRef3} style={{paddingTop: "20px", fontSize: "16px"}}>
+                            <h4 style={{textAlign: "center", fontSize: "20px", marginBottom: "20px"}}>Fiches de suivi prospect du salon {selectedSalon} du mois de {currentYear}</h4>
+                            <ul>
+                                {fichesThisYear.map((fiche, index) => (
+                                  <li key={index}>
+                                  <div style={{paddingLeft: "100px"}}>Enregistré le : <strong>{formatDate(fiche.createdAt)}</strong>, par <strong>{usersMap[fiche.userId].firstname} {usersMap[fiche.userId].lastname}</strong></div>
+                                  
+                                  <ResultsFiches 
+                                      data={{ 
+                                          name: selectedSalon,
+                                          adresse: salonInfo.address,
+                                          city: salonInfo.city, 
+                                          département: salonInfo.department, 
+                                          téléphoneDuSalon:  salonInfo.phoneNumber || fiche.téléphoneDuSalon,
+                                          tenueDuSalon: fiche.tenueDuSalon,
+                                          salonTenuPar: fiche.salonTenuPar,
+                                          nombreDePersonnes: fiche.nombreDePersonnes, // à ajouter 
+                                          jFture: fiche.jFture,
+                                          responsablePrésent: fiche.responsablePrésent,
+                                          nomDuResponsable: fiche.nomDuResponsable,
+                                          âgeDuResponsable: fiche.âgeDuResponsable,
+                                          numéroDuResponsable: fiche.numéroDuResponsable,
+                                          emailDuResponsable: fiche.emailDuResponsable,
+                                          facebook: fiche.facebook,
+                                          instagram: fiche.instagram,
+                                          dateDeVisite: fiche.dateDeVisite,
+                                          origineDeLaVisite: fiche.origineDeLaVisite,
+                                          conceptsProposés: fiche.conceptsProposés,
+                                          animationProposée: fiche.animationProposée,
+                                          pointsPourLaProchaineVisite: fiche.pointsPourLaProchaineVisite,
+                                          intéressésPar: fiche.intéressésPar,
+
+                                          colorationsAvecAmmoniaque: fiche.colorationsAvecAmmoniaque,
+                                          colorationsSansAmmoniaque: fiche.colorationsSansAmmoniaque,
+                                          colorationsVégétales: fiche.colorationsVégétales,
+                                          autresMarques: fiche.autresMarques,
+
+                                          autresPoints: fiche.autresPoints,
+                                          observations: fiche.observations,
+                                          statut: fiche.statut,
+                                          aRevoir: fiche.aRevoir, // ?? 
+                                          rdvObtenu: fiche.rdvObtenu,
+                                          rdvPrévuLe: fiche.rdvPrévuLe,
+                                          typeDeRdv: fiche.typeDeRdv,
+                                          typeDeDémonstration: fiche.typeDeDémonstration,
+                                          commande: fiche.commande,
+                                          savedAt: createdAt,
+                                      }}
+                                  />
+                              </li>
+                                ))}
+                            </ul>
+                        </div>
+                    </div>
+                )}
+
                 {isOpenModal && (
                     <div className="modal-commande">
                         <div>

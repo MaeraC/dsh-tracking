@@ -3,7 +3,7 @@
 
 import { useNavigate } from "react-router-dom"
 import { useState, useEffect } from "react"
-import StatisticsAdmin from "../components/StatisticsAdmin" 
+import StatisticsAdmin from "../components/Administrateur/StatisticsAdmin" 
 import { collection, getDocs, getDoc, Timestamp, addDoc, doc } from "firebase/firestore"
 import { onAuthStateChanged } from "firebase/auth"
 import { db, auth } from "../firebase.config" 
@@ -112,7 +112,7 @@ function PreviewAdmin({ firstname, uid }) {
             await addDoc(collection(db, "historiqueAdmin"), {
                 userId: uid,
                 date: new Date(),
-                action: `VRP ${userNames[selectedUser]} déconnecté par l'admin`, 
+                action: `VRP déconnecté : ${userNames[selectedUser]}`, 
             })
 
             setMessage("Indisponibilité ajoutée avec succès. L'utilisateur ne pourra pas se connecter durant la période saisie.")
@@ -131,7 +131,36 @@ function PreviewAdmin({ firstname, uid }) {
         }
     }
 
-    
+    const handleSearch = async () => {
+        try {
+            const unavailabilitySnapshot = await getDocs(collection(db, "unavailabilities"));
+            const unavailabilityList = unavailabilitySnapshot.docs.map(doc => doc.data());
+
+            // Filtrer les résultats en fonction de startDate et endDate
+            const filteredUnavailabilities = unavailabilityList.filter(unavailability => {
+                const startDateTimestamp = unavailability.startDate?.seconds || 0;
+                const endDateTimestamp = unavailability.endDate?.seconds || Number.MAX_SAFE_INTEGER;
+
+                if (startDate && endDate) {
+                    const startTimestamp = new Date(startDate).getTime() / 1000;
+                    const endTimestamp = new Date(endDate).getTime() / 1000;
+                    return startTimestamp <= endDateTimestamp && endTimestamp >= startDateTimestamp;
+                } else if (startDate) {
+                    const startTimestamp = new Date(startDate).getTime() / 1000;
+                    return startTimestamp <= endDateTimestamp;
+                } else if (endDate) {
+                    const endTimestamp = new Date(endDate).getTime() / 1000;
+                    return endTimestamp >= startDateTimestamp;
+                }
+                return true; // Retourne tous les éléments si aucune date sélectionnée
+            });
+
+            setUnavailabilities(filteredUnavailabilities);
+            console.log(unavailabilities)
+        } catch (error) {
+            console.error("Erreur lors de la récupération et du filtrage des indisponibilités : ", error);
+        }
+    };
 
     return (
         <div className="preview-section preview-admin">
@@ -213,6 +242,17 @@ function PreviewAdmin({ firstname, uid }) {
             {show && (
                 <div className="tableau-indispo">
                     <button onClick={() => setShow(false)} className="button-back"><img src={back} alt="retour" /></button>
+                    <div className="date-inputs">
+                        <div>
+                            <label className="label">Date de début :</label><br></br>
+                            <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
+                        </div>
+                        <div>
+                            <label className="label">Date de fin :</label><br></br>
+                            <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
+                        </div>
+                        <button className="button-colored" onClick={handleSearch}>Rechercher</button>
+                    </div>
                     <h2>Historique des indisponibilités</h2>
                     <table>
                         <thead>

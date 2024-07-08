@@ -1,13 +1,13 @@
 import React from "react";
-import "../index.css";
-import home from "../assets/home.png"
-import homeB from "../assets/homeb.png"
-import survey from "../assets/survey.png"
-import surveyB from "../assets/surveyb.png"
-import user from "../assets/user.png"
-import userB from "../assets/userb.png" 
-import markerG from "../assets/marker-h.png"
-import markerB from "../assets/markerB.png"
+import "../../index.css";
+import home from "../../assets/home.png"
+import homeB from "../../assets/homeb.png"
+import survey from "../../assets/survey.png"
+import surveyB from "../../assets/surveyb.png"
+import user from "../../assets/user.png"
+import userB from "../../assets/userb.png" 
+import markerG from "../../assets/marker-h.png"
+import markerB from "../../assets/markerB.png"
 
 function HeaderCom ({ activeTab, onTabChange }) {
     

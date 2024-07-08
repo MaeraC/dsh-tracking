@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { collection, query, where, getDocs } from "firebase/firestore";
-import { db } from '../firebase.config'; 
+import { db } from '../../firebase.config'; 
 
 const RecapCom = ({ uid }) => {
     const [dateRange, setDateRange] = useState({ start: '', end: '' });
@@ -45,10 +45,10 @@ const RecapCom = ({ uid }) => {
 
                     if (filter(timestamp)) {
 
-                        const stopsCount = doc.stops.length > 0 ? doc.stops.length - 1 : 0;
+                        const stopsCount = doc.stops?.length > 0 ? doc.stops?.length - 1 : 0;
                         total += stopsCount;
 
-                        doc.stops.forEach((stop, index) => {
+                        doc.stops?.forEach((stop, index) => {
                             if (index < stopsCount) {
                                 if (stop.status === "Client") {
                                     clients += 1;
@@ -102,18 +102,18 @@ const RecapCom = ({ uid }) => {
     return (
         <div className='recap'>
             <h2>Statistiques globales</h2>
-            <table border="1">
+            <table border="1" style={{width: "100%"}}>
                 <thead>
                     <tr>
-                        <th></th>
-                        <th>Cette semaine</th>
-                        <th>Ce mois</th>
-                        <th>
+                        <th style={{width: "20%"}}></th>
+                        <th style={{width: "20%"}}>Cette semaine</th>
+                        <th style={{width: "20%"}}>Ce mois</th>
+                        <th style={{width: "20%"}}>
                             Choisir une période<br></br>
                             <input type="date" value={dateRange.start} onChange={(e) => setDateRange({ ...dateRange, start: e.target.value })} /><br></br>
                             <input type="date" value={dateRange.end} onChange={(e) => setDateRange({ ...dateRange, end: e.target.value })} />
                         </th>
-                        <th>
+                        <th style={{width: "20%"}}>
                             Choisir un mois<br></br>
                             <input type="month" value={month} onChange={(e) => setMonth(e.target.value)} />
                         </th>

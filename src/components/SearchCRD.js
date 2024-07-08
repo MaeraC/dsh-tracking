@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from "react"
+import React, { useState, useEffect, useRef } from "react"
 import { db } from "../firebase.config"
 import { getDocs, collection, addDoc } from "firebase/firestore"
 import back from "../assets/back.png"
@@ -8,7 +8,6 @@ import ResultsFicheD from "./ResultsFicheD"
 
 function SearchCRD({onReturn, uid}) {
     const [usersMap, setUsersMap] = useState({})
-    const [selectedSalon, setSelectedSalon] = useState('')
     const [salons, setSalons] = useState([]) 
     const [selectedStartDate, setSelectedStartDate] = useState('');
     const [selectedEndDate, setSelectedEndDate] = useState('');
@@ -183,7 +182,7 @@ function SearchCRD({onReturn, uid}) {
             await addDoc(collection(db, "historiqueAdmin"), {
                 userId: uid,
                 date: new Date(),
-                action: `CR de Démonstration de ${selectedSalon} téléchargé`,
+                action: `CR de RDV de Démonstration téléchargé`,
             })
         } catch (error) {
             console.error("Erreur lors de l'enregistrement de l'historique : ", error)
@@ -225,7 +224,7 @@ function SearchCRD({onReturn, uid}) {
 
             <div className="all-fiches-client">
                 <div ref={pageRef} style={{paddingTop: "20px", fontSize: "16px"}}>
-                    <h4 style={{textAlign: "center", fontSize: "20px", marginBottom: "20px"}}>Comptes rendu de RDV de Démonstration du salon {selectedSalon}</h4>
+                    <h4 style={{textAlign: "center", fontSize: "20px", marginBottom: "20px"}}>Comptes rendu de RDV de Démonstration</h4>
                     <ul>
                     {salons.map((fiche, index) => (
                         <li key={index}>

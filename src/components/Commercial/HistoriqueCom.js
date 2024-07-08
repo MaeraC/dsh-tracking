@@ -1,8 +1,8 @@
 
 // fichier HistoriqueCom.js
 
-import back from "../../assets/back.png"
-import { useState, useEffect } from "react" 
+import back                                 from "../../assets/back.png"
+import { useState } from "react" 
 import { db } from "../../firebase.config"
 import { query, collection, where, getDocs, getDoc, doc } from 'firebase/firestore'
 

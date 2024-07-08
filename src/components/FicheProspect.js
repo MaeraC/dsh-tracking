@@ -47,7 +47,6 @@ function FicheProspect({uid, onReturn}) {
         tenueDuSalon: "",
         salonTenuPar: "",
         nombreDePersonnes:  "",
-        département: "",
         jFture: "",
         nomDuResponsable: "",
         âgeDuResponsable: "",

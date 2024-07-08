@@ -242,8 +242,8 @@ function RecapAdmin({ onReturn }) {
                             Sélectionner un utilisateur
                             <select value={selectedUserId} onChange={handleUserChange}>
                                 <option value="">Tous les utilisateurs</option>
-                                {users.map(user => (
-                                    <option key={user} value={user}>{usersMap[user] || user}</option>
+                                {users.map((user, index) => (
+                                    <option key={index} value={user}>{usersMap[user] || user}</option>
                                 ))}
                             </select>
                         </th>

@@ -50,13 +50,17 @@ function Geolocation({ uid }) {
     const [isLoaded, setIsLoaded]                       = useState(false)
     const [hasVisitsToday, setHasVisitsToday]           = useState(null) 
     const [startAddress, setStartAddress]               = useState('')
-    const [startCity, setStartCity]                     = useState('')
+    const [startCity, setStartCity]                     = useState('') 
     const [startCityParcours, setStartCityParcours]                     = useState('')
+    // eslint-disable-next-line
     const [userAdresse, setUserAdresse]                 = useState("")
     const [userAdresses, setUserAdresses]                 = useState([])
+    // eslint-disable-next-line
     const [userCity, setUserCity]                       = useState("")
     const [openNewUserAdresse, setOpenNewUserAdresse]   = useState(false)
+    // eslint-disable-next-line
     const [updatedAddress, setUpdatedAddress]           = useState('')
+    // eslint-disable-next-line
     const [updateCity, setUpdateCity]           = useState('')
     const [isAddressConfirmed, setIsAddressConfirmed]   = useState(false)
     const [error, setError]                             = useState('')

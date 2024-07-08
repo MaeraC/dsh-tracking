@@ -3,7 +3,6 @@
 
 import { useState }                                             from "react"
 import Client                                              from "../components/Administrateur/Client"
-import FicheDemonstration                                       from "../components/FicheDemonstration"
 import Historique                                               from "../components/Historique"
 import RecapAdmin from "../components/Administrateur/RecapAdmin"
 import FeuilleJournaliereAdmin from "../components/Administrateur/FeuilleJournaliereAdmin"

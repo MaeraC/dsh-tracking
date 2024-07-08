@@ -12,15 +12,9 @@ function Account({ email, firstname, lastname, uid }) {
     
     const [message, setMessage]                         = useState("")
     const [showModal, setShowModal]                     = useState(false)
-    const [showModalAdress, setShowModalAdress]         = useState(false)
     const [action, setAction]                           = useState(null)
-    const [adresse, setAdresse] = useState("")
-    const [city, setCity] = useState("")
-    const [userAdresse, setUserAdresse] = useState("")
-    const [userCity, setUserCity] = useState("")
-    const [userAdresses, setUserAdresses] = useState([null, null, null]);
-    const [userCities, setUserCities] = useState([null, null, null]);
-    const [showModals, setShowModals] = useState([false, false, false]);
+    const [userAdresses, setUserAdresses] = useState([null, null, null])
+    const [showModals, setShowModals] = useState([false, false, false])
 
     const [currentAddress, setCurrentAddress] = useState('');
     const [currentCity, setCurrentCity] = useState('');
@@ -199,10 +193,6 @@ function Account({ email, firstname, lastname, uid }) {
                     <span>E-mail</span>
                     <p>{email}</p>
                 </div>
-                <div className="adresse-btn" onClick={() => setShowModalAdress(true)}>  
-                   <span>Adresse de départ</span> 
-                   <p className={!userAdresse ? "adresse-txt" : ""}>{userAdresse ? `${userAdresse}, ${userCity}` : "Veuiller définir une adresse"}</p>
-                </div>
                 <button onClick={() => openModal("resetPassword")}>Réinitialiser mon mot de passe</button>
                 <button onClick={() => openModal("logout")}>Déconnexion</button>
             </div>
@@ -217,7 +207,7 @@ function Account({ email, firstname, lastname, uid }) {
                 </div>
             )}
 
-{showModals.map((showModal, index) => (
+            {showModals.map((showModal, index) => (
                 showModal && (
                     <div className="modal" key={index}>
                         <div className="modal-content">

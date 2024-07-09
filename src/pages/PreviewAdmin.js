@@ -267,11 +267,11 @@ function PreviewAdmin({ firstname, uid }) {
                         <tbody>
                             {unavailabilities.map((unavailability, index) => (
                                 <tr key={index}>
-                                    <td>{unavailability.adminName}</td>
-                                    <td>{userNames[unavailability.userId] || "Nom non trouvé"}</td>
-                                    <td>{new Date(unavailability.startDate?.seconds * 1000).toLocaleDateString()}</td>
-                                    <td>{new Date(unavailability.endDate?.seconds * 1000).toLocaleDateString()}</td>
-                                    <td>{unavailability.reason}</td>
+                                    <td>{unavailability.adminName || " "}</td>
+                                    <td>{userNames[unavailability.userId] || " "}</td>
+                                    <td>{new Date(unavailability.startDate?.seconds * 1000).toLocaleDateString() || " "}</td>
+                                    <td>{new Date(unavailability.endDate?.seconds * 1000).toLocaleDateString() || " "}</td>
+                                    <td>{unavailability.reason || " "}</td>
                                 </tr>
                             ))}
                         </tbody>
@@ -296,9 +296,9 @@ function PreviewAdmin({ firstname, uid }) {
                             <tbody>
                                 {historique.map((entry, index) => (
                                     <tr key={index}>
-                                        <td>{entry.action}</td>
-                                        <td>{userNames[entry.userId]}</td>
-                                        <td>{new Date(entry.date?.seconds * 1000).toLocaleString()}</td>
+                                        <td>{entry.action || " "}</td>
+                                        <td>{userNames[entry.userId] || " "}</td>
+                                        <td>{new Date(entry.date?.seconds * 1000).toLocaleString() || " "}</td>
                                     </tr>
                                 ))}
                             </tbody>

@@ -202,9 +202,11 @@ function SearchFeuillesDuJourCom({ uid }) {
                 {showResults && (
                     <div className='filter-feuilles-stats'>
                         <p><strong>Période sélectionnée</strong> : Du {formatDate2(startDate)} au {formatDate2(endDate)}</p>
-                        <p><strong>Nombre de visites</strong><span>{nombreVisites}</span></p> 
-                        <p><strong>Visites client</strong><span>{nombreVisitesClient}</span></p>
-                        <p><strong>Visites prospect</strong><span>{nombreVisitesProspect}</span></p>
+                        <div>
+                            <p><strong>Nombre de visites</strong><span>{nombreVisites}</span></p> 
+                            <p><strong>Visites client</strong><span>{nombreVisitesClient}</span></p>
+                            <p><strong>Visites prospect</strong><span>{nombreVisitesProspect}</span></p>
+                        </div>
                     </div>
                 )}
  

@@ -193,6 +193,16 @@ function Account({ email, firstname, lastname, uid }) {
                     <span>E-mail</span>
                     <p>{email}</p>
                 </div>
+                <div className="adresse-account">
+                    {[0, 1, 2].map(index => (
+                        <button className="adresse-account-btns" key={index} onClick={() => openModaal(index)}>
+                            <span>Adresse de départ {index + 1}</span>
+                            <p className={!userAdresses[index] ? "adresse-txt" : ""}>
+                                {userAdresses[index] ? `${userAdresses[index].address}, ${userAdresses[index].city}` : "Veuillez définir une adresse"}
+                            </p>
+                        </button>
+                    ))}
+                </div>
                 <button onClick={() => openModal("resetPassword")}>Réinitialiser mon mot de passe</button>
                 <button onClick={() => openModal("logout")}>Déconnexion</button>
             </div>
@@ -248,14 +258,7 @@ function Account({ email, firstname, lastname, uid }) {
                     </div>
                 )
             ))}
-            {[0, 1, 2].map(index => (
-                <div className="adresse-btn" key={index} onClick={() => openModaal(index)}>
-                    <span>Adresse de départ {index + 1}</span>
-                    <p className={!userAdresses[index] ? "adresse-txt" : ""}>
-                        {userAdresses[index] ? `${userAdresses[index].address}, ${userAdresses[index].city}` : "Veuillez définir une adresse"}
-                    </p>
-                </div>
-            ))}
+           
             
             <p className="success">{message}</p>
         </div>

@@ -358,7 +358,7 @@ function RapportMensuelVisites({uid, onReturn}) {
             </div>
 
             <div className="rapport-container" style={{width: "100%", display: "flex", justifyContent: "space-evenly", marginTop: "20px", alignItems: "flex-start" }}>  
-                <div style={{width: "35%", margin: "20px"}}>
+                <div className="rapport2" style={{width: "35%", margin: "20px"}}>
                     <form className="form-rapport" onSubmit={handleGenerateReport}  style={{ width: "100%", boxShadow : "2px 2px 15px #cfcfcf", padding: "20px", borderRadius: "20px"}}>  
                         <h4 style={{fontSize: "18px", marginBottom: "30px", textAlign: "center"}}>Générer un rapport</h4>        
                         <div>
@@ -379,7 +379,7 @@ function RapportMensuelVisites({uid, onReturn}) {
                             <button style={{margin: "20px 0", width: "100%"}} onClick={downloadPDF2} className='button-colored'>Télécharger le rapport des activités du salon</button>
                         )}
                         {isFormSubmitted && selectedSalon && startDate && endDate && (
-                            <div ref={pageRef2} style={{ boxShadow: "2px 2px 15px #cfcfcf", padding: "20px", borderRadius: "20px", width: "100%", marginTop: "20px" }}>
+                            <div  ref={pageRef2} style={{ boxShadow: "2px 2px 15px #cfcfcf", padding: "20px", borderRadius: "20px", width: "100%", marginTop: "20px" }}>
                                 <h3 style={{fontSize: "17px", marginBottom: "10px"}}>Rapport du salon {selectedSalon}</h3> 
                                 <p style={{fontSize: "14px", color: "#3D9B9B", margin: "5px 0"}}>{salonStatus}</p>
                                 <p>Période : Du <strong>{format(parseISO(startDate), "dd MMMM yyyy", { locale: fr })}</strong> au <strong>{format(parseISO(endDate), "dd MMMM yyyy", { locale: fr })}</strong></p>

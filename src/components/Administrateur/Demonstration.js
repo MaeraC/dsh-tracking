@@ -223,7 +223,7 @@ function Demonstration({ uid, onReturn }) {
 
             {salonInfo && (
                 <>
-                <p className="visible">Si vous souhaitez visionner les fiches dans un format adapté, veuillez effectuer votre recherche sur un ordinateur.</p>
+                <p className="visible">Si vous souhaitez visionner les fiches enregistrées dans un format adapté, veuillez effectuer votre recherche sur un ordinateur.</p>
                 
                 <button style={{margin: "20px", marginLeft: "40px", padding: "10px 30px", marginBottom: "10px"}} className="button-colored invisible" onClick={handleShowAllCR}>Voir toutes les fiches enregistrées de ce salon</button>
                 </>

@@ -173,10 +173,10 @@ function StatisticsVisits({ uid }) {
                         <span style={{cursor: "pointer"}} className="close" onClick={handleModalClose}><img src={close} alt="fermer" /></span>
                         <h3 style={{marginBottom: "30px"}} className="h3">Recherche par période</h3>
                         <label>Date de début </label><br></br>
-                        <input style={{width: "100%", marginBottom: "20px"}} className="input" type="date" id="start-date" />
+                        <input style={{width: "100%", marginBottom: "20px"}} className="input custom-select " type="date" id="start-date" />
                           
                         <label>Date de fin :</label><br></br> 
-                        <input style={{width: "100%"}} type="date" id="end-date" />
+                        <input style={{width: "100%"}} type="date" id="end-date" className="custom-select " />
                        
                         <button style={{width: "100%"}} className="button-colored" onClick={handleDateRangeSelect}>Valider</button>
                         <div style={{display: "flex", flexDirection: "column", alignItems: "flex-start"}}>

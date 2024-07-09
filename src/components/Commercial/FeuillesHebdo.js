@@ -191,7 +191,7 @@ function FeuillesHebdo({ uid, onReturn }) {
             setIsModalOpen(true)
             setTimeErrorMsg("")
         }*/
-            if ((day === 4 && hours >= 7) || (day === 6) || (day === 0)) { // Vendredi après 17h, Samedi, Dimanche
+            if ((day === 2 && hours >= 7) || (day === 6) || (day === 0)) { // Vendredi après 17h, Samedi, Dimanche
                 setIsModalOpen(true)
                 setTimeErrorMsg("") 
             }
@@ -247,7 +247,7 @@ function FeuillesHebdo({ uid, onReturn }) {
     
         html2canvas(input, {
             useCORS: true,
-            scale: 2, // Augmente la résolution du canvas pour une meilleure qualité
+            scale: 2, 
         }).then(canvas => {
             const imgData = canvas.toDataURL('image/png');
             const pdf = new jsPDF('p', 'mm', 'a4');
@@ -422,8 +422,8 @@ function FeuillesHebdo({ uid, onReturn }) {
                 </div>
             )} 
             {isModalPrintOpen && ( 
-                <div style={{ position: "absolute", width: "100%", height: "100%", background: "white", top: "0", left: "0", padding: "20px", display: "flex", flexDirection: "column", alignItems: "center" }}>
-                    <div ref={pageRef} style={{padding: "50px", display: "flex", flexDirection: "column", alignItems: "center",  width: "60%"}}>  
+                <div  style={{ position: "absolute", width: "100%", height: "100%", background: "white", top: "0", left: "0", padding: "20px", display: "flex", flexDirection: "column", alignItems: "center" }}>
+                    <div className='print-page' ref={pageRef} style={{padding: "50px", display: "flex", flexDirection: "column", alignItems: "center",  width: "60%"}}>  
                     <h1 style={{ fontSize: "20px", marginBottom: "30px", marginTop: "30px", textAlign: "center" }}>Validation de la feuille de route hebdomadaire</h1>
                     <p className='soussigne' style={{ lineHeight: "25px", marginBottom: "30px", textAlign: "center", width: "70%" }}>
                         Je soussigné(e) <strong>{usersMap[feuillesRoute[0]?.userId]?.firstname} {usersMap[feuillesRoute[0]?.userId]?.lastname}</strong>, certifie l’authenticité des informations figurant sur la feuille de route ci-dessous qui rend compte des déplacements professionnels que j’ai effectué concernant la semaine du <strong>{formatDate(currentWeek[Object.keys(currentWeek)[0]]?.startOfWeek)}</strong> au <strong>{formatDate(currentWeek[Object.keys(currentWeek)[0]]?.endOfWeek)}</strong>.

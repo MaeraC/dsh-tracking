@@ -1278,10 +1278,10 @@ const [newHomeBackAddressLng, setNewHomeBackAddressLng] = useState(null)
                 {isParcoursStarted === true && (
                     <div className="parcours">
                         {isRetourVisible && (
-                            <button className="button-colored back-home-btn" onClick={() => { setIsModalConfirmHomeOpen(true); setIsRetourVisible(false); setIsTerminerVisible(true); }}>Retour à mon domicile</button>
+                            <button style={{width: "100%"}} className="button-colored back-home-btn" onClick={() => { setIsModalConfirmHomeOpen(true); setIsRetourVisible(false); setIsTerminerVisible(true); }}>Retour à mon domicile</button>
                         )}
                         {isTerminerVisible && (
-                            <button className="button-colored xx" onClick={() => setIsModalEndingOpen(true)}>Terminer mon parcours</button>
+                            <button style={{width: "100%"}} className="button-colored xx" onClick={() => setIsModalEndingOpen(true)}>Terminer mon parcours</button>
                         )}                       
                         <div className="distance-results">
                             <p className="total"><strong>{formatDistance(getTotalStopDistances())}</strong> kilomètres parcourus aujourd'hui</p>

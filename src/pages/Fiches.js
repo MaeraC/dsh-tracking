@@ -56,7 +56,7 @@ function Fiches({ uid }) {
                 <h1>Mes fiches</h1>
             </header>
 
-            <div>
+            <div className="content">
                 {!currentComponent && (
                     <>
                     <div className="titre-fiche">

@@ -53,7 +53,9 @@ function ResultsFicheD({onClose, data}) {
                         {Object.entries(typeDeDémonstration).map(([key, value]) => (
                             value && (
                                 <div key={key}>
-                                    <p style={{ display: "flex",  paddingLeft: "10px"}}>{key}</p>
+                                    <p style={{ display: "flex", paddingLeft: "10px" }}>
+                                        {key === "autre" ? value : key}
+                                    </p>
                                 </div> 
                             )
                         ))}

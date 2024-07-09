@@ -44,8 +44,9 @@ function FicheDemonstration({ uid, onReturn }) {
           doubleLecture: false,
           stylingPro: false,
           personalTouch: false,
-          autre: false,
+          autre: "",
         },
+       
         duréeDeLaDémonstration: '',
         techniciennePrésente: '',
         avecLaVRP: false,
@@ -156,6 +157,17 @@ function FicheDemonstration({ uid, onReturn }) {
         }
     }
 
+    const handleOtherChange = (e) => {
+        const { value } = e.target;
+        setFormData(prevState => ({
+            ...prevState,
+            typeDeDémonstration: {
+                ...prevState.typeDeDémonstration,
+                autre: value
+            }
+        }));
+    };
+
     const handleDemonstrationChange = (e) => {
         const { name, checked } = e.target;
         setFormData(prevState => ({
@@ -165,13 +177,13 @@ function FicheDemonstration({ uid, onReturn }) {
                 [name]: checked
             },
             issueFavorable: {
-                ...initialFormData.issueFavorable, // Réinitialiser issueFavorable à partir du modèle initial
+                ...initialFormData.issueFavorable, 
             },
             issueDéfavorable: {
-                ...initialFormData.issueDéfavorable, // Réinitialiser issueDéfavorable à partir du modèle initial
+                ...initialFormData.issueDéfavorable, 
             },
-            actions: { ...initialFormData.actions }, // Réinitialiser actions à partir du modèle initial
-            précisions: initialFormData.précisions, // Réinitialiser précisions à partir du modèle initial
+            actions: { ...initialFormData.actions }, 
+            précisions: initialFormData.précisions, 
         }));
     };
 
@@ -537,13 +549,20 @@ function FicheDemonstration({ uid, onReturn }) {
 
                     <p className="bold margin">La démonstration portait sur :</p><br></br>
                     {Object.keys(formData.typeDeDémonstration).map(demo => (
-                        <>
-                        <label key={demo} className="margin">
-                            <input type="checkbox" name={demo} checked={formData.typeDeDémonstration[demo]} onChange={handleDemonstrationChange} className="checkbox" />
-                            {demo.charAt(0).toUpperCase() + demo.slice(1)}
-                        </label><br></br>
-                        </> 
-                    ))}<br />       
+                        demo !== 'autre' ? (
+                            <>
+                                <label className="margin">
+                                    <input type="checkbox" name={demo} checked={formData.typeDeDémonstration[demo]} onChange={handleDemonstrationChange} className="checkbox" />
+                                    {demo.charAt(0).toUpperCase() + demo.slice(1)}
+                                </label>
+                                <br />
+                            </>
+                        ) : (
+                            <label key={demo} style={{ display: "flex", alignItems: "center" }}>
+                                Autre: <input className="inputt" style={{ padding: "10px", marginLeft: "20px", marginBottom: "0 !important" }} type="text" value={formData.typeDeDémonstration.autre} onChange={handleOtherChange} />
+                            </label>
+                        )
+                    ))}     
 
                     {Object.keys(formData.typeDeDémonstration).some(demo => formData.typeDeDémonstration[demo]) && (
                         <div>

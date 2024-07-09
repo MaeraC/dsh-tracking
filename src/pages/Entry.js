@@ -5,6 +5,7 @@ import { Link } from "react-router-dom"
 import { useState} from "react"
 import { sendPasswordResetEmail } from "firebase/auth"
 import { auth } from "../firebase.config" 
+import logo from "../assets/logo.png"
 
 function Home() {
     const [email, setEmail] = useState('')
@@ -27,7 +28,9 @@ function Home() {
     return (
         <div className="entry">
             <h1>GEO COIFF</h1>
-            <p>DSH Application</p>
+            <img style={{width: "200px", marginBottom: "50px"}} src={logo} alt="Logo" />
+            
+            
 
             <Link to="/connexion" className="button-white">Me connecter</Link>
 

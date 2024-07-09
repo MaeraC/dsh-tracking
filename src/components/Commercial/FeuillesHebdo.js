@@ -186,15 +186,10 @@ function FeuillesHebdo({ uid, onReturn }) {
         const day = now.getDay();
         const hours = now.getHours();
 
-        /*
-        if (day === 5 && hours >= 5 && hours <= 23) { // vendredi = 5 entre 17h et 22H 
+        if (day === 5 && hours >= 5 && hours <= 23) { // vendredi = 5 entre 17h et 23H 
             setIsModalOpen(true)
             setTimeErrorMsg("")
-        }*/
-            if ((day === 2 && hours >= 7) || (day === 6) || (day === 0)) { // Vendredi après 17h, Samedi, Dimanche
-                setIsModalOpen(true)
-                setTimeErrorMsg("") 
-            }
+        }
         else {
             setTimeErrorMsg("Vous pouvez signer votre feuille de route chaque vendredi entre 17h et 23h.")
         }

@@ -3,7 +3,7 @@
 
 import "../index.css" 
 import { useState, useEffect } from "react"
-import { createUserWithEmailAndPassword } from "firebase/auth"
+import { createUserWithEmailAndPassword, onAuthStateChanged } from "firebase/auth"
 import { auth, db } from "../firebase.config.js"
 import { doc, setDoc, addDoc, collection } from "firebase/firestore"
 import { Link, useNavigate } from "react-router-dom"
@@ -23,8 +23,21 @@ function SignUp() {
     const [departments, setDepartments] = useState([])
     const [selectedDepartments, setSelectedDepartments] = useState([])
     const [searchTerm, setSearchTerm] = useState("")
+    const [currentUserUid, setCurrentUserUid] = useState(null)
 
     const navigate = useNavigate()
+
+    useEffect(() => {
+        // Obtenir l'utilisateur courant lors du chargement du composant
+        const unsubscribe = onAuthStateChanged(auth, (user) => {
+            if (user) {
+                setCurrentUserUid(user.uid)
+            } else {
+                setCurrentUserUid(null)
+            }
+        })
+        return unsubscribe     
+    }, [])
  
     const handleSignUp = async (e) => {
         e.preventDefault()
@@ -53,9 +66,9 @@ function SignUp() {
             }) 
 
             await addDoc(collection(db, "historiqueAdmin"), {
-                userId: user.uid,
+                userId: currentUserUid,
                 date: new Date(),
-                action: `Nouvel utilisateur inscrit : `, 
+                action: `Nouvel utilisateur inscrit : ${firstname} ${lastname}`, 
             })
 
             setMessage("Inscription réussie")

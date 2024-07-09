@@ -185,7 +185,7 @@ const [newHomeBackAddressLng, setNewHomeBackAddressLng] = useState(null)
                     const feuille = doc.data()
                     const feuilleDate = feuille.date.toDate()
                     const today = new Date()
-                    // Vérifier si la feuille est du jour et non clôturée
+                    
                     if (!feuille.isClotured && feuilleDate.getDate() === today.getDate() &&
                         feuilleDate.getMonth() === today.getMonth() && feuilleDate.getFullYear() === today.getFullYear()) {
                         setFeuilleDuJour(feuille)
@@ -1158,14 +1158,14 @@ const [newHomeBackAddressLng, setNewHomeBackAddressLng] = useState(null)
    
     return (
         <>
-            {/*
+            {
             showModal && (
                 <div className="modal-clotured">
                     <div className="content">
                         <p>Pour démarrer une nouvelle journée, vous devez valider dernière feuille de route du jour.<br></br>Veuillez vous diriger vers  la section <em>Feuilles de route de la semaine</em> et clôturez votre fiche.</p>
                     </div>
                 </div>
-            )*/}
+            )}
              {showFirstAdresseModal && (
                 <div className="modal-clotured">
                     <div className="content">

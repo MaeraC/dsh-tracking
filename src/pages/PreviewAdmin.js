@@ -2,11 +2,12 @@
 // Fichier PreviewAdmin
 
 import { useNavigate } from "react-router-dom"
+import { db, auth } from "../firebase.config"  
 import { useState, useEffect } from "react"
 import StatisticsAdmin from "../components/Administrateur/StatisticsAdmin" 
-import { collection, getDocs, getDoc, Timestamp, addDoc, doc } from "firebase/firestore"
-import { onAuthStateChanged } from "firebase/auth"
-import { db, auth } from "../firebase.config" 
+import { collection, getDocs, getDoc, Timestamp, addDoc, doc, updateDoc } from "firebase/firestore"
+import { onAuthStateChanged, } from "firebase/auth"
+
 import back from "../assets/back.png" 
 
 function PreviewAdmin({ firstname, uid }) {
@@ -26,6 +27,8 @@ function PreviewAdmin({ firstname, uid }) {
     const [userNames, setUserNames] = useState({})
     const [showHistorique, setShowHistorique] = useState(false)
     const [historique, setHistorique] = useState([])
+    const [showDeleteUser, setshowDeleteUser] = useState(false) 
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
 
     const navigate = useNavigate()
 
@@ -73,7 +76,8 @@ function PreviewAdmin({ firstname, uid }) {
                 ...doc.data()
             }))
 
-            setUsers(usersList)
+            const updatedUsers = usersList.filter((user) => !user.deleted);
+            setUsers(updatedUsers);
         }
 
         const fetchAdmin = async (user) => {
@@ -162,6 +166,36 @@ function PreviewAdmin({ firstname, uid }) {
         }
     };
 
+ 
+
+    const handleDeleteUser = async () => {
+        try {
+            if (!selectedUser) {
+                setMessage("Veuillez sélectionner un utilisateur.");
+                return;
+            }
+
+            await updateDoc(doc(db, "users", selectedUser), {
+                deleted: true,
+            });
+        
+            setMessage(
+                `L'utilisateur ${userNames[selectedUser]} a été supprimé avec succès.`
+            );
+           
+            // Mettre à jour la liste des utilisateurs après suppression
+            const updatedUsers = users.filter((user) => !user.deleted);
+            setUsers(updatedUsers);
+
+            setSelectedUser("");
+            setShowDeleteConfirm(false)
+            setshowDeleteUser(false)
+        } catch (error) {
+            console.error("Erreur lors de la suppression de l'utilisateur :", error);
+            setMessage("Erreur lors de la suppression de l'utilisateur.");
+        }
+    };
+
     return (
         <div className="preview-section preview-admin">
             <header>
@@ -179,6 +213,7 @@ function PreviewAdmin({ firstname, uid }) {
                 <div className="droits-admin"> 
                     <h2>Sélectionner une action</h2>
                     <button className="button" onClick={() => setSignUpModal(true)} >Inscrire un nouvel utilisateur</button>
+                    <button className="button" onClick={() => setshowDeleteUser(true)} >Supprimer un utilisateur</button>
                     <button className="button" onClick={() => setShowManage(true)}>Rendre indisponible un VRP</button>
                     <button className="button" onClick={() => setShow(true)} >Voir la fiche d'indisponibilités</button>
                     <button className="button" onClick={() => setShowHistorique(true)}>Voir l'historique des actions admin</button>
@@ -196,6 +231,43 @@ function PreviewAdmin({ firstname, uid }) {
                             <button onClick={() => setSignUpModal(false)}>Non</button>
                         </div>
                     </div> 
+                </div>
+            )}
+
+            {showDeleteUser && (
+                <div className="modal">
+                    <div className="modal-content">
+                        <div className="user-list">
+                            <h3 style={{marginBottom: "30px"}}>Supprimer un VRP</h3>
+                            <select className="custom-select" value={selectedUser} onChange={(e) => setSelectedUser(e.target.value)}>
+                                <option value="">Sélectionner un utilisateur</option>
+                                {users.map((user) => (
+                                    <option key={user.id} value={user.id}>
+                                        {userNames[user.id]}
+                                    </option>
+                                ))}
+                            </select>
+                            {selectedUser && (
+                                <div>
+                                    <button className="button-colored" onClick={() => setShowDeleteConfirm(true)}>Supprimer</button>
+                                </div>
+                            )}
+                            <button className="cancel" onClick={() => {setShowDeleteConfirm(false); setshowDeleteUser(false)}}>Annuler</button>
+                        </div>
+                    </div> 
+                </div>
+            )}
+
+            {showDeleteConfirm && (
+            <div className="modal">
+                <div className="modal-content">
+                    <p>Êtes-vous sûr de vouloir supprimer l'utilisateur {userNames[selectedUser]} ?</p>
+                    {message && <p style={{margin: "0 20px", color: "grey"}}>{message}</p>}
+                    <div className="mini-buttons">
+                    <button onClick={handleDeleteUser}>Oui</button>
+                    <button  onClick={() => {setShowDeleteConfirm(false); setshowDeleteUser(false)}}>Non</button>
+                    </div>
+                </div>
                 </div>
             )}
 

@@ -15,14 +15,16 @@ const firebaseConfig = {
   appId: process.env.REACT_APP_APP_ID,
 }
 
-// Initialise l'app Firebase 
+// Initialise l'app Firebase
 const app = initializeApp(firebaseConfig)
 const auth = getAuth(app)
-const db = getFirestore(app)
+const db = getFirestore(app) 
+
+
 
 setPersistence(auth, browserSessionPersistence)
   .catch((error) => {
-    console.error("Error setting persistence : ", error)
+    console.error("Error setting persistence : ", error) 
   })
   
 export {auth, db, app}

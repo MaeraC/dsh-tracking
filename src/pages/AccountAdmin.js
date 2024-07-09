@@ -14,7 +14,6 @@ function AccountAdmin({ email, firstname, lastname }) {
     const [message, setMessage] = useState("")
     const [action, setAction]                           = useState(null)
    
-
     const navigate = useNavigate()
 
     const handleLogout = async () => {
@@ -53,10 +52,6 @@ function AccountAdmin({ email, firstname, lastname }) {
         setAction(actionType)
         setShowModal(true)
     }
-
-
-
-
 
     return (
         <div className="account">

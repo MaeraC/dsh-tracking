@@ -186,11 +186,11 @@ function SearchFeuillesDuJourCom({ uid }) {
             <div className='filters' style={{width: "100%", padding: "20px 50px", boxShadow: "2px 2px 15px #cfcfcf", display: "flex", borderRadius: "20px", justifyContent: "space-between", alignItems: "center"}}>
                 <div style={{width: "30%"}}>
                     <label className='label'>Date de début :</label><br></br>
-                    <input style={{width: "100%"}} type="date" value={startDate} onChange={handleStartDateChange} />
+                    <input className='custom-select' style={{width: "100%"}} type="date" value={startDate} onChange={handleStartDateChange} />
                 </div>
                 <div style={{width: "30%"}}>
                     <label className='label'>Date de fin :</label><br></br>
-                    <input style={{width: "100%"}} type="date" value={endDate} onChange={handleEndDateChange} />
+                    <input className='custom-select' style={{width: "100%"}} type="date" value={endDate} onChange={handleEndDateChange} />
                 </div>
                 <button style={{width: "30%", height: "50px"}} className='button-colored' onClick={handleSubmit}>Valider</button>
             </div>

@@ -520,9 +520,9 @@ function FicheClient({ onReturn, uid }) {
                                 <label><input className="checkbox" type="checkbox" name="thalassoBac" checked={formData.marquesEnPlace.thalassoBac} onChange={handleCheckboxChange} /> Thalasso Bac</label><br />
                                 <label><input className="checkbox" type="checkbox" name="manufacturesABoucles" checked={formData.marquesEnPlace.manufacturesABoucles} onChange={handleCheckboxChange} /> Manufactures à boucles</label><br />
                                 <label><input className="checkbox" type="checkbox" name="doubleLecture" checked={formData.marquesEnPlace.doubleLecture} onChange={handleCheckboxChange} /> Double lecture</label><br />
-                                <label>Autre: <input type="text" value={otherBrand} onChange={handleOtherBrandChange} /></label><br />
+                                <label style={{display: "flex", alignItems: "center"}}>Autre: <input className="inputt" style={{padding: "10px", marginLeft: "20px", marginBottom: "0 !important"}} type="text" value={otherBrand} onChange={handleOtherBrandChange} /></label><br />
                             </div>
-                            <br></br>
+                            <br></br>  
 
                             <p><strong>Équipe</strong></p>
                             {formData.équipe.map((member, index) => (

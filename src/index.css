@@ -3332,3 +3332,21 @@ form input {
     top: 5px;
     left: 5px;
 }
+@media screen and (max-width: 600px) {
+    .rapport-mensuel-visite {
+        width: 100%
+    }
+    .form-FSC {
+        width: 100%;
+        padding: 20px;
+    }
+    .form-FSP {
+        width: 100%
+    }
+    .form-FSC .adress, .form-CRD .adress {
+        margin-bottom: 20px;
+    }
+}
+.inputt {
+    margin-bottom: 0 !important;
+}

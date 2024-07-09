@@ -469,7 +469,7 @@ function FicheDemonstration({ uid, onReturn }) {
     return (
         <div className="demonstration-section">
             <div className="title-fiche">
-                <h1>Formulaire du Compte rendu de RDV de Démonstration</h1>
+                <h1>Formulaire du CR de RDV de Démonstration</h1>
                 <button onClick={onReturn} className="button-back"><img src={back} alt="retour" /></button>
             </div>
 

@@ -369,9 +369,9 @@ function RapportMensuelVisites({uid, onReturn}) {
                         </div>
                         <div>
                             <label style={{marginTop: "10px"}} className="label">Date de début</label>  
-                            <input type="date" value={startDate} onChange={handleStartDateChange} />
+                            <input  className='custom-select' type="date" value={startDate} onChange={handleStartDateChange} />
                             <label className="label">Date de fin</label>
-                            <input type="date" value={endDate} onChange={handleEndDateChange} />
+                            <input  className='custom-select' type="date" value={endDate} onChange={handleEndDateChange} />
                         </div>
                         <button style={{width: "100%", marginTop: "20px"}} type="submit" className="button-colored">Valider</button>
 

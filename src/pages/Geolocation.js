@@ -185,17 +185,22 @@ const [newHomeBackAddressLng, setNewHomeBackAddressLng] = useState(null)
                     const feuille = doc.data()
                     const feuilleDate = feuille.date.toDate()
                     const today = new Date()
+                    const currentHour = today.getHours()
                     
-                    if (!feuille.isClotured && feuilleDate.getDate() === today.getDate() &&
-                        feuilleDate.getMonth() === today.getMonth() && feuilleDate.getFullYear() === today.getFullYear()) {
-                        setFeuilleDuJour(feuille)
-                        setShowModal(true)
+                    if (!feuille.isClotured && 
+                        feuilleDate.getDate() === today.getDate() &&
+                        feuilleDate.getMonth() === today.getMonth() &&
+                        feuilleDate.getFullYear() === today.getFullYear() &&
+                        currentHour >= 17) {
+                            setFeuilleDuJour(feuille)
+                            setShowModal(true)
                     }
                 })
             } catch (error) { console.error("Erreur lors de la récupération de la feuille de route du jour :", error) }
         }
         fetchFeuilleDuJour()
     }, [uid, feuilleDuJour])
+    
 
 
 

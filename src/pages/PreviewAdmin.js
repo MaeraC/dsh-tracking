@@ -317,11 +317,11 @@ function PreviewAdmin({ firstname, uid }) {
                     <div className="date-inputs">
                         <div>
                             <label className="label">Date de début :</label><br></br>
-                            <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
+                            <input className="custom-select" type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
                         </div>
                         <div>
                             <label className="label">Date de fin :</label><br></br>
-                            <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
+                            <input className="custom-select" type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
                         </div>
                         <button className="button-colored" onClick={handleSearch}>Rechercher</button>
                     </div>

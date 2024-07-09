@@ -4,45 +4,41 @@
 import { GoogleMap }                                    from "@react-google-maps/api"
 import {  useState, useEffect, useRef }                 from "react"
 import ReactModal                                       from "react-modal"
-import loader from "../assets/loader.gif"
+import loader                                           from "../assets/loader.gif"
 import startIcon                                        from "../assets/start.png" 
 import plus                                             from "../assets/plus.png"
 import refresh                                          from "../assets/refresh.png"
 import { db }                                           from "../firebase.config"
-import deleteIcon from "../assets/delete.png" 
+import deleteIcon                                       from "../assets/delete.png" 
 import { collection, addDoc, setDoc, doc, getDoc,getDocs, updateDoc, query, where, arrayUnion, deleteDoc, arrayRemove, increment } from "firebase/firestore"
 
-const mapContainerStyle = {
-    width: '100vw',
-    height: '55vh',
-}
-const options = {
-    disableDefaultUI: true,
-    zoomControl: true,
-    mapId: "b3f2841793c037a8"
-}
+const mapContainerStyle = { width: '100vw', height: '55vh' }
+const options = { disableDefaultUI: true, zoomControl: true, mapId: "b3f2841793c037a8" }
 ReactModal.setAppElement('#root') 
 
 const computeDistance = async (start, end) => {
-    const directionsService = new window.google.maps.DirectionsService();
+    const directionsService = new window.google.maps.DirectionsService()
+
     const request = {
         origin: new window.google.maps.LatLng(start.lat, start.lng),
         destination: new window.google.maps.LatLng(end.lat, end.lng),
         travelMode: window.google.maps.TravelMode.DRIVING,
     }
+
     return new Promise((resolve, reject) => {
         directionsService.route(request, (response, status) => {
             if (status === 'OK') {
-                const route = response.routes[0];
-                let totalDistance = 0;
+                const route = response.routes[0]
+                let totalDistance = 0
+
                 for (let i = 0; i < route.legs.length; i++) {
-                    totalDistance += route.legs[i].distance.value; // in meters
+                    totalDistance += route.legs[i].distance.value;
                 }
-                resolve(totalDistance);
+                resolve(totalDistance)
             } 
             else { reject(status) }
-        });
-    });
+        })
+    })
 }
 
 function Geolocation({ uid }) {
@@ -51,17 +47,17 @@ function Geolocation({ uid }) {
     const [hasVisitsToday, setHasVisitsToday]           = useState(null) 
     const [startAddress, setStartAddress]               = useState('')
     const [startCity, setStartCity]                     = useState('') 
-    const [startCityParcours, setStartCityParcours]                     = useState('')
+    const [startCityParcours, setStartCityParcours]     = useState('')
     // eslint-disable-next-line
     const [userAdresse, setUserAdresse]                 = useState("")
-    const [userAdresses, setUserAdresses]                 = useState([])
+    const [userAdresses, setUserAdresses]                = useState([])
     // eslint-disable-next-line
     const [userCity, setUserCity]                       = useState("")
     const [openNewUserAdresse, setOpenNewUserAdresse]   = useState(false)
     // eslint-disable-next-line
     const [updatedAddress, setUpdatedAddress]           = useState('')
     // eslint-disable-next-line
-    const [updateCity, setUpdateCity]           = useState('')
+    const [updateCity, setUpdateCity]                   = useState('')
     const [isAddressConfirmed, setIsAddressConfirmed]   = useState(false)
     const [error, setError]                             = useState('')
     const [showConfirmButtons, setShowConfirmButtons]   = useState(true)
@@ -69,10 +65,10 @@ function Geolocation({ uid }) {
     const [currentRouteId, setCurrentRouteId]           = useState(null)
     const [salons, setSalons]                           = useState([])
     const [selectedSalon, setSelectedSalon]             = useState(null)
-    const [recentlyAddedSalon, setRecentlyAddedSalon] = useState(false);
+    const [recentlyAddedSalon, setRecentlyAddedSalon]   = useState(false);
     const [recentlyAddedAction, setRecentlyAddedAction] = useState(false)
     // eslint-disable-next-line
-    const [initialStatus, setInitialStatus] = useState("");  
+    const [initialStatus, setInitialStatus]             = useState("");  
     const [isTracking, setIsTracking]                   = useState(false)
     const [isParcoursStarted, setIsParcoursStarted]     = useState(false)
     const [isParcoursEnded, setIsParcoursEnded]         = useState(false)
@@ -92,39 +88,39 @@ function Geolocation({ uid }) {
     const [isModalEndingOpen, setIsModalEndingOpen]     = useState(false)
     const [isModalConfirmHomeOpen, setIsModalConfirmHomeOpen] = useState(false)
     const [isModalHomeOpen, setIsModalHomeOpen]         = useState(false)
-    const [isModalNewHomeOpen, setIsModalNewHomeOpen]   = useState(false) //
+    const [isModalNewHomeOpen, setIsModalNewHomeOpen]   = useState(false) 
     const [isHomeTracking, setIsHomeTracking]           = useState(false)
-    const [isNewHomeTracking, setIsNewHomeTracking]           = useState(false) //
+    const [isNewHomeTracking, setIsNewHomeTracking]     = useState(false) 
     const [homeDistance, setHomeDistance]               = useState(0)
-    const [userAddressLat, setUserAddressLat] = useState(null)
-const [userAddressLng, setUserAddressLng] = useState(null)
-const [newHomeBackAddressLat, setNewHomeBackAddressLat] = useState(null)
-const [newHomeBackAddressLng, setNewHomeBackAddressLng] = useState(null)
-    const [newHomeDistance, setNewHomeDistance]               = useState(0) //
-    const [newHomeBackAddress, setNewHomeBackAddress] = useState('');
-    const [newHomeBackCity, setNewHomeBackCity] = useState('');
-    const [isModalBackOpen, setIsModalBackOpen] = useState(false);
-    const [message, setMessage] = useState("")
+    const [userAddressLat, setUserAddressLat]           = useState(null)
+    const [userAddressLng, setUserAddressLng]               = useState(null)
+    const [newHomeBackAddressLat, setNewHomeBackAddressLat] = useState(null)
+    const [newHomeBackAddressLng, setNewHomeBackAddressLng] = useState(null)
+    const [newHomeDistance, setNewHomeDistance]         = useState(0) 
+    const [newHomeBackAddress, setNewHomeBackAddress]   = useState('')
+    const [newHomeBackCity, setNewHomeBackCity]         = useState('')
+    const [isModalBackOpen, setIsModalBackOpen]         = useState(false)
+    const [message, setMessage]                         = useState("")
     const [isRetourVisible, setIsRetourVisible]         = useState(true)
     const [isTerminerVisible, setIsTerminerVisible]     = useState(false)
     const [errorMessage, setErrorMessage]               = useState("")
-    const [feuilleDuJour, setFeuilleDuJour] = useState(null)   
-    const [isModalTimeOpen,  setIsModalTimeOpen ]= useState(false)
+    const [feuilleDuJour, setFeuilleDuJour]             = useState(null)   
+    const [isModalTimeOpen,  setIsModalTimeOpen ]       = useState(false)
     // eslint-disable-next-line
     const [showModal, setShowModal]                     = useState(false)
-    const [motif, setMotif] = useState("")
-    const [showMotifModal , setShowMotifModal] = useState(false)
+    const [motif, setMotif]                             = useState("")
+    const [showMotifModal , setShowMotifModal]          = useState(false)
     const mapRef                                        = useRef(null)
     const markerRef                                     = useRef(null)
     const previousPosition                              = useRef(null)
-    const [isSalonsLoading, setIsSalonsLoading] = useState(false)
-    const [addressSuggestions, setAddressSuggestions] = useState([])
+    const [isSalonsLoading, setIsSalonsLoading]         = useState(false)
+    const [addressSuggestions, setAddressSuggestions]   = useState([])
     const [showFirstAdresseModal, setShowFirstAdresseModal] = useState(false)
-    const [newSalonDepartment, setNewSalonDepartment] = useState('')
+    const [newSalonDepartment, setNewSalonDepartment]   = useState('')
     const [departmentSuggestions, setDepartmentSuggestions] = useState([])
-    const [citySuggestionsStart, setCitySuggestionsStart]         = useState([])
-    const [allowedDepartments, setAllowedDepartments] = useState([]);
-    const [isCitySelected, setIsCitySelected] = useState(false);
+    const [citySuggestionsStart, setCitySuggestionsStart] = useState([])
+    const [allowedDepartments, setAllowedDepartments]   = useState([]);
+    const [isCitySelected, setIsCitySelected]           = useState(false);
 
     useEffect(() => {
         if (window.google && window.google.maps && window.google.maps.marker && window.google.maps.geometry) {
@@ -200,9 +196,6 @@ const [newHomeBackAddressLng, setNewHomeBackAddressLng] = useState(null)
         }
         fetchFeuilleDuJour()
     }, [uid, feuilleDuJour])
-    
-
-
 
     const geocodeAddress = (address) => {
         return new Promise((resolve, reject) => {
@@ -315,7 +308,7 @@ const [newHomeBackAddressLng, setNewHomeBackAddressLng] = useState(null)
         };
 
         fetchUserDepartments();
-    }, [uid]);
+    }, [uid])
 
     const handleAddressUpdate = async () => {
         if (!startAddress || !startCity) {
@@ -381,9 +374,7 @@ const [newHomeBackAddressLng, setNewHomeBackAddressLng] = useState(null)
                 setCitySuggestionsStart([]);
             }
         });
-    };
-    
-    
+    }
     
     const fetchCitySuggestions = (input, setCitySuggestions) => {
         const service = new window.google.maps.places.AutocompleteService()
@@ -840,20 +831,19 @@ const [newHomeBackAddressLng, setNewHomeBackAddressLng] = useState(null)
     const handleStatusChange = async (e) => {
         const selectedStatus = e.target.value;
         setStatus(selectedStatus);
-        setIsChecked(selectedStatus === 'Prospect' || selectedStatus === 'Client');
+        setIsChecked(selectedStatus === 'Prospect' || selectedStatus === 'Client')
     
-        const logMessage = `Statut mis à jour : ${selectedStatus}`;
+        const logMessage = `Statut mis à jour : ${selectedStatus}`
         
-        // Vérifiez si selectedSalon est défini avant d'accéder à place_id
         if (selectedSalon && selectedSalon.place_id) {
-            const salonRef = doc(db, "salons", selectedSalon.place_id);
+            const salonRef = doc(db, "salons", selectedSalon.place_id)
     
             const action = {
                 date: new Date(),
                 action: logMessage,
                 userId: uid
-            };
-            setRecentlyAddedAction(action);
+            }
+            setRecentlyAddedAction(action)
             
             try {
                 await updateDoc(salonRef, {
@@ -867,7 +857,7 @@ const [newHomeBackAddressLng, setNewHomeBackAddressLng] = useState(null)
         } else {
             console.error("Selected salon or place_id is undefined", selectedSalon);
         }
-    };
+    }
     
     const handleStatusChange2 = async (e) => {
         const selectedStatus = e.target.value
@@ -1159,25 +1149,25 @@ const [newHomeBackAddressLng, setNewHomeBackAddressLng] = useState(null)
         }
         return "Fermé";
     }
-
    
     return (
         <>
-            {
-            showModal && (
+            {showModal && (
                 <div className="modal-clotured">
                     <div className="content">
                         <p>Pour démarrer une nouvelle journée, vous devez valider dernière feuille de route du jour.<br></br>Veuillez vous diriger vers  la section <em>Feuilles de route de la semaine</em> et clôturez votre fiche.</p>
                     </div>
                 </div>
             )}
-             {showFirstAdresseModal && (
+
+            {showFirstAdresseModal && (
                 <div className="modal-clotured">
                     <div className="content">
                         <p>Pour démarrer votre parcours, vous devez saisir votre adresse de domicile.<br></br>Veuillez vous diriger vers  l'onglet <em>Mon compte</em> et enregistrez votre adresse de départ.</p>
                     </div>
                 </div>
             )}
+
             <header className="geo-header">
                 <h1>Mon parcours</h1> 
                 {!isModalSalonOpen && (  
@@ -1187,99 +1177,100 @@ const [newHomeBackAddressLng, setNewHomeBackAddressLng] = useState(null)
                     </div>
                 )}
             </header>
+
             <div className="geoloc-section">
                 <div>
-                <GoogleMap mapContainerStyle={mapContainerStyle} zoom={14} center={currentPosition} options={options} onLoad={(map) => (mapRef.current = map)}></GoogleMap>
-                
-                {message &&  <p className="congrats success">{message}</p>}
+                    <GoogleMap mapContainerStyle={mapContainerStyle} zoom={14} center={currentPosition} options={options} onLoad={(map) => (mapRef.current = map)}></GoogleMap>
+                    
+                    {message &&  <p className="congrats success">{message}</p>}
 
-                {hasVisitsToday === null && (
-                    <div className="start-tour">
-                        <p style={{textAlign: "center"}}>Avez-vous prévu des visites aujourd'hui ?</p>
-                        <div className="mini-buttons">
-                            <button onClick={() => handleVisitsToday(true)}>Oui</button>
-                            <button onClick={() => handleVisitsToday(false)}>Non</button>
-                        </div>
-                    </div>
-                )}
-
-                 {hasVisitsToday === true && !isParcoursStarted && !isParcoursEnded && (
-                    <div className="start-adress" id="start-adress">
-                        <p className="confirm">Confirmez-vous que l'adresse ci-dessous est bien votre adresse de départ ?</p>
-                        <p className="adresse"><strong>{startAddress + ", " + startCity}</strong></p>
-                        {showConfirmButtons && (
+                    {hasVisitsToday === null && (
+                        <div className="start-tour">
+                            <p style={{textAlign: "center"}}>Avez-vous prévu des visites aujourd'hui ?</p>
                             <div className="mini-buttons">
-                                <button onClick={() => { setIsAddressConfirmed(true); setShowConfirmButtons(false); }}>Oui</button>
-                                <button onClick={() => setOpenNewUserAdresse(true)}>Non</button>
+                                <button onClick={() => handleVisitsToday(true)}>Oui</button>
+                                <button onClick={() => handleVisitsToday(false)}>Non</button>
                             </div>
-                        )}
-                        <input className="inputadresse" type="text" placeholder="Dans quelle ville sont prévues vos visites ?" value={startCityParcours} onChange={(e) => { setStartCityParcours(e.target.value); fetchCitySuggestionsStart(e.target.value, setCitySuggestionsStart); }} />
-                        {citySuggestionsStart.length > 0 && (
-                            <ul className="city-suggestions">
-                                {citySuggestionsStart.map((suggestion, index) => (
-                                    <li key={index} onClick={() => { setStartCityParcours(suggestion); setCitySuggestionsStart([]); setIsCitySelected(true); }}>
-                                        {suggestion}
-                                    </li>
-                                ))}
-                            </ul>
-                        )}
-                        {errorMessage && <p className="error-message">{errorMessage}</p>}
-                        <p className="info">Cliquer sur ce bouton lorsque vous êtes arrivé à votre point de départ</p>
-                        <button className="button-colored démarrer" onClick={handleStartParcours}>Démarrer mon parcours</button>
-                    </div>
-                )}
-            
-                {openNewUserAdresse && (
-                    <div className="modal">
-                        <div className="modal-content" >
-                            <p>Veuillez entrer votre adresse de départ</p>
-                            {userAdresses.length > 0 && (
-                                <select onChange={handleAddressChange}>
-                                    {userAdresses.map((address, index) => (
-                                        <option key={index} value={address.address}>
-                                            {address.address}, {address.city}
-                                        </option>
-                                    ))}
-                                </select>
+                        </div>
+                    )}
+
+                    {hasVisitsToday === true && !isParcoursStarted && !isParcoursEnded && (
+                        <div className="start-adress" id="start-adress">
+                            <p className="confirm">Confirmez-vous que l'adresse ci-dessous est bien votre adresse de départ ?</p>
+                            <p className="adresse"><strong>{startAddress + ", " + startCity}</strong></p>
+                            {showConfirmButtons && (
+                                <div className="mini-buttons">
+                                    <button onClick={() => { setIsAddressConfirmed(true); setShowConfirmButtons(false); }}>Oui</button>
+                                    <button onClick={() => setOpenNewUserAdresse(true)}>Non</button>
+                                </div>
                             )}
-                            <input type="text" placeholder="Adresse" value={startAddress} onChange={(e) => { setStartAddress(e.target.value); fetchAddressSuggestions(e.target.value, setAddressSuggestions); }} />
-                            {addressSuggestions.length > 0 && (
-                                <ul className="city-suggestions" style={{ width: "100%" }}>
-                                    {addressSuggestions.map((suggestion, index) => (
-                                        <li key={index} onClick={() => handleAddressSelect(suggestion.place_id, setStartAddress, setStartCity, setAddressSuggestions)}> 
-                                            {suggestion.description}
-                                        </li>
-                                    ))}
-                                </ul>
-                            )}
-                            <input type="text" placeholder="Ville" value={startCity} onChange={(e) => { setStartCity(e.target.value); fetchCitySuggestions(e.target.value, setCitySuggestions); }} />
-                            {citySuggestions.length > 0 && (
+                            <input className="inputadresse" type="text" placeholder="Dans quelle ville sont prévues vos visites ?" value={startCityParcours} onChange={(e) => { setStartCityParcours(e.target.value); fetchCitySuggestionsStart(e.target.value, setCitySuggestionsStart); }} />
+                            {citySuggestionsStart.length > 0 && (
                                 <ul className="city-suggestions">
-                                    {citySuggestions.map((suggestion, index) => (
-                                        <li key={index} onClick={() => { setStartCity(suggestion); setCitySuggestions([]); }}>
+                                    {citySuggestionsStart.map((suggestion, index) => (
+                                        <li key={index} onClick={() => { setStartCityParcours(suggestion); setCitySuggestionsStart([]); setIsCitySelected(true); }}>
                                             {suggestion}
                                         </li>
                                     ))}
                                 </ul>
                             )}
-                            {error && <p className="error-message">{error}</p>}
-                            <button className="button-colored" onClick={handleAddressUpdate}>Valider</button>
-                            <button className="cancel" onClick={() => setOpenNewUserAdresse(false)}>Annuler</button>
+                            {errorMessage && <p className="error-message">{errorMessage}</p>}
+                            <p className="info">Cliquer sur ce bouton lorsque vous êtes arrivé à votre point de départ</p>
+                            <button className="button-colored démarrer" onClick={handleStartParcours}>Démarrer mon parcours</button>
                         </div>
-                    </div>
-                )}
-                {showMotifModal && (
-                    <div className="modal">
-                        <div className="modal-content">
-                            <p>Vous n'effectuez pas de déplacements aujourd'hui. Veuillez fournir un motif :</p>
-                            <input placeholder="Mon motif" onChange={(e) => setMotif(e.target.value)} />
-                            <button onClick={handleValidateMotif} className="button-colored">Valider</button>
-                            <button onClick={() => { setShowMotifModal(false); setHasVisitsToday(null)}} className="cancel">Annuler</button>
-                        </div>
-                    </div>
-                )}
+                    )}
                 
+                    {openNewUserAdresse && (
+                        <div className="modal">
+                            <div className="modal-content" >
+                                <p>Veuillez entrer votre adresse de départ</p>
+                                {userAdresses.length > 0 && (
+                                    <select onChange={handleAddressChange}>
+                                        {userAdresses.map((address, index) => (
+                                            <option key={index} value={address.address}>
+                                                {address.address}, {address.city}
+                                            </option>
+                                        ))}
+                                    </select>
+                                )}
+                                <input type="text" placeholder="Adresse" value={startAddress} onChange={(e) => { setStartAddress(e.target.value); fetchAddressSuggestions(e.target.value, setAddressSuggestions); }} />
+                                {addressSuggestions.length > 0 && (
+                                    <ul className="city-suggestions" style={{ width: "100%" }}>
+                                        {addressSuggestions.map((suggestion, index) => (
+                                            <li key={index} onClick={() => handleAddressSelect(suggestion.place_id, setStartAddress, setStartCity, setAddressSuggestions)}> 
+                                                {suggestion.description}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                )}
+                                <input type="text" placeholder="Ville" value={startCity} onChange={(e) => { setStartCity(e.target.value); fetchCitySuggestions(e.target.value, setCitySuggestions); }} />
+                                {citySuggestions.length > 0 && (
+                                    <ul className="city-suggestions">
+                                        {citySuggestions.map((suggestion, index) => (
+                                            <li key={index} onClick={() => { setStartCity(suggestion); setCitySuggestions([]); }}>
+                                                {suggestion}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                )}
+                                {error && <p className="error-message">{error}</p>}
+                                <button className="button-colored" onClick={handleAddressUpdate}>Valider</button>
+                                <button className="cancel" onClick={() => setOpenNewUserAdresse(false)}>Annuler</button>
+                            </div>
+                        </div>
+                    )}
+                    {showMotifModal && (
+                        <div className="modal">
+                            <div className="modal-content">
+                                <p>Vous n'effectuez pas de déplacements aujourd'hui. Veuillez fournir un motif :</p>
+                                <input placeholder="Mon motif" onChange={(e) => setMotif(e.target.value)} />
+                                <button onClick={handleValidateMotif} className="button-colored">Valider</button>
+                                <button onClick={() => { setShowMotifModal(false); setHasVisitsToday(null)}} className="cancel">Annuler</button>
+                            </div>
+                        </div>
+                    )}
                 </div>
+
                 {isParcoursStarted === true && (
                     <div className="parcours">
                         {isRetourVisible && (
@@ -1358,6 +1349,7 @@ const [newHomeBackAddressLng, setNewHomeBackAddressLng] = useState(null)
                         
                     </div>
                 )}
+
                 {selectedSalon && (
                     <ReactModal isOpen={isModalCounterOpen} onRequestClose={handleModalClose} contentLabel="Salon Details" className="modal" >
                         <div className="modal-content">
@@ -1389,6 +1381,7 @@ const [newHomeBackAddressLng, setNewHomeBackAddressLng] = useState(null)
                         </div>
                     </ReactModal>
                 )}
+
                 <ReactModal isOpen={isModalSalonOpen} onRequestClose={() => setIsModalSalonOpen(false)} contentLabel="Ajouter un nouveau salon" className="modal" >    
                     <div className="new-salon modal-content">
                         <h2>Ajouter un nouveau salon</h2>
@@ -1515,7 +1508,8 @@ const [newHomeBackAddressLng, setNewHomeBackAddressLng] = useState(null)
                                         <button className="button-colored" onClick={handleStartNewHomeTracking} >Démarrer le compteur de km</button>
                                     )}
                                 </div>
-                    </ReactModal>
+                </ReactModal>
+                
                 <ReactModal isOpen={isModalEndingOpen} onRequestClose={() => setIsModalEndingOpen(false)} contentLabel="Terminer mon parcours" className="modal" >   
                     <div className="modal-content">
                         <p style={{marginBottom: "20px"}}>Êtes-vous sûr de vouloir terminer votre parcours ?</p>

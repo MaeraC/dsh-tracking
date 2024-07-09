@@ -673,6 +673,7 @@ button:hover {
     margin-bottom: 5px;
     color: grey;
     line-height: 25px;
+    font-size: 13px;
 }
 .distance-results .arrets li em {
     color: black;

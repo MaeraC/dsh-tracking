@@ -22,9 +22,6 @@ function Login() {
     const handleLogin = async (e) => {
         e.preventDefault()
         try {
-
-           
-
             await setPersistence(auth, browserLocalPersistence)
             const userCredential = await signInWithEmailAndPassword(auth, email, password)
             const user = userCredential.user
@@ -38,7 +35,6 @@ function Login() {
                 return
             }
 
-            // Vérifier si l'utilisateur est un administrateur
             if (userData.role === "administrateur") {
                 setMessage("Connexion réussie avec succès !")
                 setMessageType("success")
@@ -48,9 +44,7 @@ function Login() {
                 return
             }
 
-            // Vérifier les indisponibilités pour les commerciaux
             if (userData.role === "commercial") {
-
                 const unavailabilityQuery = query(
                     collection(db, "unavailabilities"),
                     where("userId", "==", user.uid)

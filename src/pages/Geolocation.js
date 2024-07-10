@@ -1,7 +1,7 @@
 
 // Fichier Geolocation.js
 
-import { GoogleMap }                                    from "@react-google-maps/api"
+import { GoogleMap }                                    from "@react-google-maps/api" 
 import {  useState, useEffect, useRef }                 from "react"
 import ReactModal                                       from "react-modal"
 import loader                                           from "../assets/loader.gif"
@@ -13,7 +13,7 @@ import deleteIcon                                       from "../assets/delete.p
 import { collection, addDoc, setDoc, doc, getDoc,getDocs, updateDoc, query, where, arrayUnion, deleteDoc, arrayRemove, increment } from "firebase/firestore"
 
 const mapContainerStyle = { width: '100vw', height: '55vh' }
-const options = { disableDefaultUI: true, zoomControl: true, mapId: "b3f2841793c037a8" }
+const options = { disableDefaultUI: true, zoomControl: true, mapId: "2e40262607617060" }
 ReactModal.setAppElement('#root') 
 
 const computeDistance = async (start, end) => {

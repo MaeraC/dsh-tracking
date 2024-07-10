@@ -7,6 +7,7 @@ import { useState, useEffect } from "react"
 import StatisticsAdmin from "../components/Administrateur/StatisticsAdmin" 
 import { collection, getDocs, getDoc, Timestamp, addDoc, doc, updateDoc } from "firebase/firestore"
 import { onAuthStateChanged, } from "firebase/auth"
+import deleteIcon                                       from "../assets/delete.png"  
 
 import back from "../assets/back.png" 
 
@@ -29,6 +30,11 @@ function PreviewAdmin({ firstname, uid }) {
     const [historique, setHistorique] = useState([])
     const [showDeleteUser, setshowDeleteUser] = useState(false) 
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+    const [manageDpt, setManageDpt] = useState(false)
+    const [userDepartments, setUserDepartments] = useState([]);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [departments, setDepartments] = useState([]);
+    const [selectedDepartment, setSelectedDepartment] = useState('');
 
     const navigate = useNavigate()
 
@@ -93,6 +99,38 @@ function PreviewAdmin({ firstname, uid }) {
 
         fetchUsers()
     }, [])
+
+    useEffect(() => {
+        if (selectedUser) {
+            const fetchUserDepartments = async () => {
+                const userDoc = await getDoc(doc(db, "users", selectedUser))
+                if (userDoc.exists()) {
+                    setUserDepartments(userDoc.data().departments || [])
+                }
+            }
+            fetchUserDepartments()
+        }
+    }, [selectedUser])
+
+    useEffect(() => {
+        const service = new window.google.maps.places.AutocompleteService()
+        service.getPlacePredictions(
+            {
+                input: searchTerm,
+                componentRestrictions: { country: 'fr' },
+                types: ['(regions)']
+            },
+            (predictions, status) => {
+                if (status === window.google.maps.places.PlacesServiceStatus.OK && predictions) {
+                    const filteredDepartments = predictions
+                        .filter(prediction => prediction.types.includes('administrative_area_level_2'))
+                        .filter(prediction => prediction.description.endsWith(", France"))
+                        .map(prediction => prediction.description.replace(", France", ""));
+                    setDepartments(filteredDepartments);
+                }
+            }
+        )
+    }, [searchTerm])
 
     const handleSubmit = async (e) => {
         e.preventDefault()
@@ -164,37 +202,53 @@ function PreviewAdmin({ firstname, uid }) {
         } catch (error) {
             console.error("Erreur lors de la récupération et du filtrage des indisponibilités : ", error);
         }
-    };
-
- 
+    }
 
     const handleDeleteUser = async () => {
         try {
             if (!selectedUser) {
                 setMessage("Veuillez sélectionner un utilisateur.");
-                return;
+                return
             }
 
             await updateDoc(doc(db, "users", selectedUser), {
                 deleted: true,
-            });
+            })
         
             setMessage(
                 `L'utilisateur ${userNames[selectedUser]} a été supprimé avec succès.`
-            );
+            )
            
-            // Mettre à jour la liste des utilisateurs après suppression
-            const updatedUsers = users.filter((user) => !user.deleted);
+            const updatedUsers = users.filter((user) => !user.deleted)
             setUsers(updatedUsers);
 
             setSelectedUser("");
             setShowDeleteConfirm(false)
             setshowDeleteUser(false)
         } catch (error) {
-            console.error("Erreur lors de la suppression de l'utilisateur :", error);
-            setMessage("Erreur lors de la suppression de l'utilisateur.");
+            console.error("Erreur lors de la suppression de l'utilisateur :", error)
+            setMessage("Erreur lors de la suppression de l'utilisateur.")
+        }
+    }
+
+    const addDepartment = async () => {
+        if (selectedDepartment) {
+            await updateDoc(doc(db, "users", selectedUser), {
+                departments: [...userDepartments, selectedDepartment]
+            })
+            setUserDepartments([...userDepartments, selectedDepartment])
         }
     };
+
+    const deleteDepartment = async (department) => {
+        const updatedDepartments = userDepartments.filter(dpt => dpt !== department);
+        await updateDoc(doc(db, "users", selectedUser), {
+            departments: updatedDepartments
+        })
+        setUserDepartments(updatedDepartments)
+    };
+
+    
 
     return (
         <div className="preview-section preview-admin">
@@ -214,6 +268,7 @@ function PreviewAdmin({ firstname, uid }) {
                     <h2>Sélectionner une action</h2>
                     <button className="button" onClick={() => setSignUpModal(true)} >Inscrire un nouvel utilisateur</button>
                     <button className="button" onClick={() => setshowDeleteUser(true)} >Supprimer un utilisateur</button>
+                    <button className="button" onClick={() => setManageDpt(true)} >Gérer les départements des VRP</button>
                     <button className="button" onClick={() => setShowManage(true)}>Rendre indisponible un VRP</button>
                     <button className="button" onClick={() => setShow(true)} >Voir la fiche d'indisponibilités</button>
                     <button className="button" onClick={() => setShowHistorique(true)}>Voir l'historique des actions admin</button>
@@ -375,6 +430,41 @@ function PreviewAdmin({ firstname, uid }) {
                                 ))}
                             </tbody>
                         </table>
+                    </div>
+                </div>
+            )}
+
+            {manageDpt && (
+                <div className="modal">
+                    <div className="modal-content"> 
+                        <select className="custom-select supp" value={selectedUser} onChange={(e) => setSelectedUser(e.target.value)}>
+                            <option value="">Sélectionner un utilisateur</option>
+                            {users.map((user) => (
+                                <option key={user.id} value={user.id}>
+                                    {userNames[user.id]}
+                                </option>
+                            ))}
+                        </select>
+                        {selectedUser && (
+                            <>
+                                <ul>
+                                    <p style={{color: "grey", marginBottom: "10px", textAlign: "start", fontSize: "14px"}}>Départements affiliés au VRP :</p>
+                                    {userDepartments.map(department => (
+                                        <li key={department} style={{display: "flex", alignItems: "center"}}>
+                                            {department}
+                                            <button className="btn-supp" onClick={() => deleteDepartment(department)}><img style={{width: "17px", height: "17px"}} src={deleteIcon} alt="" /></button>
+                                        </li>
+                                    ))}
+                                </ul><br></br>
+                                <input type="text" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder="Rechercher un département" />
+                                <ul>
+                                    {departments.map(department => (
+                                        <li className="supp-dpt" key={department} onClick={() =>{ setSelectedDepartment(department); addDepartment()}}>{department}</li>
+                                    ))}
+                                </ul>
+                                <button className="button-colored" onClick={() => setManageDpt(false)}>Fermer</button>
+                            </>
+                        )}
                     </div>
                 </div>
             )}

@@ -28,7 +28,6 @@ function SignUp() {
     const navigate = useNavigate()
 
     useEffect(() => {
-        // Obtenir l'utilisateur courant lors du chargement du composant
         const unsubscribe = onAuthStateChanged(auth, (user) => {
             if (user) {
                 setCurrentUserUid(user.uid)

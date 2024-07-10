@@ -3351,3 +3351,18 @@ form input {
 .inputt {
     margin-bottom: 0 !important;
 }
+.btn-supp {
+    background: none; 
+    border: none;
+    width: initial !important;
+    margin-left: 8px;
+    cursor: pointer;
+}
+.supp {
+    margin-bottom: 20px !important;
+}
+.supp-dpt {
+    background: white;
+    border: solid 1px #cfcfcf;
+    padding: 8px;
+}

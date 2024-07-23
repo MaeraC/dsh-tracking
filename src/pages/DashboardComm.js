@@ -4,7 +4,6 @@
 import { useState, useEffect }                              from "react"
 import Preview                                              from "./Preview"
 import Account                                              from "./Account"
-import SearchVisits                                         from "./SearchVisits"
 import Loader                                               from "../components/Loader"
 import Fiches                                               from "./Fiches"
 import Geolocation                                          from "./Geolocation"
@@ -69,9 +68,6 @@ function DashboardComm () {
 
         <div style={{ display: activeTab === "mon-compte" ? "block" : "none" }}> 
             <Account firstname={firstname} lastname={lastname} email={email} uid={uid} />
-        </div>
-        <div style={{ display: activeTab === "recherche-visites" ? "block" : "none" }}>
-            <SearchVisits />
         </div>
         <div style={{ display: activeTab === "fiches" ? "block" : "none" }}>
             <Fiches uid={uid}  />

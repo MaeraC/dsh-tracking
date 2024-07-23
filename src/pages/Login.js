@@ -11,12 +11,15 @@ import { doc, getDoc } from "firebase/firestore"
 import { query, getDocs, collection, where, Timestamp } from "firebase/firestore"
 import emailImg from "../assets/email.png"
 import mdpImg from "../assets/mdp.png"
+import eye from "../assets/eye.png"
+import eye2 from "../assets/eye2.png"
 
 function Login() {
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
     const [message, setMessage] = useState("")
     const [messageType, setMessageType] = useState("")
+    const [showPassword, setShowPassword] = useState(false)
     const navigate = useNavigate()
 
     const handleLogin = async (e) => {
@@ -84,8 +87,8 @@ function Login() {
             }
         } catch (error) {
             console.error("Erreur de connexion:", error.message)
-            //setMessage("Erreur de connexion")
-            //setMessageType("error")
+            setMessage("Erreur de connexion")
+            setMessageType("error")
         }
     }
     
@@ -109,9 +112,10 @@ function Login() {
                     <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="E-mail" />
                 </div>
                 <div className="email-input">
-                    <img src={mdpImg} alt="icone mot de passe" />
-                    <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Mot de passe" />
-                </div>
+                    <img className="icone-mdp" src={mdpImg} alt="icone mot de passe" />
+                    <input type={showPassword ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Mot de passe" />
+                    <img style={{right: "10px"}} className="icone-eye" src={showPassword ? eye2 : eye} alt="Afficher le mot de passe" onClick={() => setShowPassword(!showPassword)}/>
+                </div> 
 
                 {messageType === "success" && (
                     <div className="success-animation">

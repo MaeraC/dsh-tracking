@@ -65,7 +65,7 @@ function FichesAmin({ uid }) {
                     </div> 
                     <div style={{width: "100%" , display: "flex", flexWrap: "wrap", padding: "20px", justifyContent: "space-evenly"}}>
                         <button style={{width: "40%", marginRight: "20px"}} className="button" onClick={openFdj}>Feuilles de route</button>
-                        <button style={{width: "40%", marginRight: "20px"}}  className="button" onClick={openRapportVisites}>Rapport des visites réalisées</button>
+                        <button style={{width: "40%", marginRight: "20px"}}  className="button" onClick={openRapportVisites}>Rapport des salons visités</button>
                     </div>
                     <div className="titre-fiche">
                         <h1>Fiches de suivi</h1>

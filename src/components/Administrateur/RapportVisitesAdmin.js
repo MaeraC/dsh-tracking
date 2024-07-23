@@ -413,7 +413,7 @@ const pageRef2 = useRef()
     return (
         <div>
             <div className='titre-fiche'> 
-                <h1>Rapport des visites réalisées</h1>
+                <h1>Rapport des salons visités</h1>
                 <button onClick={onReturn} className="button-back"><img src={back} alt="retour" /></button>
             </div> 
                    

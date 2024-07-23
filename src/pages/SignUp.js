@@ -11,6 +11,8 @@ import emailImg from "../assets/email.png"
 import mdpImg from "../assets/mdp.png"
 import userImg from "../assets/users.png"
 import closeImg from "../assets/close-white.png"
+import eye from "../assets/eye.png"
+import eye2 from "../assets/eye2.png"
 
 function SignUp() {
     const [firstname, setFirstname] = useState("")
@@ -24,8 +26,9 @@ function SignUp() {
     const [selectedDepartments, setSelectedDepartments] = useState([])
     const [searchTerm, setSearchTerm] = useState("")
     const [currentUserUid, setCurrentUserUid] = useState(null)
+    const [showPassword, setShowPassword] = useState(false)
 
-    const navigate = useNavigate()
+    const navigate = useNavigate() 
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -136,7 +139,8 @@ function SignUp() {
                 </div>
                 <div className="email-input">
                     <img src={mdpImg} alt="icone email" />   
-                    <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Mot de passe" />
+                    <input type={showPassword ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Mot de passe" />
+                    <img style={{right: "10px"}} className="icone-eye" src={showPassword ? eye2 : eye} alt="Afficher le mot de passe" onClick={() => setShowPassword(!showPassword)}/>
                 </div>
                 <label><input className="checkbox" type="radio" value="administrateur" checked={role === "administrateur"} onChange={(e) => setRole(e.target.value)} />Compte administrateur</label><br></br>
                 <label><input className="checkbox" type="radio" value="commercial" checked={role === "commercial"} onChange={(e) => setRole(e.target.value)} />Compte commercial</label>

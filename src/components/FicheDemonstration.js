@@ -235,6 +235,13 @@ function FicheDemonstration({ uid, onReturn }) {
             },
         }));
     };
+
+    const normalizeString = (str) => {
+        return str
+            .replace(/département\s*/i, "")
+            .toLowerCase()
+            .trim()
+    }
        
     const handleSearch = async (e) => {
         const searchValue = e.target.value;
@@ -249,7 +256,10 @@ function FicheDemonstration({ uid, onReturn }) {
                     const salonDepartment = data.department || "" 
                     const userDepartments = usersMap[uid]?.departments || []
 
-                        if (userDepartments.includes(salonDepartment)) {
+                    const normalizedDepartment = normalizeString(salonDepartment)
+                    const normalizedUserDepartments = userDepartments.map(normalizeString)
+                    
+                    if (normalizedUserDepartments.includes(normalizedDepartment)) {
                             searchResults.push({ id: doc.id, ...data });
                         }
                 })
@@ -283,56 +293,56 @@ function FicheDemonstration({ uid, onReturn }) {
                 email: crDemonstration.email || "",
                 nombreDeCollaborateurs: crDemonstration.nombreDeCollaborateurs || "",
                 typeDeDémonstration: {
-                    luminacolor: crDemonstration.typeDeDémonstration?.luminacolor || false,
-                    veracolor: crDemonstration.typeDeDémonstration?.veracolor || false,
-                    thalassoBAC: crDemonstration.typeDeDémonstration?.thalassoBAC || false,
-                    décoloration: crDemonstration.typeDeDémonstration?.décoloration || false,
-                    ondulation: crDemonstration.typeDeDémonstration?.ondulation || false,
-                    microscopie: crDemonstration.typeDeDémonstration?.microscopie || false,
-                    draw: crDemonstration.typeDeDémonstration?.draw || false,
-                    laVégétale: crDemonstration.typeDeDémonstration?.laVégétale || false,
-                    manufacturesABoucles: crDemonstration.typeDeDémonstration?.manufacturesABoucles || false,
-                    doubleLecture: crDemonstration.typeDeDémonstration?.doubleLecture || false,
-                    stylingPro: crDemonstration.typeDeDémonstration?.stylingPro || false,
-                    personalTouch: crDemonstration.typeDeDémonstration?.personalTouch || false,
-                    autre: crDemonstration.typeDeDémonstration?.autre || false,
+                    luminacolor:  false,
+                    veracolor:  false,
+                    thalassoBAC:  false,
+                    décoloration:  false,
+                    ondulation: false,
+                    microscopie: false,
+                    draw: false,
+                    laVégétale: false,
+                    manufacturesABoucles:  false,
+                    doubleLecture:  false,
+                    stylingPro:  false,
+                    personalTouch:  false,
+                    autre:  false,
                 },
-                duréeDeLaDémonstration: crDemonstration.duréeDeLaDémonstration || "",
-                techniciennePrésente: crDemonstration.techniciennePrésente || "",
-                avecLaVRP: crDemonstration.avecLaVRP || false,
-                seule: crDemonstration.seule || false,
-                nomDeLaTechnicienne: crDemonstration.nomDeLaTechnicienne || "",
+                duréeDeLaDémonstration: "",
+                techniciennePrésente:  "",
+                avecLaVRP:  false,
+                seule:  false,
+                nomDeLaTechnicienne:  "",
                 issueFavorable: {
-                    luminacolor: crDemonstration.issueFavorable?.luminacolor || null,
-                    veracolor: crDemonstration.issueFavorable?.veracolor || null,
-                    thalassoBAC: crDemonstration.issueFavorable?.thalassoBAC || null,
-                    décoloration: crDemonstration.issueFavorable?.décoloration || null,
-                    ondulation: crDemonstration.issueFavorable?.ondulation || null,
-                    microscopie: crDemonstration.issueFavorable?.microscopie || null,
-                    draw: crDemonstration.issueFavorable?.draw || null,
-                    laVégétale: crDemonstration.issueFavorable?.laVégétale || null,
-                    autre: crDemonstration.issueFavorable?.autre || null,
+                    luminacolor: null,
+                    veracolor:  null,
+                    thalassoBAC:  null,
+                    décoloration: null,
+                    ondulation:  null,
+                    microscopie:  null,
+                    draw:  null,
+                    laVégétale:  null,
+                    autre:  null,
                 },
                 issueDéfavorable: {
-                    luminacolor: crDemonstration.issueDéfavorable?.luminacolor || "",
-                    veracolor: crDemonstration.issueDéfavorable?.veracolor || "",
-                    thalassoBAC: crDemonstration.issueDéfavorable?.thalassoBAC || "",
-                    décoloration: crDemonstration.issueDéfavorable?.décoloration || "",
-                    ondulation: crDemonstration.issueDéfavorable?.ondulation || "",
-                    microscopie: crDemonstration.issueDéfavorable?.microscopie || "",
-                    draw: crDemonstration.issueDéfavorable?.draw || "",
-                    laVégétale: crDemonstration.issueDéfavorable?.laVégétale || "",
-                    autre: crDemonstration.issueDéfavorable?.autre || "",
+                    luminacolor:  "",
+                    veracolor:  "",
+                    thalassoBAC: "",
+                    décoloration:  "",
+                    ondulation:  "",
+                    microscopie:  "",
+                    draw:  "",
+                    laVégétale: "",
+                    autre:  "",
                 },
                 actions: {
-                    abandon: crDemonstration.actions?.abandon || "",
-                    aSuivre: crDemonstration.actions?.aSuivre || "",
-                    aRetenter: crDemonstration.actions?.aRetenter || "",
-                    adapterLePrix: crDemonstration.actions?.adapterLePrix || "",
-                    attenteDeRéponse: crDemonstration.actions?.attenteDeRéponse || "",
+                    abandon:  "",
+                    aSuivre: "",
+                    aRetenter:  "",
+                    adapterLePrix:  "",
+                    attenteDeRéponse:  "",
                 },
-                précisions: crDemonstration.précisions || "",
-                observationsGénérales: crDemonstration.observationsGénérales || "",
+                précisions:  "",
+                observationsGénérales:  "",
                 createdAt: new Date(),
                 typeOfForm: "CR de RDV de Démonstration",
                 userId: uid,

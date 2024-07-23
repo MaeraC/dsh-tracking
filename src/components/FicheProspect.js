@@ -171,23 +171,35 @@ function FicheProspect({uid, onReturn}) {
         setFormData({ ...formData, [type]: newColorations })
     }
 
+    const normalizeString = (str) => {
+        return str
+            .replace(/département\s*/i, "")
+            .toLowerCase()
+            .trim()
+    }
+
     // Recherche d'une fiche prospect par le nom du salon 
     const handleSearch = async (e) => {
         const searchValue = e.target.value;
         setSearchSalon(searchValue);
-
+        
         if (searchValue.length > 0) {
             try {
+                
                 const q = query(collection(db, "salons"), where("name", ">=", searchValue), where("name", "<=", searchValue + "\uf8ff"));
                 const querySnapshot = await getDocs(q);
                 const searchResults = [];
                 querySnapshot.forEach((doc) => {
                     const data = doc.data();
+                    console.log(data.department)
                     if (data.status === "Prospect") {
                         const salonDepartment = data.department || "" 
                         const userDepartments = usersMap[uid]?.departments || []
 
-                        if (userDepartments.includes(salonDepartment)) {
+                        const normalizedDepartment = normalizeString(salonDepartment)
+                        const normalizedUserDepartments = userDepartments.map(normalizeString)
+                        
+                        if (normalizedUserDepartments.includes(normalizedDepartment)) {
                             searchResults.push({ id: doc.id, ...data });
                         }
                     }
@@ -212,7 +224,7 @@ function FicheProspect({uid, onReturn}) {
             setSelectedSalon(salon.name)
             const data = salonSnapshot.data()
             const suiviProspect = data.suiviProspect ? data.suiviProspect[data.suiviProspect.length - 1] : {}
-
+            
             setFormData({
                 adresse: salon.address || "",
                 city: salon.city || "",
@@ -230,31 +242,31 @@ function FicheProspect({uid, onReturn}) {
                 emailDuResponsable: suiviProspect.emailDuResponsable || "",
                 facebook: suiviProspect.facebook || "",
                 instagram: suiviProspect.instagram || "",
-                origineDeLaVisite: suiviProspect.origineDeLaVisite || "",
-                colorationsAvecAmmoniaque: suiviProspect.colorationsAvecAmmoniaque || [],
-                colorationsSansAmmoniaque: suiviProspect.colorationsSansAmmoniaque || [],
-                colorationsVégétales: suiviProspect.colorationsVégétales || [],
+                origineDeLaVisite:  "",
+                colorationsAvecAmmoniaque:  [],
+                colorationsSansAmmoniaque:  [],
+                colorationsVégétales: [],
                 autresMarques: {
-                    poudre: (suiviProspect.autresMarques && suiviProspect.autresMarques.poudre) || "",
-                    permanente: (suiviProspect.autresMarques && suiviProspect.autresMarques.permanente) || "",
-                    bac: (suiviProspect.autresMarques && suiviProspect.autresMarques.bac) || "",
-                    revente: (suiviProspect.autresMarques && suiviProspect.autresMarques.revente) || ""
+                    poudre:   "",
+                    permanente:   "",
+                    bac:   "",
+                    revente:  ""
                 },
-                dateDeVisite: suiviProspect.dateDeVisite || "",
-                responsablePrésent: suiviProspect.responsablePrésent || "",
-                conceptsProposés: suiviProspect.conceptsProposés || "",
-                animationProposée: suiviProspect.animationProposée || "",
-                intéressésPar: suiviProspect.intéressésPar || "",
-                autresPoints: suiviProspect.autresPoints ||"",
-                statut: suiviProspect.statut || "",
-                rdvObtenu: suiviProspect.rdvObtenu || "",
-                rdvPrévuLe: suiviProspect.rdvPrévuLe || "",
-                rdvPrévuPour: suiviProspect.rdvPrévuPour || "",
-                typeDeRdv: suiviProspect.typeDeRdv || "",
-                typeDeDémonstration: suiviProspect.typeDeDémonstration || [],
-                commande: suiviProspect.commande || "",
-                pointsPourLaProchaineVisite: suiviProspect.pointsPourLaProchaineVisite || "",
-                observations: suiviProspect.observations || "",
+                dateDeVisite:  "",
+                responsablePrésent:  "",
+                conceptsProposés:  "",
+                animationProposée: "",
+                intéressésPar:  "",
+                autresPoints: "",
+                statut:  "",
+                rdvObtenu:  "",
+                rdvPrévuLe:  "",
+                rdvPrévuPour:  "",
+                typeDeRdv:  "",
+                typeDeDémonstration:  [],
+                commande:  "",
+                pointsPourLaProchaineVisite:  "",
+                observations:  "",
                 createdAt: createdAt,
                 typeOfForm: "Fiche de suivi Prospect",
                 userId: uid,

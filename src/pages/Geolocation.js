@@ -47,7 +47,6 @@ function Geolocation({ uid }) {
     const [hasVisitsToday, setHasVisitsToday]           = useState(null) 
     const [startAddress, setStartAddress]               = useState('')
     const [startCity, setStartCity]                     = useState('') 
-    const [startCityParcours, setStartCityParcours]     = useState('')
     // eslint-disable-next-line
     const [userAdresse, setUserAdresse]                 = useState("")
     const [userAdresses, setUserAdresses]                = useState([])
@@ -92,7 +91,9 @@ function Geolocation({ uid }) {
     const [isHomeTracking, setIsHomeTracking]           = useState(false)
     const [isNewHomeTracking, setIsNewHomeTracking]     = useState(false) 
     const [homeDistance, setHomeDistance]               = useState(0)
+     // eslint-disable-next-line
     const [userAddressLat, setUserAddressLat]           = useState(null)
+     // eslint-disable-next-line
     const [userAddressLng, setUserAddressLng]               = useState(null)
     const [newHomeBackAddressLat, setNewHomeBackAddressLat] = useState(null)
     const [newHomeBackAddressLng, setNewHomeBackAddressLng] = useState(null)
@@ -118,9 +119,13 @@ function Geolocation({ uid }) {
     const [showFirstAdresseModal, setShowFirstAdresseModal] = useState(false)
     const [newSalonDepartment, setNewSalonDepartment]   = useState('')
     const [departmentSuggestions, setDepartmentSuggestions] = useState([])
-    const [citySuggestionsStart, setCitySuggestionsStart] = useState([])
-    const [allowedDepartments, setAllowedDepartments]   = useState([]);
-    const [isCitySelected, setIsCitySelected]           = useState(false);
+    const [showContinue, setShowContinue]               = useState(false)
+    const [isButtonShow, setIsButtonShow]               = useState(false)
+    //const [logs, setLogs] = useState([]);
+
+    /*const addLog = (message) => {
+        setLogs((prevLogs) => [...prevLogs, message]);
+    };*/
 
     useEffect(() => {
         if (window.google && window.google.maps && window.google.maps.marker && window.google.maps.geometry) {
@@ -181,15 +186,22 @@ function Geolocation({ uid }) {
                     const feuille = doc.data()
                     const feuilleDate = feuille.date.toDate()
                     const today = new Date()
-                    const currentHour = today.getHours()
+                    //const currentHour = today.getHours()
                     
-                    if (!feuille.isClotured && 
+                    if (!feuille.isClotured && feuille.isEnded &&
                         feuilleDate.getDate() === today.getDate() &&
                         feuilleDate.getMonth() === today.getMonth() &&
-                        feuilleDate.getFullYear() === today.getFullYear() &&
-                        currentHour >= 17) {
+                        feuilleDate.getFullYear() === today.getFullYear()) {
                             setFeuilleDuJour(feuille)
                             setShowModal(true)
+                            
+                    }
+                    if (!feuille.isEnded &&  
+                        feuilleDate.getDate() === today.getDate() &&
+                        feuilleDate.getMonth() === today.getMonth() &&
+                        feuilleDate.getFullYear() === today.getFullYear()) {
+                            setFeuilleDuJour({ ...feuille, id: doc.id }) // inclure l'ID du document
+                            setShowContinue(true)
                     }
                 })
             } catch (error) { console.error("Erreur lors de la récupération de la feuille de route du jour :", error) }
@@ -290,26 +302,6 @@ function Geolocation({ uid }) {
         fetchAdresses();
     }, [uid])
 
-    useEffect(() => {
-        const fetchUserDepartments = async () => {
-            try {
-                const userRef = doc(db, "users", uid);
-                const userSnap = await getDoc(userRef);
-
-                if (userSnap.exists()) {
-                    const userData = userSnap.data();
-                    setAllowedDepartments(userData.departments || []);
-                } else {
-                    console.error("Aucune donnée utilisateur trouvée pour l'ID :", uid);
-                }
-            } catch (error) {
-                console.error("Erreur lors de la récupération des données utilisateur :", error);
-            }
-        };
-
-        fetchUserDepartments();
-    }, [uid])
-
     const handleAddressUpdate = async () => {
         if (!startAddress || !startCity) {
             setError("L'adresse de départ est obligatoire.")
@@ -329,51 +321,6 @@ function Geolocation({ uid }) {
         setError('')
         setShowConfirmButtons(false)
         setIsAddressConfirmed(true)
-    }
-    const fetchCitySuggestionsStart = (input) => {
-        const service = new window.google.maps.places.AutocompleteService();
-        const placesService = new window.google.maps.places.PlacesService(document.createElement('div'));
-
-        service.getPlacePredictions({
-            input,
-            componentRestrictions: { country: 'fr' },
-            types: ['(cities)']
-        }, (predictions, status) => {
-            //console.log("Prédictions obtenues:", predictions); // Console log 2
-            if (status === window.google.maps.places.PlacesServiceStatus.OK && predictions) {
-                const filteredSuggestions = [];
-
-                const promises = predictions.map(prediction => {
-                    return new Promise((resolve, reject) => {
-                        placesService.getDetails({ placeId: prediction.place_id }, (place, status) => {
-                            if (status === window.google.maps.places.PlacesServiceStatus.OK) {
-                                const department = place.address_components.find(component => component.types.includes('administrative_area_level_2'));
-                                //console.log("Détails du lieu:", place); // Console log 3
-                                //console.log("Département extrait:", department); // Console log 4
-                                if (department && allowedDepartments.includes(department.long_name)) {
-                                    filteredSuggestions.push(prediction.structured_formatting.main_text);
-                                }
-                                resolve();
-                            } else {
-                                reject();
-                            }
-                        });
-                    });
-                });
-
-                Promise.all(promises)
-                    .then(() => {
-                        //console.log("Suggestions filtrées:", filteredSuggestions); // Console log 5
-                        setCitySuggestionsStart(filteredSuggestions);
-                        setIsCitySelected(false)
-                    })
-                    .catch(() => {
-                        setCitySuggestionsStart([]);
-                    });
-            } else {
-                setCitySuggestionsStart([]);
-            }
-        });
     }
     
     const fetchCitySuggestions = (input, setCitySuggestions) => {
@@ -532,18 +479,19 @@ function Geolocation({ uid }) {
         }
     }
     const handleStartParcours = async () => {
-        if (!startCityParcours) { 
-            setErrorMessage("Veuillez saisir une ville.") 
-        } 
-        else if (!isCitySelected) {
-            setErrorMessage("Veuillez sélectionner une ville parmi les suggestions.");
-        }
-        else if (!isAddressConfirmed) { 
+        if (!isAddressConfirmed) { 
             setErrorMessage("Veuillez confirmer l'adresse de départ.") 
         } 
         else {
             const routeDocRef = doc(db, "feuillesDeRoute", currentRouteId)
+
             await updateDoc(routeDocRef, { departureAddress: startAddress, city: startCity,  })
+
+            const fullAddress = `${startAddress}, ${startCity}`
+            const location = await geocodeAddress(fullAddress)
+
+            setUserAddressLat(location.lat)
+            setUserAddressLng(location.lng)
             startParcours()
         }
     }
@@ -568,27 +516,40 @@ function Geolocation({ uid }) {
                 stops: stops, 
                 totalKm: totalKm,
                 unitTotalKm : unit,
-                isClotured: false
+                isClotured: false,
+                isEnded: true,
             })
         } catch (e) { console.error("Erreur lors de la mise à jour des arrêts : ", e) }
+    }
+
+    const normalizeString = (str) => {
+        return str
+            .replace(/département\s*/i, "")
+            .toLowerCase()
+            .trim()
     }
 
     const handleSalonsNearBy = async () => {
         setIsSalonsLoading(true)
        try {
+            const userDocSnapshot = await getDoc(doc(db, 'users', uid))
+            const userDepartments = userDocSnapshot.exists() ? userDocSnapshot.data().departments : []
+
             const service = new window.google.maps.places.PlacesService(mapRef.current)
+
             const results = await new Promise((resolve, reject) => {
                 service.nearbySearch(
                     { location: currentPosition, type: 'hair_care', radius: 5000 },
                     (results, status) => {
                         if (status === window.google.maps.places.PlacesServiceStatus.OK) {
-                            resolve(results);
+                            resolve(results)
                         } else {
                             reject(new Error('Erreur lors de la recherche des salons de coiffure: ' + status));
                         }
                     }
-                );
+                )
             })
+
             const salonsWithOpeningHours = []
             for (let i = 0; i < results.length; i++) {
                 try {
@@ -602,10 +563,14 @@ function Geolocation({ uid }) {
                     })
                     
                     if (placeDetails.opening_hours) {
-                        const city = await getCityFromCoords(placeDetails.geometry.location.lat(), placeDetails.geometry.location.lng())
                         const department = await getDepartmentFromCoords(placeDetails.geometry.location.lat(), placeDetails.geometry.location.lng())
-                        console.log(startCityParcours)
-                        if (city && city.toLowerCase() === startCityParcours.toLowerCase()) {
+                        //addLog("Département detecté : " + department)
+                        //addLog("Départements du VRP : " + userDepartments)
+                        const normalizedDepartment = normalizeString(department);
+                        const normalizedUserDepartments = userDepartments.map(normalizeString);
+                        //addLog("Département detecté normalize : " + normalizedDepartment)
+                        //addLog("Départements du VRP normalize : " + normalizedUserDepartments)
+                        if (normalizedDepartment && normalizedUserDepartments.includes(normalizedDepartment)) {
                             const distance = await computeDistance(currentPosition, { lat: placeDetails.geometry.location.lat(), lng: placeDetails.geometry.location.lng() })
                             salonsWithOpeningHours.push({ ...results[i], opening_hours: placeDetails.opening_hours, distance: distance, phone_number: placeDetails.formatted_phone_number, department  });
                         }
@@ -615,39 +580,23 @@ function Geolocation({ uid }) {
             
             const dbSalonsSnapshot = await getDocs(query(collection(db, 'salons'), where('manuallyAdded', '==', true)))
             const manuallyAddedSalons = dbSalonsSnapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }))
-            /*
-            const validManuallyAddedSalons = manuallyAddedSalons.filter(salon => {
-                return salon.location && salon.location.lat && salon.location.lng && salon.name && salon.address
-            })
-
-            // Calculer la distance pour les salons ajoutés manuellement
-        const validManuallyAddedSalonsWithDistance = await Promise.all(validManuallyAddedSalons.map(async salon => {
-            if (salon.location && salon.location.lat && salon.location.lng) {
-                const distance = await computeDistance(currentPosition, { lat: salon.location.lat, lng: salon.location.lng });
-                return { ...salon, distance: distance };
-            }
-            return salon; 
-        }));
             
-            const allSalons = [...salonsWithOpeningHours, ...validManuallyAddedSalonsWithDistance]*/
-             
-            // Filtrage des salons manuellement ajoutés par ville sélectionnée
+            
         const validManuallyAddedSalonsWithDistance = await Promise.all(manuallyAddedSalons.map(async salon => {
             if (salon.location && salon.location.lat && salon.location.lng) {
-                const city = await getCityFromCoords(salon.location.lat, salon.location.lng);
-                console.log("City from manually added salon:", city); // Console log
-                if (city && city.toLowerCase() === startCityParcours.toLowerCase()) {
-                    const distance = await computeDistance(currentPosition, { lat: salon.location.lat, lng: salon.location.lng });
-                    return { ...salon, distance: distance };
+                const department = await getDepartmentFromCoords(salon.location.lat, salon.location.lng)
+                const normalizedDepartment = normalizeString(department);
+                        const normalizedUserDepartments = userDepartments.map(normalizeString);
+                        if (normalizedDepartment && normalizedUserDepartments.includes(normalizedDepartment)) {
+                    const distance = await computeDistance(currentPosition, { lat: salon.location.lat, lng: salon.location.lng })
+                    return { ...salon, distance: distance }
                 }
             }
             return null;
         }));
 
-        // Filtrer les salons non nulls (salons dans la ville sélectionnée)
         const filteredManuallyAddedSalons = validManuallyAddedSalonsWithDistance.filter(salon => salon !== null);
 
-        // Fusionner les salons avec et sans horaires d'ouverture
         const allSalons = [...salonsWithOpeningHours, ...filteredManuallyAddedSalons];
             const sortedSalons = allSalons.sort((a, b) => {
                 const distanceA = a.distance || Infinity
@@ -666,7 +615,6 @@ function Geolocation({ uid }) {
                 })
             }
             setSalons(sortedSalons) 
-            console.log(salons)
         } catch (error) {
             console.error('Erreur lors de la récupération des coordonnées de la ville de l\'utilisateur :', error);
         } 
@@ -674,21 +622,6 @@ function Geolocation({ uid }) {
             setIsSalonsLoading(false)
         }
     } 
-    const getCityFromCoords = async (lat, lng) => {
-        return new Promise((resolve, reject) => {
-            const geocoder = new window.google.maps.Geocoder()
-            const latlng = { lat, lng }  
-            geocoder.geocode({ location: latlng }, (results, status) => {
-                if (status === "OK" && results[0]) {
-                    const addressComponents = results[0].address_components
-                    for (let component of addressComponents) {
-                        if (component.types.includes("locality")) { resolve(component.long_name); return }
-                    }
-                    resolve(null)
-                } else { reject(status) }
-            })
-        })
-    }
     const getPostalCodeFromCoords = async (lat, lng) => {
         return new Promise((resolve, reject) => {
             const geocoder = new window.google.maps.Geocoder();
@@ -730,7 +663,7 @@ function Geolocation({ uid }) {
     }
     
     const handleSelectSalon = async (salon) => {
-        setIsTracking(false)
+        setIsTracking(true)
         setTotalDistance(0)
         setDistance(0)
 
@@ -821,13 +754,12 @@ function Geolocation({ uid }) {
                 historique: arrayRemove(recentlyAddedAction)
             });
         }
-        setIsModalCounterOpen(false);
-        setIsTracking(false);
-        setStatus(initialStatus); // Restaure le statut initial dans l'état local
-        setSelectedSalon(null); // Réinitialise le salon sélectionné
-        setRecentlyAddedAction(null); // Réinitialise l'action récemment ajoutée
+        setIsModalCounterOpen(false)
+        setIsTracking(false)
+        setStatus(initialStatus)
+        setSelectedSalon(null)
+        setRecentlyAddedAction(null)
     }
-
     const handleStatusChange = async (e) => {
         const selectedStatus = e.target.value;
         setStatus(selectedStatus);
@@ -857,46 +789,15 @@ function Geolocation({ uid }) {
         } else {
             console.error("Selected salon or place_id is undefined", selectedSalon);
         }
-    }
-    
+    }    
     const handleStatusChange2 = async (e) => {
         const selectedStatus = e.target.value
         setStatus(selectedStatus)
-        setIsCheckedNewSalon(selectedStatus === 'Prospect' || selectedStatus === 'Client')
-       
-    }
+        setIsCheckedNewSalon(selectedStatus === 'Prospect' || selectedStatus === 'Client') 
+    }   
 
-    const handleModalClose = () => {
-        setIsModalCounterOpen(false)
-        setStatus('')
-        setIsChecked(false)
-        setIsCheckedNewSalon(false)
-        setIsRadioVisible(true)
-    }    
-
-    const handleStartTracking = () => {
-        setIsTracking(true)
-    } 
-
-    let currentArrivalTime = null
-    let currentDepartureTime = null
-
-    const handleArrivalTime = () => {
-        currentArrivalTime = getCurrentTime();
-    }
-    const handleDepartureTime = () => {
-        currentDepartureTime = getCurrentTime();
-        setIsModalTimeOpen(false);
-        updateStopWithDepartureTime()
-    }
-    const getCurrentTime = () => {
-        const now = new Date();
-        const hours = String(now.getHours()).padStart(2, '0');
-        const minutes = String(now.getMinutes()).padStart(2, '0');
-        return `${hours}:${minutes}`;
-    }
-
-    const handleStopTracking = async () => {
+    const handleStartTracking = async () => {    
+        //setIsTracking(true)
         const unit = totalDistance < 1000 ? 'm' : 'km'
         const getLatLng = (value) => typeof value === 'function' ? value() : value
         const salonLat = getLatLng(selectedSalon.geometry?.location?.lat) || getLatLng(selectedSalon.location?.lat)
@@ -904,23 +805,34 @@ function Geolocation({ uid }) {
         const postalCode = await getPostalCodeFromCoords(salonLat, salonLng)
 
         handleArrivalTime();
-
-            setStops((prevStops) => [ 
-                ...prevStops,
-                {
-                    name: selectedSalon.name,
-                    salonId: `ID${selectedSalon.counterValue}`,
-                    address: selectedSalon.vicinity || selectedSalon.address,
-                    postalCode: postalCode,
-                    distance: distance,
-                    unitDistance: unit,
-                    status: status,
-                    arrivalTime: currentArrivalTime,  
-                    departureTime: currentDepartureTime,
-                    lat: salonLat,
-                    lng: salonLng,
-                },
-            ])
+        
+        setStops((prevStops) => {
+                const updatedStops = [
+                    ...prevStops,
+                    {
+                        name: selectedSalon.name,
+                        salonId: `ID${selectedSalon.counterValue}`,
+                        address: selectedSalon.vicinity || selectedSalon.address,
+                        postalCode: postalCode,
+                        distance: distance,
+                        unitDistance: unit,
+                        status: status,
+                        arrivalTime: currentArrivalTime,
+                        departureTime: currentDepartureTime,
+                        lat: salonLat,
+                        lng: salonLng,
+                    },
+                ];
+        
+                const routeDocRef = doc(db, "feuillesDeRoute", currentRouteId)
+                updateDoc(routeDocRef, {
+                    stops: updatedStops, 
+                    isClotured: false,
+                    isEnded: false,
+                }).catch((error) => console.error("Erreur lors de la mise à jour de la feuille de route :", error));
+        
+                return updatedStops;
+        })
 
         const salonId = selectedSalon.place_id || selectedSalon.id
         const logMessage = `Nouvelle visite`
@@ -939,33 +851,125 @@ function Geolocation({ uid }) {
         setTotalDistance(0)  
         setDistance(0)
         setIsModalTimeOpen(true)  
+        setStatus('')
+        setIsChecked(false)
+        setIsCheckedNewSalon(false)
+        setIsRadioVisible(true)
+    } 
+
+    let currentArrivalTime = null
+    let currentDepartureTime = null
+
+    const handleArrivalTime = () => {
+        currentArrivalTime = getCurrentTime();
     }
-    const updateStopWithDepartureTime = () => {
+    const handleDepartureTime = () => {
+        currentDepartureTime = getCurrentTime();
+        setIsModalTimeOpen(false);
+        updateStopWithDepartureTime(currentDepartureTime) //
+    }
+    const getCurrentTime = () => {
+        const now = new Date();
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        return `${hours}:${minutes}`;
+    }
+/*
+    const handleStopTracking = async () => {
+        const unit = totalDistance < 1000 ? 'm' : 'km'
+        const getLatLng = (value) => typeof value === 'function' ? value() : value
+        const salonLat = getLatLng(selectedSalon.geometry?.location?.lat) || getLatLng(selectedSalon.location?.lat)
+        const salonLng = getLatLng(selectedSalon.geometry?.location?.lng) || getLatLng(selectedSalon.location?.lng)
+        const postalCode = await getPostalCodeFromCoords(salonLat, salonLng)
+
+        handleArrivalTime();
+        
         setStops((prevStops) => {
-            const lastStop = prevStops[prevStops.length - 1];
-            if (lastStop) {
-                lastStop.departureTime = currentDepartureTime;
-            }
-            return [...prevStops];
-        });
+                const updatedStops = [
+                    ...prevStops,
+                    {
+                        name: selectedSalon.name,
+                        salonId: `ID${selectedSalon.counterValue}`,
+                        address: selectedSalon.vicinity || selectedSalon.address,
+                        postalCode: postalCode,
+                        distance: distance,
+                        unitDistance: unit,
+                        status: status,
+                        arrivalTime: currentArrivalTime,
+                        departureTime: currentDepartureTime,
+                        lat: salonLat,
+                        lng: salonLng,
+                    },
+                ];
+        
+                const routeDocRef = doc(db, "feuillesDeRoute", currentRouteId)
+                updateDoc(routeDocRef, {
+                    stops: updatedStops, 
+                    isClotured: false,
+                    isEnded: false,
+                }).catch((error) => console.error("Erreur lors de la mise à jour de la feuille de route :", error));
+        
+                return updatedStops;
+        })
+
+        const salonId = selectedSalon.place_id || selectedSalon.id
+        const logMessage = `Nouvelle visite`
+        const salonRef = doc(db, "salons", salonId)
+        await updateDoc(salonRef, {
+            historique: arrayUnion({
+                date: new Date(),
+                action: logMessage,
+                userId: uid,
+            }),
+        })
         currentArrivalTime = null;
         //currentDepartureTime = null;
+        setIsTracking(false)
+        setIsModalCounterOpen(false)
+        setTotalDistance(0)  
+        setDistance(0)
+        setIsModalTimeOpen(true)  
+        setStatus('')
+        setIsChecked(false)
+        setIsCheckedNewSalon(false)
+        setIsRadioVisible(true)
+    }*/
+    const updateStopWithDepartureTime = async (departureTime) => {
+        setStops((prevStops) => {
+            const updatedStops = [...prevStops];
+            if (updatedStops.length > 0) {
+                const lastStop = { ...updatedStops[updatedStops.length - 1] };
+                lastStop.departureTime = departureTime;
+                updatedStops[updatedStops.length - 1] = lastStop;
+    
+                // Mettre à jour la base de données ici
+                const routeDocRef = doc(db, "feuillesDeRoute", currentRouteId);
+                updateDoc(routeDocRef, {
+                    stops: updatedStops,
+                }).catch((error) => console.error("Error updating stops:", error));
+            }
+            return updatedStops;
+        });
     }
-    const handleStartHomeTracking = () => {
+    const handleYesHome = async () => {
         setIsHomeTracking(true)
         setHomeDistance(0)
-        const lastStop = stops.length > 0 ? stops[stops.length - 1] : null
-        if (lastStop) {computeAndSetHomeDistance({ lat: lastStop.lat, lng: lastStop.lng }, { lat: userAddressLat, lng: userAddressLng })}
+        setIsModalHomeOpen(true)
+        setIsModalConfirmHomeOpen(false) 
+        
+        const fullAddress = `${startAddress}, ${startCity}`
+        const location = await geocodeAddress(fullAddress)
+        const lastStop = stops.length > 0 ? stops[stops.length - 1] : null 
+
+        if (lastStop) {
+            computeAndSetHomeDistance(
+                { lat: lastStop.lat, lng: lastStop.lng }, 
+                { lat: location.lat, lng: location.lng }
+        )} 
     }
-    const handleStartNewHomeTracking = () => {
-        setIsNewHomeTracking(true)
-        setNewHomeDistance(0)
-        const lastStop = stops.length > 0 ? stops[stops.length - 1] : null
-        if (lastStop) {computeAndSetNewHomeDistance({ lat: lastStop.lat, lng: lastStop.lng }, { lat: newHomeBackAddressLat, lng: newHomeBackAddressLng })}
-    }
-    const handleStopHomeTracking = () => {
-        setIsHomeTracking(false);
-        // Add home stop to stops array
+    const handleStartHomeTracking = async () => {
+        setIsHomeTracking(false)
+
         const unit = homeDistance < 1000 ? 'm' : 'km'
         setStops((prevStops) => [
             ...prevStops,
@@ -979,6 +983,29 @@ function Geolocation({ uid }) {
         ])
         setIsModalHomeOpen(false)
     }
+    const handleStartNewHomeTracking = () => {
+        setIsNewHomeTracking(true)
+        setNewHomeDistance(0)
+        const lastStop = stops.length > 0 ? stops[stops.length - 1] : null
+        if (lastStop) {computeAndSetNewHomeDistance({ lat: lastStop.lat, lng: lastStop.lng }, { lat: newHomeBackAddressLat, lng: newHomeBackAddressLng })}
+    }
+    /*
+    const handleStopHomeTracking = () => {
+        setIsHomeTracking(false);
+       
+        const unit = homeDistance < 1000 ? 'm' : 'km'
+        setStops((prevStops) => [
+            ...prevStops,
+            {
+                name: startAddress + ", " + startCity ,
+                address: startAddress + ", " + startCity, 
+                city: startCity,
+                distance: homeDistance,
+                unitDistance: unit,
+            },
+        ])
+        setIsModalHomeOpen(false)
+    }*/
     const handleStopNewHomeTracking = () => {
         setIsNewHomeTracking(false)  
         setIsModalBackOpen(false)
@@ -1075,7 +1102,7 @@ function Geolocation({ uid }) {
                 address: `${newSalonAddress}, ${newSalonCity}`,
                 postalCode: postalCode,
                 city: `${newSalonCity}`,
-                departement: newSalonDepartment,
+                department: newSalonDepartment,
                 status: status,
                 lat: newSalonLocation.lat,
                 lng: newSalonLocation.lng,
@@ -1149,13 +1176,26 @@ function Geolocation({ uid }) {
         }
         return "Fermé";
     }
+
+    const handleContinueParcours = () => {
+        if (feuilleDuJour) {
+            setStartAddress(feuilleDuJour.departureAddress)
+            setStartCity(feuilleDuJour.city)
+            setStops(feuilleDuJour.stops)
+            setCurrentRouteId(feuilleDuJour.id)
+            setIsParcoursStarted(true)
+            setIsButtonShow(true)
+            handleSalonsNearBy()
+        }
+        
+    }
    
     return (
         <>
             {showModal && (
                 <div className="modal-clotured">
                     <div className="content">
-                        <p>Pour démarrer une nouvelle journée, vous devez valider dernière feuille de route du jour.<br></br>Veuillez vous diriger vers  la section <em>Feuilles de route de la semaine</em> et clôturez votre fiche.</p>
+                        <p>Veuillez valider votre  feuille de route.<br></br>Dirigez-vous vers  la section <em>Feuilles de route journalières</em> et clôturez votre fiche.</p>
                     </div>
                 </div>
             )}
@@ -1184,7 +1224,14 @@ function Geolocation({ uid }) {
                     
                     {message &&  <p className="congrats success">{message}</p>}
 
-                    {hasVisitsToday === null && (
+                    {showContinue && !isButtonShow && (
+                        <div style={{display: "flex", flexDirection: "column", alignItems: "center"}}>
+                            <button style={{width: "95%"}} onClick={handleContinueParcours} className="button-colored">Reprendre mon parcours</button>
+                        </div>
+
+                    )}
+
+                    {hasVisitsToday === null && !showContinue && (
                         <div className="start-tour">
                             <p style={{textAlign: "center"}}>Avez-vous prévu des visites aujourd'hui ?</p>
                             <div className="mini-buttons">
@@ -1200,19 +1247,9 @@ function Geolocation({ uid }) {
                             <p className="adresse"><strong>{startAddress + ", " + startCity}</strong></p>
                             {showConfirmButtons && (
                                 <div className="mini-buttons">
-                                    <button onClick={() => { setIsAddressConfirmed(true); setShowConfirmButtons(false); }}>Oui</button>
+                                    <button onClick={() => { setIsAddressConfirmed(true); setShowConfirmButtons(false); setUserAdresse(startAddress); setUserCity(startCity) }}>Oui</button>
                                     <button onClick={() => setOpenNewUserAdresse(true)}>Non</button>
                                 </div>
-                            )}
-                            <input className="inputadresse" type="text" placeholder="Dans quelle ville sont prévues vos visites ?" value={startCityParcours} onChange={(e) => { setStartCityParcours(e.target.value); fetchCitySuggestionsStart(e.target.value, setCitySuggestionsStart); }} />
-                            {citySuggestionsStart.length > 0 && (
-                                <ul className="city-suggestions">
-                                    {citySuggestionsStart.map((suggestion, index) => (
-                                        <li key={index} onClick={() => { setStartCityParcours(suggestion); setCitySuggestionsStart([]); setIsCitySelected(true); }}>
-                                            {suggestion}
-                                        </li>
-                                    ))}
-                                </ul>
                             )}
                             {errorMessage && <p className="error-message">{errorMessage}</p>}
                             <p className="info">Cliquer sur ce bouton lorsque vous êtes arrivé à votre point de départ</p>
@@ -1271,13 +1308,13 @@ function Geolocation({ uid }) {
                     )}
                 </div>
 
-                {isParcoursStarted === true && (
+                {isParcoursStarted === true &&  (
                     <div className="parcours">
                         {isRetourVisible && (
-                            <button style={{width: "100%"}} className="button-colored back-home-btn" onClick={() => { setIsModalConfirmHomeOpen(true); setIsRetourVisible(false); setIsTerminerVisible(true); }}>Retour à mon domicile</button>
+                            <button style={{width: "95%"}} className="button-colored back-home-btn" onClick={() => { setIsModalConfirmHomeOpen(true); setIsRetourVisible(false); setIsTerminerVisible(true); }}>Retour à mon domicile</button>
                         )}
                         {isTerminerVisible && (
-                            <button style={{width: "100%"}} className="button-colored xx" onClick={() => setIsModalEndingOpen(true)}>Terminer mon parcours</button>
+                            <button style={{width: "95%"}} className="button-colored xx" onClick={() => setIsModalEndingOpen(true)}>Terminer mon parcours</button>
                         )}                       
                         <div className="distance-results">
                             <p className="total"><strong>{formatDistance(getTotalStopDistances())}</strong> kilomètres parcourus aujourd'hui</p>
@@ -1297,19 +1334,20 @@ function Geolocation({ uid }) {
                                     ))}
                                 </ul>
                             </div>
+                            <div>
+                            {/*logs.map((log, index) => (
+                                <p key={index}>{log}</p>
+                            ))*/}
+                            </div>
                         </div>
                         {isModalHomeOpen && (
                             <ReactModal isOpen={isModalHomeOpen} onRequestClose={() => setIsModalHomeOpen(false)} contentLabel="Retour à mon domicile" className="modal">
                                 <div className="modal-content">
                                     <h2 style={{marginBottom: "30px", fontSize: "20px"}}>Retour à mon domicile</h2>
                                     <p style={{marginBottom: "30px", color: "grey", fontStyle: "italic"}} className="city">{startAddress}, {startCity}</p>
-                                    {isHomeTracking ? (
-                                        <div>
-                                            <p style={{marginBottom: "30px"}}>Distance <strong style={{background: "#3D9B9B", color: "white", padding: "5px 10px", borderRadius: "5px", marginLeft: "10px"}}>{formatDistance(homeDistance)}</strong></p>  
-                                            <button className="button-colored" onClick={handleStopHomeTracking}>Arrivé à destination</button>
-                                        </div>
-                                    ) : (
-                                        <button className="button-colored" onClick={handleStartHomeTracking} >Démarrer le compteur de km</button>
+                                    <p style={{marginBottom: "30px"}}>Distance <strong style={{background: "#3D9B9B", color: "white", padding: "5px 10px", borderRadius: "5px", marginLeft: "10px"}}>{formatDistance(homeDistance)}</strong></p>  
+                                    {isHomeTracking && (
+                                        <button className="button-colored" onClick={handleStartHomeTracking} >Arrivé au domicile</button>
                                     )}
                                 </div>
                             </ReactModal>
@@ -1350,13 +1388,13 @@ function Geolocation({ uid }) {
                     </div>
                 )}
 
-                {selectedSalon && (
-                    <ReactModal isOpen={isModalCounterOpen} onRequestClose={handleModalClose} contentLabel="Salon Details" className="modal" >
+                {selectedSalon && isModalCounterOpen && (
+                    <div className="modal" > 
                         <div className="modal-content">
-                            <h2 style={{marginBottom: "10px", fontSize: "20px"}}>{selectedSalon.name}</h2>
-                            <p style={{marginBottom: "30px", color: "grey", fontStyle: "italic"}} className="city">{selectedSalon.vicinity || selectedSalon.address}</p>
+                            <h2 style={{marginBottom: "0", fontSize: "20px"}}>{selectedSalon.name}</h2>
+                            <p style={{marginBottom: "0px", color: "grey", fontStyle: "italic"}} className="city">{selectedSalon.vicinity || selectedSalon.address}</p>
                             {statusLoaded && isRadioVisible && ( 
-                                <div style={{marginBottom: "30px"}} className="status">
+                                <div style={{marginBottom: "20px"}} className="status">
                                     <input className="checkbox" type="checkbox" id="Prospect" name="status" value="Prospect" checked={status === "Prospect"} onChange={handleStatusChange} />
                                     <label htmlFor="prospect" className="prospect">Prospect</label>
                                     <input className="checkbox" type="checkbox" id="Client" name="status" value="Client" checked={status === "Client"} onChange={handleStatusChange} />
@@ -1364,9 +1402,17 @@ function Geolocation({ uid }) {
                                 </div>
                             )}
                             {!isRadioVisible && (
-                                <p style={{marginBottom: "30px"}}><span style={{fontWeight : "bold"}}>Statut </span>: {status}</p> 
+                                <p style={{marginBottom: "20px"}}><span style={{fontWeight : "bold"}}>Statut </span>: {status}</p> 
                             )}
-                            {isTracking ? (
+                            <p style={{marginBottom: "20px"}} className="total">Distance <strong style={{background: "#3D9B9B", color: "white", padding: "5px 10px", borderRadius: "5px", marginLeft: "10px"}}>{formatDistance(distance)}</strong></p>
+                            <p style={{color: "grey", fontSize: "13px", lineHeight: "15px"}}>Si vous souhaitez visiter ce salon, commencez votre trajet puis cliquez sur le bouton ci-dessous lorsque vous êtes arrivé à destination OU cliquez sur Annuler et sélectionnez un autre salon a visité.</p>
+                            {isTracking && (
+                                <>
+                                <button style={{marginBottom: "20px"}} className="button-colored" onClick={handleStartTracking} disabled={!isChecked}>Je débute ma visite</button>
+                                <button className="cancel"  onClick={handleBack}>Annuler</button>
+                                </>
+                            )} 
+                            {/*isTracking ? (
                                 <div>
                                     <p style={{marginBottom: "30px"}} className="total">Distance <strong style={{background: "#3D9B9B", color: "white", padding: "5px 10px", borderRadius: "5px", marginLeft: "10px"}}>{formatDistance(distance)}</strong></p>
                                     <button className="button-colored" onClick={handleStopTracking}>Arrivé à destination</button>
@@ -1377,9 +1423,9 @@ function Geolocation({ uid }) {
                                 <button style={{marginBottom: "20px"}} className="button-colored" onClick={handleStartTracking} disabled={!isChecked}>Démarrer le compteur de km</button>
                                 <button className="cancel"  onClick={handleBack}>Annuler</button>
                                 </>
-                            )} 
+                            )*/} 
                         </div>
-                    </ReactModal>
+                    </div>
                 )}
 
                 <ReactModal isOpen={isModalSalonOpen} onRequestClose={() => setIsModalSalonOpen(false)} contentLabel="Ajouter un nouveau salon" className="modal" >    
@@ -1429,13 +1475,15 @@ function Geolocation({ uid }) {
                     </div>
                 </ReactModal>
 
-                <ReactModal isOpen={isModalTimeOpen} onRequestClose={() => setIsModalTimeOpen(false)} contentLabel="Heure de départ du salon" className="modal" >    
-                    <div className="modal-content">
-                        <h2 style={{marginBottom: "20px", fontSize: "20px"}}>Fin de visite</h2>  
-                        <p style={{marginBottom: "20px"}}>Cliquer sur ce bouton lorsque vous avez terminée votre visite</p>
-                        <button onClick={handleDepartureTime} className="button-colored">Visite terminée</button>
+               {isModalTimeOpen && (
+                    <div className="modal" >    
+                        <div className="modal-content">
+                            <h2 style={{marginBottom: "20px", fontSize: "20px"}}>Fin de visite</h2>  
+                            <p style={{marginBottom: "20px"}}>Cliquer sur ce bouton lorsque vous avez terminée votre visite</p>
+                            <button onClick={handleDepartureTime} className="button-colored">Visite terminée</button>
+                        </div>
                     </div>
-                </ReactModal>
+               )}
 
                 <ReactModal isOpen={isModalConfirmHomeOpen} onRequestClose={() => setIsModalConfirmHomeOpen(false)} contentLabel="Confirmer l'adresse de retour" className="modal">
                     <div className="modal-content">
@@ -1443,7 +1491,7 @@ function Geolocation({ uid }) {
                         <p style={{marginBottom: "20px"}}>L'adresse de retour est-elle la même que l'adresse de départ ?</p>
                         <p style={{marginBottom: "30px", color: "grey", fontStyle: "italic"}} className="city">{startAddress}, {startCity}</p>
                         <div className="mini-buttons">
-                            <button onClick={()=> {setIsModalHomeOpen(true); setIsModalConfirmHomeOpen(false)}}>Oui</button>
+                            <button onClick={handleYesHome}>Oui</button>
                             <button onClick={() => setIsModalBackOpen(true)}>Non</button>
                         </div>
                         <button className="cancel" onClick={() =>{ setIsModalConfirmHomeOpen(false); setIsRetourVisible(true); setIsTerminerVisible(false); }}>Annuler</button> 

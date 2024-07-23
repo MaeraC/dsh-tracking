@@ -145,10 +145,17 @@ function FicheClient({ onReturn, uid }) {
         setFormData({ ...formData, produitsProposés: newProduit });
     }
 
+    const normalizeString = (str) => {
+        return str
+            .replace(/département\s*/i, "")
+            .toLowerCase()
+            .trim()
+    }
+
     const handleSearch = async (e) => {
         const searchValue = e.target.value
         setSearchSalon(searchValue)
-
+        console.log(searchValue)
         if (searchValue.length > 0) {
             try {
                 const q = query(collection(db, "salons"), where("name", ">=", searchValue), where("name", "<=", searchValue + "\uf8ff"));
@@ -161,7 +168,11 @@ function FicheClient({ onReturn, uid }) {
                         const salonDepartment = data.department || "" 
                         const userDepartments = usersMap[uid]?.departments || []
 
-                        if (userDepartments.includes(salonDepartment)) {
+                        const normalizedDepartment = normalizeString(salonDepartment)
+                        const normalizedUserDepartments = userDepartments.map(normalizeString)
+
+                        
+                        if (normalizedUserDepartments.includes(normalizedDepartment)) {
                             searchResults.push({ id: doc.id, ...data });
                         }
                     }
@@ -195,39 +206,42 @@ function FicheClient({ onReturn, uid }) {
                 nomDuResponsable: suiviClient.nomDuResponsable || "",
                 portableDuResponsable: suiviClient.portableDuResponsable || "",
                 EmailDuResponsable: suiviClient.EmailDuResponsable || "",
+                
                 marquesEnPlace: {
-                    systemeDsh: suiviClient.marquesEnPlace?.systemeDsh || false,
-                    colorationThalasso: suiviClient.marquesEnPlace?.colorationThalasso || false,
-                    mechesThalasso: suiviClient.marquesEnPlace?.mechesThalasso || false,
-                    ondThalassoPermanente: suiviClient.marquesEnPlace?.ondThalassoPermanente || false,
-                    laVégétale: suiviClient.marquesEnPlace?.laVégétale || false,
-                    byDsh: suiviClient.marquesEnPlace?.byDsh || false,
-                    olyzea: suiviClient.marquesEnPlace?.olyzea || false,
-                    stylingPro: suiviClient.marquesEnPlace?.stylingPro || false,
-                    personalTouch: suiviClient.marquesEnPlace?.personalTouch || false,
-                    manufacturesABoucles: suiviClient.marquesEnPlace?.manufacturesABoucles || false,
-                    doubleLecture: suiviClient.marquesEnPlace?.doubleLecture || false,
-                    autre: suiviClient.marquesEnPlace?.autre || '' 
+                    systemeDsh: false,
+                    colorationThalasso: false,
+                    mechesThalasso:  false,
+                    ondThalassoPermanente:  false,
+                    laVégétale:  false,
+                    byDsh: false,
+                    olyzea:  false,
+                    stylingPro:  false,
+                    personalTouch:  false,
+                    manufacturesABoucles:  false,
+                    doubleLecture:  false,
+                    autre:  '' 
                 },
                 équipe: suiviClient.équipe || [],
                 clientEnContrat: suiviClient.clientEnContrat || "",
                 typeDeContrat: suiviClient.typeDeContrat || "",
                 specificites: suiviClient.specificites || [],
-                dateDeVisite: suiviClient.dateDeVisite || "",
-                responsablePrésent: suiviClient.responsablePrésent || "",
-                priseDeCommande: suiviClient.priseDeCommande || "",
-                gammesCommandées: suiviClient.gammesCommandées || "",
-                animationProposée: suiviClient.animationProposée || "",
-                produitsProposés: suiviClient.produitsProposés || [],
-                autresPointsAbordés: suiviClient.autresPointsAbordés || "",
-                pointsPourLaProchaineVisite: suiviClient.pointsPourLaProchaineVisite || "",
-                observations: suiviClient.observations || "",
+                
+                dateDeVisite:  "",
+                responsablePrésent:  "",
+                
+                priseDeCommande:  "",
+                gammesCommandées:  "",
+                animationProposée:  "",
+                produitsProposés:  [],
+                autresPointsAbordés:  "",
+                pointsPourLaProchaineVisite:  "",
+                observations:  "",
                 createdAt: createdAt,
                 typeOfForm: "Fiche de suivi Client",
                 userId: uid,
             })
         }
-    }
+    }  
 
     const updateSalonHistory = useCallback(async (updatedData) => {
         if (salonInfo) {
@@ -596,7 +610,7 @@ function FicheClient({ onReturn, uid }) {
 
                             <input type="text" name="gammesCommandées" placeholder="Si Oui, quelles gammes ?" value={formData.gammesCommandées} onChange={handleInputChange} />
                             
-                            {formData.produitsProposés.map((produit, index) => (
+                            {formData.produitsProposés?.map((produit, index) => (
                                 <div key={index}>
                                     <input type="text" placeholder={`Produit proposé ${index + 1}`} value={produit} onChange={(e) => handleProduitsChange(index, e.target.value)} />
                                 </div>  

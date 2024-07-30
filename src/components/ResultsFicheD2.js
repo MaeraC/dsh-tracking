@@ -1,14 +1,11 @@
-
-
-function ResultsFicheD({onClose, data, isFirstFiche}) {
+function ResultsFicheD2({onClose, data}) {
 
     const {typeDeDémonstration, issueFavorable, issueDéfavorable} = data
     
     return (
         <div className="results-fiches">
 
-        {isFirstFiche && (
-            <div style={{width: "90%", display: "flex", height: "200px", marginBottom: "50px"}}>
+<div style={{width: "90%", display: "flex", height: "200px", marginBottom: "50px"}}>
             <div style={{width: "50%", height: "100%"}}>
                 <p style={{width: "100%", padding: "10px", background: "#3D9B9B", color: "white", textAlign: "center"}}>SALON DE COIFFURE</p>
                 <div style={{display: "flex" , height: "25%",border: "1px solid #cfcfcf", alignItems: "center", borderLeft: "1px solid #cfcfcf"}}>
@@ -45,7 +42,6 @@ function ResultsFicheD({onClose, data, isFirstFiche}) {
                 </div>
             </div>
         </div>
-        )}
             
 
             <div style={{width: "90%", height: "300px", marginBottom: "50px", flexDirection: "column"}}>
@@ -140,4 +136,4 @@ function ResultsFicheD({onClose, data, isFirstFiche}) {
     )
 }
 
-export default ResultsFicheD
+export default ResultsFicheD2

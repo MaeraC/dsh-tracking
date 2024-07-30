@@ -2,7 +2,7 @@
 // fichier ResultsFicheClient 
 
 
-function ResultsFicheClient({data}) {
+function ResultsFicheClient({data, isFirstFiche}) {
     const marquesLabels = {
         systemeDsh: 'Système DSH',
         colorationThalasso: 'Coloration Thalasso',
@@ -17,13 +17,12 @@ function ResultsFicheClient({data}) {
         manufacturesABoucles: 'Manufactures à boucles',
         doubleLecture: 'Double Lecture',
         autre : "Autre"
-    };
+    }
+
     const marquesEnPlace = Object.keys(data.marquesEnPlace)
     .filter(key => data.marquesEnPlace[key])
     .map(key => key === 'autre' && data.marquesEnPlace[key] ? data.marquesEnPlace[key] : marquesLabels[key])
-    .join(' - ');
-
- 
+    .join(' - ')
 
     const equipeList = data.équipe?.map((member, index) => (
         <div key={index} style={{ display: 'flex', marginBottom: '10px', width: "100%" }}>
@@ -39,14 +38,12 @@ function ResultsFicheClient({data}) {
     ));
 
     const specifitesList = data?.specificites?.map((spe, index) => (
-        <>
         <div key={index} style={{ display: 'flex',marginBottom: '10px', width: "100%" }}>
             <div style={{width: "100%", display: "flex" ,border: "1px solid #cfcfcf", alignItems: "center", borderLeft: "1px solid #cfcfcf"}}>
                 <p style={{background: "#f0f0f0",padding: "5px 10px", height: "100%", fontWeight: "bold", display: "flex", alignItems: "center", paddingLeft: "10px"}}>Spécificité {index + 1}</p>
                 <p style={{paddingLeft: "10px",padding: "5px 10px", display: "flex", alignItems: "center"}}>{spe}</p>
             </div>
         </div>
-        </>
     ));
 
     const produitsList = data.produitsProposés?.map((produit, index) => (
@@ -66,50 +63,48 @@ function ResultsFicheClient({data}) {
 
     return (
         <div className="results-fiches" >
-
-            <div style={{width: "90%", display: "flex", height: "200px", marginBottom: "50px"}}>
-                <div style={{width: "50%", height: "100%"}}>
-                    <p style={{width: "100%", padding: "10px", background: "#3D9B9B", color: "white", textAlign: "center"}}>SALON DE COIFFURE</p>
-                    <div style={{display: "flex" , height: "25%",border: "1px solid #cfcfcf", alignItems: "center", borderLeft: "1px solid #cfcfcf"}}>
-                        <p style={{background: "#f0f0f0",height: "100%", width: "30%", fontWeight: "bold", display: "flex", alignItems: "center", paddingLeft: "10px"}}>Nom</p>
-                        <p style={{width: "70%", height: "100%",paddingLeft: "10px", display: "flex", alignItems: "center"}}>{data.name}</p>
+            {isFirstFiche && (
+                <div style={{width: "90%", display: "flex", height: "200px", marginBottom: "45px"}}>
+                    <div style={{width: "50%", height: "100%"}}>
+                        <p style={{width: "100%", padding: "10px", background: "#3D9B9B", color: "white", textAlign: "center"}}>SALON DE COIFFURE</p>
+                        <div style={{display: "flex" , height: "25%",border: "1px solid #cfcfcf", alignItems: "center", borderLeft: "1px solid #cfcfcf"}}>
+                            <p style={{background: "#f0f0f0",height: "100%", width: "30%", fontWeight: "bold", display: "flex", alignItems: "center", paddingLeft: "10px"}}>Nom</p>
+                            <p style={{width: "70%", height: "100%",paddingLeft: "10px", display: "flex", alignItems: "center"}}>{data.name}</p>
+                        </div>
+                        <div style={{display: "flex",  height: "25%",border: "1px solid #cfcfcf", alignItems: "center", borderLeft: "1px solid #cfcfcf"}}>
+                            <p style={{background: "#f0f0f0",height: "100%", width: "30%", fontWeight: "bold", display: "flex", alignItems: "center", paddingLeft: "10px"}}>Adresse</p>
+                            <p style={{width: "70%",height: "100%", paddingLeft: "10px", display: "flex", alignItems: "center"}}>{data.adresse}</p>
+                        </div>
+                        <div style={{display: "flex", height: "25%", border: "1px solid #cfcfcf", alignItems: "center", borderLeft: "1px solid #cfcfcf"}}>
+                            <p style={{background: "#f0f0f0",height: "100%", width: "30%", fontWeight: "bold", display: "flex", alignItems: "center", paddingLeft: "10px"}}>Ville</p>
+                            <p style={{width: "70%",height: "100%", paddingLeft: "10px", display: "flex", alignItems: "center"}}>{data.city}</p>
+                        </div>
+                        <div style={{display: "flex", height: "25%", border: "1px solid #cfcfcf", alignItems: "center", borderLeft: "1px solid #cfcfcf"}}>
+                            <p style={{background: "#f0f0f0",height: "100%", width: "30%", fontWeight: "bold", display: "flex", alignItems: "center", paddingLeft: "10px"}}>Téléphone</p>
+                            <p style={{width: "70%",height: "100%", paddingLeft: "10px", display: "flex", alignItems: "center"}}>{data.téléphoneDuSalon}</p>
+                        </div>
                     </div>
-                    <div style={{display: "flex",  height: "25%",border: "1px solid #cfcfcf", alignItems: "center", borderLeft: "1px solid #cfcfcf"}}>
-                        <p style={{background: "#f0f0f0",height: "100%", width: "30%", fontWeight: "bold", display: "flex", alignItems: "center", paddingLeft: "10px"}}>Adresse</p>
-                        <p style={{width: "70%",height: "100%", paddingLeft: "10px", display: "flex", alignItems: "center"}}>{data.adresse}</p>
-                    </div>
-                    <div style={{display: "flex", height: "25%", border: "1px solid #cfcfcf", alignItems: "center", borderLeft: "1px solid #cfcfcf"}}>
-                        <p style={{background: "#f0f0f0",height: "100%", width: "30%", fontWeight: "bold", display: "flex", alignItems: "center", paddingLeft: "10px"}}>Ville</p>
-                        <p style={{width: "70%",height: "100%", paddingLeft: "10px", display: "flex", alignItems: "center"}}>{data.city}</p>
-                    </div>
-                    <div style={{display: "flex", height: "25%", border: "1px solid #cfcfcf", alignItems: "center", borderLeft: "1px solid #cfcfcf"}}>
-                        <p style={{background: "#f0f0f0",height: "100%", width: "30%", fontWeight: "bold", display: "flex", alignItems: "center", paddingLeft: "10px"}}>Téléphone</p>
-                        <p style={{width: "70%",height: "100%", paddingLeft: "10px", display: "flex", alignItems: "center"}}>{data.téléphoneDuSalon}</p>
-                    </div>
-                </div>
-                <div style={{width: "50%", height: "100%"}}>
-                    <p style={{width: "100%", padding: "10px", background: "#3D9B9B", color: "white", textAlign: "center"}}>RESPONSABLE DU SALON</p>
-                    <div style={{display: "flex", height: "25%", border: "1px solid #cfcfcf", alignItems: "center", borderLeft: "1px solid #cfcfcf"}}>
-                        <p style={{background: "#f0f0f0",height: "100%", width: "30%", fontWeight: "bold", display: "flex", alignItems: "center", paddingLeft: "10px"}}>Nom Prénom</p>
-                        <p style={{width: "70%",height: "100%", paddingLeft: "10px", display: "flex", alignItems: "center"}}>{data.nomDuResponsable}</p>
-                    </div>
-                    <div style={{display: "flex",height: "25%", border: "1px solid #cfcfcf", alignItems: "center", borderLeft: "1px solid #cfcfcf"}}>
-                        <p style={{background: "#f0f0f0",height: "100%", width: "30%", fontWeight: "bold", display: "flex", alignItems: "center", paddingLeft: "10px"}}>Portable</p>
-                        <p style={{width: "70%",height: "100%", paddingLeft: "10px", display: "flex", alignItems: "center"}}>{data.portableDuResponsable}</p>
-                    </div>
-                    <div style={{display: "flex",height: "25%", border: "1px solid #cfcfcf", alignItems: "center", borderLeft: "1px solid #cfcfcf"}}>
-                        <p style={{background: "#f0f0f0",height: "100%", width: "30%", fontWeight: "bold", display: "flex", alignItems: "center", paddingLeft: "10px"}}>Email</p>
-                        <p style={{width: "70%",height: "100%", paddingLeft: "10px", display: "flex", alignItems: "center"}}>{data.EmailDuResponsable}</p>
-                    </div>
-                    <div style={{display: "flex",height: "25%", border: "1px solid #cfcfcf", alignItems: "center", borderLeft: "1px solid #cfcfcf"}}>
-                        <p style={{background: "#f0f0f0",height: "100%", width: "30%", fontWeight: "bold", display: "flex", alignItems: "center", paddingLeft: "10px"}}>Marques en place</p>
-                        <p style={{width: "70%",height: "100%", paddingLeft: "10px", display: "flex", alignItems: "center"}}>{marquesEnPlace}</p>
+                    <div style={{width: "50%", height: "100%"}}>
+                        <p style={{width: "100%", padding: "10px", background: "#3D9B9B", color: "white", textAlign: "center"}}>RESPONSABLE DU SALON</p>
+                        <div style={{display: "flex", height: "25%", border: "1px solid #cfcfcf", alignItems: "center", borderLeft: "1px solid #cfcfcf"}}>
+                            <p style={{background: "#f0f0f0",height: "100%", width: "30%", fontWeight: "bold", display: "flex", alignItems: "center", paddingLeft: "10px"}}>Nom Prénom</p>
+                            <p style={{width: "70%",height: "100%", paddingLeft: "10px", display: "flex", alignItems: "center"}}>{data.nomDuResponsable}</p>
+                        </div>
+                        <div style={{display: "flex",height: "25%", border: "1px solid #cfcfcf", alignItems: "center", borderLeft: "1px solid #cfcfcf"}}>
+                            <p style={{background: "#f0f0f0",height: "100%", width: "30%", fontWeight: "bold", display: "flex", alignItems: "center", paddingLeft: "10px"}}>Portable</p>
+                            <p style={{width: "70%",height: "100%", paddingLeft: "10px", display: "flex", alignItems: "center"}}>{data.portableDuResponsable}</p>
+                        </div>
+                        <div style={{display: "flex",height: "25%", border: "1px solid #cfcfcf", alignItems: "center", borderLeft: "1px solid #cfcfcf"}}>
+                            <p style={{background: "#f0f0f0",height: "100%", width: "30%", fontWeight: "bold", display: "flex", alignItems: "center", paddingLeft: "10px"}}>Email</p>
+                            <p style={{width: "70%",height: "100%", paddingLeft: "10px", display: "flex", alignItems: "center"}}>{data.EmailDuResponsable}</p>
+                        </div>
                     </div>
                 </div>
-            </div>
-
+            )}
             
-            <div style={{width: "90%", display: "flex", marginBottom: "20px", border: "1px solid #cfcfcf"}}>
+
+            {/** PARTIE 2 */}
+            <div style={{width: "90%", display: "flex", border: "1px solid #cfcfcf"}}>
 
                 <div style={{width: "50%", height: "100%"}}>
                     <p style={{padding: "10px", fontWeight: "bold", border: "1px solid #cfcfcf", background: "#f0f0f0"}}>Liste des membres de l'équipe</p>
@@ -133,7 +128,8 @@ function ResultsFicheClient({data}) {
                 </div>
             </div>
 
-            <div style={{width: "90%", display: "flex",  background: "#f0f0f0", }} className='infos-salon3'>
+            {/** PARTIE 3 */}
+            <div style={{width: "90%", display: "flex",  background: "#f0f0f0", marginBottom: "30px"}} className='infos-salon3'>
                 <div style={{width: "50%"}}>
                     <div style={{display: "flex", width: "100%", border: "1px solid #cfcfcf"}}> 
                         <div style={{width: "50%",  border: "1px solid #cfcfcf", display: "flex", alignItems: "center"}}>
@@ -159,6 +155,10 @@ function ResultsFicheClient({data}) {
                     </div>
                 </div>
                 <div style={{width: "50%", height: "100%"}}>
+                    <div style={{border: "1px solid #cfcfcf", padding: "10px", background: "white", height: "25%"}}>
+                        <p style={{fontWeight : "bold", marginBottom: "5px"}}>Marques en place</p>
+                        <p>{marquesEnPlace}</p>
+                    </div>
                     <div style={{border: "1px solid #cfcfcf", padding: "10px", background: "white", height: "25%"}}>
                         <p style={{fontWeight : "bold", marginBottom: "5px"}}>Prise de commande ?</p>
                         <p>{data.priseDeCommande}</p>

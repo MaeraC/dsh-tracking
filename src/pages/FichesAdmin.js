@@ -61,11 +61,11 @@ function FichesAmin({ uid }) {
                 {!currentComponent && (
                     <>
                     <div className="titre-fiche">
-                        <h1>Feuilles de route</h1>
+                        <h1>Feuilles de route et historique</h1>
                     </div> 
                     <div style={{width: "100%" , display: "flex", flexWrap: "wrap", padding: "20px", justifyContent: "space-evenly"}}>
                         <button style={{width: "40%", marginRight: "20px"}} className="button" onClick={openFdj}>Feuilles de route</button>
-                        <button style={{width: "40%", marginRight: "20px"}}  className="button" onClick={openRapportVisites}>Rapport des salons visités</button>
+                        <button style={{width: "40%", marginRight: "20px"}}  className="button" onClick={openHistorique}>Historique des salons</button>
                     </div>
                     <div className="titre-fiche">
                         <h1>Fiches de suivi</h1>
@@ -82,11 +82,11 @@ function FichesAmin({ uid }) {
                         <button style={{width: "40%", marginRight: "20px"}}  className="button" onClick={openCRD}>CR de RDV de Démonstration (recherche)</button>
                     </div>
                     <div className="titre-fiche">
-                        <h1>A définir</h1>
+                        <h1>Rapports</h1>
                     </div>
                     <div style={{display: "flex", flexWrap: "wrap", padding: "20px", justifyContent: "space-evenly"}}>
-                        <button style={{width: "40%", marginRight: "20px"}}  className="button" onClick={openHistorique}>Historique des salons</button>
                         <button style={{width: "40%", marginRight: "20px"}}  className="button" onClick={openTableauVisites}>Rapport des visites effectuées</button>
+                        <button style={{width: "40%", marginRight: "20px"}}  className="button" onClick={openRapportVisites}>Rapport des salons visités</button>
                     </div>
                     </>
                 )}

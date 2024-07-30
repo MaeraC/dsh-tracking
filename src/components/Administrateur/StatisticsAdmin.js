@@ -31,11 +31,10 @@ function StatisticsAdmin() {
 
                 feuillesDeRouteData.forEach(feuille => {
                     if (feuille.isClotured) {
-                        visits += feuille.stops.length > 0 ? feuille.stops.length - 1 : 0;  // Ne pas comptabiliser le dernier stop
-                        distance += feuille?.totalKm;
-                        console.log(feuille?.totalKm)
+                        visits += feuille.stops.length > 0 ? feuille.stops.length - 1 : 0; 
+                        distance += feuille?.totalKm
 
-                        feuille.stops.slice(0, -1).forEach(stop => {  // Ne pas comptabiliser le dernier stop
+                        feuille.stops.slice(0, -1).forEach(stop => { 
                             if (stop.status === "Client") {
                                 clientVisits++;
                             } else if (stop.status === "Prospect") {

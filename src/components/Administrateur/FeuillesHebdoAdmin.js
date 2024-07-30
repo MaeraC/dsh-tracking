@@ -33,7 +33,7 @@ const FeuillesHebdoAdmin = ({ feuillesDeRoute, startDate, endDate }) => {
                 })
             }
 
-            feuille.stops.forEach((stop) => {
+            feuille.stops?.forEach((stop) => {
                 const dayName = getDayName(feuille.date)
 
                 if (weeks[weekKey].stopsByDay.hasOwnProperty(dayName)) {

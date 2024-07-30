@@ -1757,8 +1757,6 @@ form input {
 }
 .results-fiches {
     font-size: 14px;
-    padding-top: 20px;
-    margin-bottom: 30px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -1848,7 +1846,7 @@ form input {
 }
 .col {
     border-bottom: 1px solid #cfcfcf;
-    height: 25%;
+    height: 33%;
 }
 .col2 {
     height: 33%;
@@ -2785,7 +2783,6 @@ form input {
 }
 .all-fiches-client ul li {
     width: 100%;
-    margin-bottom: 50px;
 }
 
 @media screen and (max-width: 600px) {

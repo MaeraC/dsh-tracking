@@ -1,17 +1,15 @@
 
 
-import React, { useEffect, useState, useRef } from 'react'
+import React, { useEffect, useState } from 'react'
 import { collection, getDocs, query, where } from 'firebase/firestore'
 import { db } from "../../firebase.config"
 import back from "../../assets/back.png"
-import jsPDF from "jspdf";   
-import html2canvas from "html2canvas"
+import exportToExcel from '../ExportToExcel'
 
 const daysOfWeek = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
 
 function FeuillesMensuelles({ uid, onReturn }) {
     const [feuillesRoute, setFeuillesRoute] = useState([]);
-    const pageRef = useRef();
 
     useEffect(() => {
         if (!uid) return;
@@ -36,46 +34,57 @@ function FeuillesMensuelles({ uid, onReturn }) {
     }
 
     const groupStopsByWeek = () => {
-        const weeks = [];
-        const currentDate = new Date();
-        const currentYear = currentDate.getFullYear();
-        const currentMonth = currentDate.getMonth(); 
-        const start = new Date(currentYear, currentMonth, 1);
-        const end = new Date(currentYear, currentMonth + 1, 0);
-        let current = new Date(start);
+        const weeks                     = []
+        const currentDate               = new Date()
+        const currentYear               = currentDate.getFullYear()
+        const currentMonth              = currentDate.getMonth()
+        const start                     = new Date(currentYear, currentMonth, 1)
+        const end                       = new Date(currentYear, currentMonth + 1, 0)
+        const startDayOfWeek            = start.getDay(); 
+        const firstSunday               = new Date(start);
 
-        while (current <= end) {
-            const weekStart = new Date(current);
-            const weekEnd = new Date(current);
-            weekEnd.setDate(weekEnd.getDate() + 6);
+        firstSunday.setDate(start.getDate() - startDayOfWeek); 
 
-            const stopsByDay = Array(7).fill().map(() => ({
-                date: null,
-                stops: [],
-                motif: null
-            }));
-
-            weeks.push({
-                startDate: new Date(weekStart),
-                endDate: new Date(weekEnd),
-                stopsByDay,
-                totalKmByDay: Array(7).fill(0)
-            })
-            current.setDate(current.getDate() + 7);
-        }
+        let current = new Date(firstSunday);
+            
+            while (current <= end) {
+                const week = {
+                    startDate: new Date(current),
+                    stopsByDay: Array(7).fill().map(() => ({
+                        date: null, 
+                        stops: [],
+                        motif: null
+                    })),
+                    totalKmByDay: Array(7).fill(0)
+                };
+    
+                for (let dayIndex = 0; dayIndex < 7; dayIndex++) {
+                    const currentDay = new Date(current);
+                    currentDay.setDate(currentDay.getDate() + dayIndex);
+                    if (currentDay.getMonth() === current.getMonth()) {
+                        week.stopsByDay[dayIndex].date = `${daysOfWeek[dayIndex]} ${currentDay.getDate()} ${currentDay.toLocaleDateString('fr-FR', { month: 'long' })}`;
+                    }
+                }
+    
+                weeks.push(week);
+                current.setDate(current.getDate() + 7); 
+            }
+    
 
         feuillesRoute.forEach(feuille => {
-            const date = new Date(feuille.date.seconds * 1000);
-            const weekIndex = weeks.findIndex(week => date >= week.startDate && date <= week.endDate);
-
+            const date = new Date(feuille.date.seconds * 1000)
+            const weekIndex = weeks.findIndex(week => date >= week.startDate && date < new Date(week.startDate).setDate(new Date(week.startDate).getDate() + 7));
+    
             if (weekIndex !== -1) {
                 const dayOfWeek = date.getDay();
-                weeks[weekIndex].stopsByDay[dayOfWeek].date = `${daysOfWeek[dayOfWeek]} ${date.getDate()} ${date.toLocaleDateString('fr-FR', { month: 'long' })}`;
-
+                
+                if (!weeks[weekIndex].stopsByDay[dayOfWeek].date) {
+                    weeks[weekIndex].stopsByDay[dayOfWeek].date = `${daysOfWeek[dayOfWeek]} ${date.getDate()} ${date.toLocaleDateString('fr-FR', { month: 'long' })}`;
+                }
               
                 if (feuille.isVisitsStarted === false && feuille.motif) {
                     weeks[weekIndex].stopsByDay[dayOfWeek].motif = feuille.motif;
-                } else {
+                } else {  
                     feuille?.stops?.forEach(stop => {
                         weeks[weekIndex].stopsByDay[dayOfWeek].stops.push({ ...stop });
                         weeks[weekIndex].totalKmByDay[dayOfWeek] += stop.distance || 0;
@@ -91,8 +100,8 @@ function FeuillesMensuelles({ uid, onReturn }) {
                     currentDay.setDate(currentDay.getDate() + dayIndex);
                     day.date = `${daysOfWeek[dayIndex]} ${currentDay.getDate()} ${currentDay.toLocaleDateString('fr-FR', { month: 'long' })}`;
                 }
-                if (day.stops.length === 0) {
-                    day.stops.push(null); // Ajouter un objet vide si aucun arrêt n'est présent
+                if (day.stops.length === 0) { 
+                    day.stops.push(null)
                 }
             });
         })
@@ -114,6 +123,7 @@ function FeuillesMensuelles({ uid, onReturn }) {
         let prospectVisits = 0;
     
         Object.values(weeks).forEach(week => {
+            
             week.stopsByDay.forEach(day => {
                 day.stops.forEach(stop => {
                     if (stop && stop.status) {
@@ -132,72 +142,60 @@ function FeuillesMensuelles({ uid, onReturn }) {
     }
     const visitCounts = getVisitCountsForMonth()
 
-    const generatePDF = (input, filename) => {
-        if (!input) {
-            console.error('Erreur : référence à l\'élément non valide');
-            return;
-        }
-    
-        html2canvas(input, {
-            useCORS: true,
-            scale: 2, // Augmente la résolution du canvas pour une meilleure qualité
-        }).then(canvas => {
-            const imgData = canvas.toDataURL('image/png');
-            const pdf = new jsPDF('p', 'mm', 'a4');
-            const pdfWidth = pdf.internal.pageSize.getWidth();
-            const pdfHeight = pdf.internal.pageSize.getHeight();
-            const canvasWidth = canvas.width;
-            const canvasHeight = canvas.height;
-            const ratio = canvasWidth / canvasHeight;
-            const width = pdfWidth;
-            const height = width / ratio;
-    
-            let position = 0;
-    
-            const totalPages = height > pdfHeight
-                ? Math.ceil(canvasHeight / (canvasWidth * pdfHeight / pdfWidth))
-                : 1;
-    
-            const addPageNumber = (pdf, pageNumber, totalPages) => {
-                pdf.setFontSize(10);
-                const pageNumText = `Page ${pageNumber} / ${totalPages}`;
-                pdf.text(pageNumText, pdfWidth / 2, pdfHeight - 10, { align: 'center' });
-            };
-    
-            if (height > pdfHeight) {
-                for (let i = 0; i < totalPages; i++) {
-                    const pageCanvas = document.createElement('canvas');
-                    pageCanvas.width = canvasWidth;
-                    pageCanvas.height = canvasWidth * pdfHeight / pdfWidth;
-                    const pageContext = pageCanvas.getContext('2d');
-                    pageContext.drawImage(canvas, 0, position, canvasWidth, pageCanvas.height, 0, 0, pageCanvas.width, pageCanvas.height);
-                    const pageImgData = pageCanvas.toDataURL('image/png');
-                    if (i > 0) {
-                        pdf.addPage();
-                    }
-                    pdf.addImage(pageImgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-                    addPageNumber(pdf, i + 1, totalPages);
-                    position += pageCanvas.height;
-                }
-            } else {
-                pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, height);
-                addPageNumber(pdf, 1, totalPages);
-            }
-    
-            pdf.save(filename);
-        }).catch(error => {
-            console.error('Erreur lors de la génération du PDF :', error);
-        });
-    };
-    const downloadPDF = () => {
-        const input = pageRef.current;
-        generatePDF(input, "feuille-mensuelle.pdf");
-    }
-    const handleDownloadDoc = () => {
-        downloadPDF();
-    }
+    const handleExport = () => {
+        const feuillesData = weeks.flatMap((week, weekIndex) => {
+            return week.stopsByDay.flatMap((day, dayIndex) => {
 
-    
+                const onlyNullStops = day.stops.every(stop => stop === null)
+
+                if (onlyNullStops && day.motif) {
+                    return [{
+                        'Date': day.date || '',
+                        'Visite N°': day.motif || '',
+                        'Nom du salon': '',
+                        'Statut': '',
+                        'Adresse': '',
+                        'Code postal': '',
+                        'Km parcourus': 0,
+                        'Heure d\'arrivée': '',
+                        'Heure de départ': '',
+                        'Total Distance': 0,
+                        'Total Visites': 0,
+                        'Visites Client': 0,
+                        'Visites Prospect': 0,
+                    }, {}];
+                }
+
+                const stopsData = day.stops.map((stop, idx) => ({
+                    'Date': day.date || '',
+                    'Visite N°': idx < day.stops.length - 1 ? `Visite n°${idx + 1}` : 'Retour',
+                    'Nom du salon': stop?.name || '',
+                    'Statut': stop?.status || '',
+                    'Adresse': stop?.address || '', 
+                    'Code postal': `${stop?.postalCode || ''}`,
+                    'Km parcourus': formatDistance(stop?.distance || 0),
+                    'Heure d\'arrivée': stop?.arrivalTime || '',
+                    'Heure de départ': stop?.departureTime || '',
+                    'Total Distance': idx === day.stops.length - 1 ? formatDistance((week.totalKmByDay && week.totalKmByDay[dayIndex]) || 0) : '',
+                    'Total Visites': idx === day.stops.length - 1 ? day.stops.slice(0, -1).length : '',
+                    'Visites Client': idx === day.stops.length - 1 ? day.stops.filter(s => s?.status === 'Client').length : '',
+                    'Visites Prospect': idx === day.stops.length - 1 ? day.stops.filter(s => s?.status === 'Prospect').length : '',
+                    
+                }))
+
+                // Inclure une ligne avec le motif si le jour n'a pas d'arrêts
+                return [...stopsData, {}];
+            });
+        });
+
+        const recapData = [
+            ['Nombre de visites', visitCounts.totalVisits],
+            ['Visites client', visitCounts.clientVisits],
+            ['Visites prospect', visitCounts.prospectVisits],
+        ];
+
+        exportToExcel([].concat(feuillesData, recapData), `Feuille_${thisMonth}.xlsx`, [`Feuille_${thisMonth}`, 'Récapitulatif'], [feuillesData, recapData]);
+    };
 
     return (
         <div style={{  position: "relative" }}>
@@ -205,10 +203,10 @@ function FeuillesMensuelles({ uid, onReturn }) {
                 <h1>Feuille de route mensuelle</h1>
                 <button onClick={onReturn} className="button-back"><img src={back} alt="retour" /></button>
             </div>
+ 
+            <button onClick={handleExport} style={{padding: "5px 20px", marginTop: "20px", marginLeft: "30px"}} className='button-colored'>Télécharger la feuille de route</button>
 
-            <button onClick={handleDownloadDoc} style={{padding: "5px 20px", marginTop: "20px", marginLeft: "30px"}} className='button-colored'>Télécharger la feuille de route</button>
-
-            <div ref={pageRef} style={{ margin: "0 20px", padding: '20px', fontFamily: 'Arial, sans-serif' }}>
+            <div style={{ margin: "0 20px", padding: '20px', fontFamily: 'Arial, sans-serif' }}>
                 <div className='hebdo-stats-print' style={{justifyContent: "space-around"}}>
                         <p>Nombre total de visites effectuées <span>{visitCounts.totalVisits}</span></p>
                         <p>Nombre de visites clients effectuées  <span>{visitCounts.clientVisits}</span></p>
@@ -222,10 +220,7 @@ function FeuillesMensuelles({ uid, onReturn }) {
                                 <tr>
                                     <th style={{ width: '10%', background: "#3D9B9B", color: "white" }}>Total <strong>{formatDistance(week.totalKmByDay.reduce((acc, km) => acc + km, 0))}</strong></th>
                                     {week.stopsByDay.map((day, dayIndex) => (
-                                        <th key={dayIndex} style={{ width: '12%', background: "#c7c7c7"}}>
-                                            {daysOfWeek[dayIndex]} <br />
-                                            {day.date}
-                                        </th>
+                                        <th key={dayIndex} style={{ width: '12%', background: "#c7c7c7"}}>{day.date}</th>
                                     ))}
                                 </tr>
                             </thead>
@@ -257,8 +252,7 @@ function FeuillesMensuelles({ uid, onReturn }) {
                                                     <div style={{ height: "220px", background: "#e0e0e0", padding: "10px", textAlign: "center" }}>
                                                         { rowIndex === 0 && day.motif && (
                                                             <div>
-                                                                <p style={{marginBottom: "5px"}}>Pas de déplacements</p>
-                                                                <p>Motif : <strong>{day.motif}</strong></p>
+                                                                <p style={{color: "red"}}><strong>{day.motif}</strong></p>
                                                             </div>
                                                         )}
                                                     </div>

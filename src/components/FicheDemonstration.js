@@ -272,6 +272,30 @@ function FicheDemonstration({ uid, onReturn }) {
             setSuggestions([])
         }
     }
+    const [buttonType, setButtonType] = useState("");
+
+    const checkIfCompteRenduExistsForToday = async (salonId) => {
+        const todayStart = new Date();
+        todayStart.setHours(0, 0, 0, 0);
+        const todayEnd = new Date();
+        todayEnd.setHours(23, 59, 59, 999);
+    
+        const salonRef = doc(db, "salons", salonId);
+        const salonSnapshot = await getDoc(salonRef);
+    
+        if (salonSnapshot.exists()) {
+            const salonData = salonSnapshot.data();
+            const crDemonstration = salonData.crDemonstration || [];
+    
+            return crDemonstration.find(cr => {
+                const crDate = cr.createdAt.toDate(); // Assurez-vous que createdAt est un Timestamp
+                return crDate >= todayStart && crDate <= todayEnd;
+            });
+        }
+        return null;
+    }
+
+    
     const handleSelectSuggestion = async (salon) => {
         setSalonInfo(salon);
         setSuggestions([]);
@@ -348,6 +372,8 @@ function FicheDemonstration({ uid, onReturn }) {
                 userId: uid,
             });
             setShowForm(true)
+            const crExists = await checkIfCompteRenduExistsForToday(salon.id);
+            setButtonType(crExists ? "update" : "new");
         }
     }  
     const updateSalonHistory = useCallback(async (updatedData) => {
@@ -375,33 +401,59 @@ function FicheDemonstration({ uid, onReturn }) {
             }
         }
     }, [salonInfo, uid]); 
-    const handleSubmit = async (e) => {
-        e.preventDefault()
-        try {
-            const salonRef = doc(db, "salons", salonInfo.id)
-            const SalonSnapshot = await getDoc(salonRef)
-            if (SalonSnapshot.exists()) {
-                const salonData = SalonSnapshot.data()
-                const updatedcrDemonstration = [...(salonData.crDemonstration || []), formData]
-                await updateDoc(salonRef, { crDemonstration: updatedcrDemonstration })   
-                await updateSalonHistory(formData)
-                setMessage("Compte rendu de RDV de Démonstration enregistré avec succès !") 
-                setIsModalOpen(true)
 
-                if (formData.issueFavorable.luminacolor || formData.issueFavorable.veracolor || formData.issueFavorable.thalassoBAC || formData.issueFavorable.décoloration || formData.issueFavorable.ondulation || formData.issueFavorable.laVégétale || formData.issueFavorable.microscopie || formData.issueFavorable.draw || formData.issueFavorable.autre === "OUI") {
-                    await updateDoc(salonRef, { 
-                        status: "Client" ,  
-                        historique: arrayUnion({ date: new Date(), action: "Status mis à jour : Client", userId: uid })
-                    })
+        const handleSubmit = async (e) => {
+            e.preventDefault();
+        
+            try {
+                const salonRef = doc(db, "salons", salonInfo.id);
+                const salonSnapshot = await getDoc(salonRef);
+        
+                if (salonSnapshot.exists()) {
+                    const salonData = salonSnapshot.data();
+                    let updatedCrDemonstration;
+        
+                    if (buttonType === "new") {
+                        // Enregistrer un nouveau compte rendu
+                        updatedCrDemonstration = [...(salonData.crDemonstration || []), formData];
+                    } else if (buttonType === "update") {
+                        // Mettre à jour le compte rendu existant pour aujourd'hui
+                        updatedCrDemonstration = salonData.crDemonstration.map(cr =>
+                            cr.createdAt.toDate().toDateString() === new Date().toDateString()
+                                ? formData
+                                : cr
+                        );
+                    }
+        
+                    await updateDoc(salonRef, { crDemonstration: updatedCrDemonstration });
+                    await updateSalonHistory(formData);
+        
+                    setMessage("Compte rendu de RDV de Démonstration " + (buttonType === "new" ? "enregistré" : "mis à jour") + " avec succès !");
+                    setIsModalOpen(true);
+        
+                    if (formData.issueFavorable.luminacolor === "OUI" ||
+                        formData.issueFavorable.veracolor === "OUI" ||
+                        formData.issueFavorable.thalassoBAC === "OUI" ||
+                        formData.issueFavorable.décoloration === "OUI" ||
+                        formData.issueFavorable.ondulation === "OUI" ||
+                        formData.issueFavorable.laVégétale === "OUI" ||
+                        formData.issueFavorable.microscopie === "OUI" ||
+                        formData.issueFavorable.draw === "OUI" ||
+                        formData.issueFavorable.autre === "OUI") {
+
+                        await updateDoc(salonRef, {
+                            status: "Client",
+                            historique: arrayUnion({ date: new Date(), action: "Status mis à jour : Client", userId: uid })
+                        });
+                    }
+                } else {
+                    console.error("Document de visite non trouvé.");
                 }
+            } catch (error) {
+                console.error("Erreur lors de la mise à jour du salon : ", error);
             }
-            else {
-                console.error("Document de visite non trouvé.")
-            }
-        } catch (error) {
-            console.error("Erreur lors de la mise à jour du salon : ", error);
         }
-    }
+        
     const handleShowAllCR = async () => {
         if (salonInfo) {
             try {
@@ -529,7 +581,7 @@ function FicheDemonstration({ uid, onReturn }) {
                 <div className="select-sugg">
                     {suggestions.map((salon) => (
                         <div key={salon.id} onClick={() => handleSelectSuggestion(salon)} style={{ cursor: "pointer", padding: "5px", borderBottom: "1px solid #ccc" }}>
-                            {salon.name}
+                            {salon.name + ", " + salon.city}
                         </div>
                     ))}
                 </div>
@@ -666,7 +718,12 @@ function FicheDemonstration({ uid, onReturn }) {
                     <label className="bold margin">Observations générales:</label><br></br>
                     <textarea name="observationsGénérales" value={formData.observationsGénérales} onChange={handleChange}></textarea>
                     <br></br>
-                    <button type="submit" className="button-colored">Envoyer</button>
+                      {buttonType === "new" && (
+            <button type="submit" onClick={() => setButtonType("new")}>Enregistrer un nouveau compte rendu</button>
+        )}
+        {buttonType === "update" && (
+            <button type="submit" onClick={() => setButtonType("update")}>Mettre à jour le compte rendu</button>
+        )}
                 </div>
                 </form>
             )} 
@@ -679,34 +736,35 @@ function FicheDemonstration({ uid, onReturn }) {
                         <h4 style={{textAlign: "center", fontSize: "20px", marginBottom: "20px"}}>Comptes rendu de RDV de Démonstration du salon {selectedSalon}</h4>
                         {allCR.map((fiche, index) => (
                            <li key={index}>
-                           <div style={{paddingLeft: "100px"}}>Enregistré le : <strong>{formatDate(fiche.createdAt)}</strong>, par <strong>{usersMap[fiche.userId].firstname} {usersMap[fiche.userId].lastname}</strong></div>
-                           
-                           <ResultsFicheD 
-                               data={{ 
-                                   name: selectedSalon,
-                                   adresse: selectedAdress,
-                                   city: salonInfo.city, 
-                                   téléphone:  salonInfo?.phoneNumber || fiche.téléphone || "",
-                                   nomPrenomDuResponsable: fiche.nomPrenomDuResponsable, 
-                                   techniciennePrésente: fiche.techniciennePrésente, 
-                                   nomDeLaTechnicienne: fiche.nomDeLaTechnicienne, 
-                                   avecLaVRP: fiche.avecLaVRP, 
-                                   seule: fiche.seule, 
-                                   typeDeDémonstration: fiche.typeDeDémonstration, 
-                                   duréeDeLaDémonstration: fiche.duréeDeLaDémonstration, 
-                                   issueFavorable: fiche.issueFavorable, 
-                                   issueDéfavorable: fiche.issueDéfavorable, 
-                                   actions: fiche.actions, 
-                                   précisions: fiche.précisions, 
-                                   département: fiche.département, 
-                                   responsablePrésent: fiche.responsablePrésent, 
-                                   email: fiche.email, 
-                                   nombreDeCollaborateurs: fiche.nombreDeCollaborateurs, 
-                                  
-                               }}
-                           />
-                       </li>
-                            ))}
+                                <div style={{paddingLeft: "50px", color: "grey", marginBottom: "10px",  marginTop: "10px",fontStyle: "italic"}}><strong>Date : </strong>{formatDate(fiche.createdAt)}</div>
+                                
+                                <ResultsFicheD 
+                                    data={{ 
+                                        name: selectedSalon,
+                                        adresse: selectedAdress,
+                                        city: salonInfo.city, 
+                                        téléphone:  salonInfo?.phoneNumber || fiche.téléphone || "",
+                                        nomPrenomDuResponsable: fiche.nomPrenomDuResponsable, 
+                                        techniciennePrésente: fiche.techniciennePrésente, 
+                                        nomDeLaTechnicienne: fiche.nomDeLaTechnicienne, 
+                                        avecLaVRP: fiche.avecLaVRP, 
+                                        seule: fiche.seule, 
+                                        typeDeDémonstration: fiche.typeDeDémonstration, 
+                                        duréeDeLaDémonstration: fiche.duréeDeLaDémonstration, 
+                                        issueFavorable: fiche.issueFavorable, 
+                                        issueDéfavorable: fiche.issueDéfavorable, 
+                                        actions: fiche.actions, 
+                                        précisions: fiche.précisions, 
+                                        département: fiche.département, 
+                                        responsablePrésent: fiche.responsablePrésent, 
+                                        email: fiche.email, 
+                                        nombreDeCollaborateurs: fiche.nombreDeCollaborateurs, 
+                                        observationsGénérales: fiche.observationsGénérales,
+                                    }}
+                                    isFirstFiche={index === 0}
+                                />
+                            </li>
+                        ))}
                     </div>
                 </div>
             )}
@@ -715,7 +773,7 @@ function FicheDemonstration({ uid, onReturn }) {
                     <div className="modal-success">
                         <div className="content">
                             <p className="success">{message}</p>
-                            <button onClick={() => setIsModalOpen(false)}>Fermer</button>
+                            <button onClick={() => { onReturn() }}>Fermer</button>
                         </div> 
                     </div>
             )}

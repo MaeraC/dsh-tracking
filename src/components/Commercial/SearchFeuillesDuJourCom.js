@@ -1,12 +1,11 @@
 
 // fichier SearchFeuillesDuJourCom.js
 
-import React, { useEffect, useState , useRef} from 'react'
+import React, { useEffect, useState } from 'react'
 import { collection, getDocs, query, where, Timestamp } from 'firebase/firestore'
 import { db } from '../../firebase.config'
-import jsPDF from "jspdf";   
-import html2canvas from "html2canvas";
 import download from "../../assets/download.png"    
+import exportToExcel from '../ExportToExcel'
 
 function SearchFeuillesDuJourCom({ uid }) {
     const [feuillesDeRoute, setFeuillesDeRoute] = useState([]);
@@ -16,7 +15,6 @@ function SearchFeuillesDuJourCom({ uid }) {
     const [nombreVisites, setNombreVisites] = useState(0);
     const [nombreVisitesClient, setNombreVisitesClient] = useState(0);
     const [nombreVisitesProspect, setNombreVisitesProspect] = useState(0);
-    const fdrJourRef = useRef()
 
     useEffect(() => {
         if (!uid || !startDate || !endDate) {
@@ -28,9 +26,13 @@ function SearchFeuillesDuJourCom({ uid }) {
         }
 
         const fetchFeuillesDeRoute = async () => {
-            const feuillesDeRouteRef = collection(db, 'feuillesDeRoute');
-            const startTimestamp = Timestamp.fromDate(new Date(startDate));
-            const endTimestamp = Timestamp.fromDate(new Date(endDate)); 
+            const feuillesDeRouteRef = collection(db, 'feuillesDeRoute')
+            const startTimestamp = Timestamp.fromDate(new Date(startDate))
+
+            const endDateObj = new Date(endDate)
+            endDateObj.setHours(23, 59, 59, 999)
+            const endTimestamp = Timestamp.fromDate(endDateObj)
+
             const q = query(feuillesDeRouteRef, 
                 where('userId', '==', uid),
                 where('date', '>=', startTimestamp),
@@ -41,20 +43,22 @@ function SearchFeuillesDuJourCom({ uid }) {
                 const querySnapshot = await getDocs(q) 
                 
                 if (!querySnapshot.empty) {
-                    const feuilles = querySnapshot.docs.map(doc => doc.data());
-                    const filteredFeuilles = feuilles.filter(feuille => feuille.isVisitsStarted === true); // Filtrer en JavaScript
+                    const feuilles = querySnapshot.docs.map(doc => doc.data())
+                    const filteredFeuilles = feuilles.filter(feuille => feuille.isVisitsStarted === true)
                     setFeuillesDeRoute(filteredFeuilles)
                     calculateVisites(filteredFeuilles)
-                } else {
+                } 
+                else {
                     setFeuillesDeRoute([])
                     setNombreVisites(0)
                     setNombreVisitesClient(0)
                     setNombreVisitesProspect(0)
                 }
-            } catch (error) {
-                console.error("Erreur lors de la récupération des feuilles de route : ", error);
+            } 
+            catch (error) {
+                console.error("Erreur lors de la récupération des feuilles de route : ", error)
             }
-        };
+        }
     
         fetchFeuillesDeRoute()
         // eslint-disable-next-line
@@ -62,13 +66,15 @@ function SearchFeuillesDuJourCom({ uid }) {
 
     const formatTimestamp = (timestamp) => {
         if (!timestamp) {
-            return ''; 
+            return ''
         }
-        const dateObject = timestamp.toDate();
-        return dateObject.toLocaleDateString(); 
+
+        const dateObject = timestamp.toDate()
+        return dateObject.toLocaleDateString()
     }
+
     const formatDate2 = (dateStr) => {
-        if (!dateStr) return '';
+        if (!dateStr) return ''
         const options = { day: '2-digit', month: '2-digit', year: 'numeric' }
         return new Date(dateStr).toLocaleDateString('fr-FR', options)
     }
@@ -80,111 +86,83 @@ function SearchFeuillesDuJourCom({ uid }) {
         return stops.filter(stop => stop.status === status).length 
     }
     const calculateVisites = (feuilles) => {
-        let totalVisites = 0;
-        let totalVisitesClient = 0;
-        let totalVisitesProspect = 0;
+        let totalVisites = 0
+        let totalVisitesClient = 0
+        let totalVisitesProspect = 0
 
         feuilles.forEach(feuille => {
-            const stops = feuille.stops || [];
-            totalVisites += stops.length > 1 ? stops.length - 1 : 0;
+            const stops = feuille.stops || []
+            totalVisites += stops.length > 1 ? stops.length - 1 : 0
 
-            totalVisitesClient += stops.filter(stop => stop.status === 'Client').length;
-            totalVisitesProspect += stops.filter(stop => stop.status === 'Prospect').length;
-        });
+            totalVisitesClient += stops.filter(stop => stop.status === 'Client').length
+            totalVisitesProspect += stops.filter(stop => stop.status === 'Prospect').length
+        })
 
-        setNombreVisites(totalVisites);
-        setNombreVisitesClient(totalVisitesClient);
-        setNombreVisitesProspect(totalVisitesProspect);
+        setNombreVisites(totalVisites)
+        setNombreVisitesClient(totalVisitesClient)
+        setNombreVisitesProspect(totalVisitesProspect)
     }
 
     const formatDistance = (distance) => {
         if (distance < 1000) {
-            return `${distance.toFixed(0)} m`;
+            return `${distance.toFixed(0)} m`
         }
-        return `${(distance / 1000).toFixed(2)} km`;
+
+        return `${(distance / 1000).toFixed(2)} km`
     }
 
     const handleStartDateChange = (event) => {
-        const { value } = event.target;
-        setStartDate(value);
+        const { value } = event.target
+        setStartDate(value)
     }
     const handleEndDateChange = (event) => {
-        const { value } = event.target;
-        setEndDate(value);
+        const { value } = event.target
+        setEndDate(value)
     }
 
     const handleSubmit = () => {
-        setShowResults(true); 
-    };
+        setShowResults(true)
+    }
 
-    const generatePDF = (input, filename) => {
-        if (!input) {
-            console.error('Erreur : référence à l\'élément non valide');
-            return;
-        }
-    
-        html2canvas(input, {
-            useCORS: true,
-            scale: 2, // Augmente la résolution du canvas pour une meilleure qualité
-        }).then(canvas => {
-            const imgData = canvas.toDataURL('image/png');
-            const pdf = new jsPDF('p', 'mm', 'a4');
-            const pdfWidth = pdf.internal.pageSize.getWidth();
-            const pdfHeight = pdf.internal.pageSize.getHeight();
-            const canvasWidth = canvas.width;
-            const canvasHeight = canvas.height;
-            const ratio = canvasWidth / canvasHeight;
-            const width = pdfWidth;
-            const height = width / ratio;
-    
-            let position = 0;
-    
-            const totalPages = height > pdfHeight
-                ? Math.ceil(canvasHeight / (canvasWidth * pdfHeight / pdfWidth))
-                : 1;
-    
-            const addPageNumber = (pdf, pageNumber, totalPages) => {
-                pdf.setFontSize(10);
-                const pageNumText = `Page ${pageNumber} / ${totalPages}`;
-                pdf.text(pageNumText, pdfWidth / 2, pdfHeight - 10, { align: 'center' });
-            };
-    
-            if (height > pdfHeight) {
-                for (let i = 0; i < totalPages; i++) {
-                    const pageCanvas = document.createElement('canvas');
-                    pageCanvas.width = canvasWidth;
-                    pageCanvas.height = canvasWidth * pdfHeight / pdfWidth;
-                    const pageContext = pageCanvas.getContext('2d');
-                    pageContext.drawImage(canvas, 0, position, canvasWidth, pageCanvas.height, 0, 0, pageCanvas.width, pageCanvas.height);
-                    const pageImgData = pageCanvas.toDataURL('image/png');
-                    if (i > 0) {
-                        pdf.addPage();
-                    }
-                    pdf.addImage(pageImgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-                    addPageNumber(pdf, i + 1, totalPages);
-                    position += pageCanvas.height;
-                }
-            } else {
-                pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, height);
-                addPageNumber(pdf, 1, totalPages);
-            }
-    
-            pdf.save(filename);
-        }).catch(error => {
-            console.error('Erreur lors de la génération du PDF :', error);
-        });
-    };
-    
-    const downloadPDF = () => {
-        const input = fdrJourRef.current;
-        generatePDF(input, "feuille-du-jour.pdf");
+    const handleExport = () => {
+        const feuillesData = feuillesDeRoute.flatMap((feuille, feuilleIndex) => {
+            const stopsData = feuille.stops.map((stop, idx) => ({
+                'Date': formatTimestamp(feuille.date),
+                'Visite N°': idx < feuille.stops.length - 1 ? `Visite n°${idx + 1}` : 'Retour',
+                'Nom du salon': stop.name || '',
+                'Statut': stop.status || '',
+                'Adresse': stop.address || '',
+                'Code postal': `${stop.postalCode || ''}`,
+                'Km parcourus': formatDistance(stop.distance || 0),
+                'Heure d\'arrivée': stop.arrivalTime || '',
+                'Heure de départ': stop.departureTime || '',
+                'Total Distance': idx === feuille.stops.length - 1 ? formatDistance(feuille.totalKm || 0) : '',
+                'Total Visites': idx === feuille.stops.length - 1 ? getNombreDeVisites(feuille.stops) : '',
+                'Visites Client': idx === feuille.stops.length - 1 ? countVisitesByStatus(feuille.stops, 'Client') : '',
+                'Visites Prospect': idx === feuille.stops.length - 1 ? countVisitesByStatus(feuille.stops, 'Prospect') : '',
+                'Validé le': idx === feuille.stops.length - 1 ? (feuille.signatureDate || 'Non disponible') : ''
+            }))
+
+            // Saut de ligne après chaque feuille pour une meilleure lecture du tableau 
+            return [...stopsData, {}];
+        })
+         
+        const recapData = [{
+            'Période sélectionnée': `Du ${formatDate2(startDate)} au ${formatDate2(endDate)}`,
+            'Nombre de visites': nombreVisites,
+            'Visites client': nombreVisitesClient,
+            'Visites prospect': nombreVisitesProspect,
+            'Total Feuilles de Route': feuillesDeRoute.length
+        }];
+
+        exportToExcel([].concat(feuillesData, recapData), 'FeuillesDeRoute.xlsx', ['Feuilles de route', 'Récapitulatif'], [feuillesData, recapData]);
     };
     
 
     return (
         <div className='filter-feuilles' style={{marginTop: "30px", width: "75%", padding: "0 20px", display: "flex", flexDirection: "column", alignItems: "center"}}>    
             <div className='filters' style={{width: "100%", padding: "20px 50px", boxShadow: "2px 2px 15px #cfcfcf", display: "flex", borderRadius: "20px", justifyContent: "space-between", alignItems: "center"}}>
-                <div style={{width: "30%"}}>
+                <div style={{width: "30%"}}> 
                     <label className='label'>Date de début :</label><br></br>
                     <input className='custom-select' style={{width: "100%"}} type="date" value={startDate} onChange={handleStartDateChange} />
                 </div>
@@ -196,13 +174,14 @@ function SearchFeuillesDuJourCom({ uid }) {
             </div>
 
             {showResults && (
-                <button style={{display: "flex", alignItems: "center", padding: "5px 20px" , marginTop: "30px"}} className="download-f button-colored" onClick={downloadPDF}><img style={{marginRight: "10px"}} src={download} alt="Télécharger la feuille de route du jour" />Télécharger les feuilles de route</button>
+                <button style={{display: "flex", alignItems: "center", padding: "5px 20px" , marginTop: "30px"}} className="download-f button-colored" onClick={handleExport} ><img style={{marginRight: "10px"}} src={download} alt="Télécharger la feuille de route du jour" />Télécharger les feuilles de route</button>
             )}
-            <div style={{width: "100%"}} ref={fdrJourRef}>
+
+            <div style={{width: "100%"}}>
                 {showResults && (
                     <div className='filter-feuilles-stats'>
                         <p><strong>Période sélectionnée</strong> : Du {formatDate2(startDate)} au {formatDate2(endDate)}</p>
-                        <div>
+                        <div> 
                             <p><strong>Nombre de visites</strong><span>{nombreVisites}</span></p> 
                             <p><strong>Visites client</strong><span>{nombreVisitesClient}</span></p>
                             <p><strong>Visites prospect</strong><span>{nombreVisitesProspect}</span></p>
@@ -279,7 +258,6 @@ function SearchFeuillesDuJourCom({ uid }) {
                                 <p style={{ marginTop: "20px" }}>Validé le <strong>{feuille?.signatureDate}</strong></p> 
                             </div>
                         </div>
-                    
                     ))} 
                     </div>
                 )} 

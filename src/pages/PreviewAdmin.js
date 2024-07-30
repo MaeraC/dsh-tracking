@@ -465,7 +465,9 @@ function PreviewAdmin({ firstname, uid }) {
                                 <button className="button-colored" onClick={() => setManageDpt(false)}>Fermer</button>
                             </>
                         )}
+                        <button className="cancel" onClick={() => setManageDpt(false)}>Annuler</button>
                     </div>
+                    
                 </div>
             )}
         </div>

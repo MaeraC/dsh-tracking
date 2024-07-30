@@ -26,9 +26,16 @@ const FeuillesMensuellesAdmin = ({ feuillesDeRoute, selectedMonthYear, selectedU
         const start = new Date(selectedYear, selectedMonth - 1, 1)
         const end = new Date(selectedYear, selectedMonth, 0)
 
-        let current = new Date(start)
+        //let current = new Date(start)
+        ////
+        const startDayOfWeek            = start.getDay(); 
+        const firstSunday               = new Date(start);
 
-        while (current <= end) {
+        firstSunday.setDate(start.getDate() - startDayOfWeek); 
+
+        let current = new Date(firstSunday);
+
+       /* while (current <= end) {
             const weekStart = new Date(current)
             const weekEnd = new Date(current)
 
@@ -47,13 +54,36 @@ const FeuillesMensuellesAdmin = ({ feuillesDeRoute, selectedMonthYear, selectedU
             })
 
             current.setDate(current.getDate() + 7)
-        }
+        }*/
+
+            while (current <= end) {
+                const week = {
+                    startDate: new Date(current),
+                    stopsByDay: Array(7).fill().map(() => ({
+                        date: null, 
+                        stops: [],
+                        motif: null
+                    })),
+                    totalKmByDay: Array(7).fill(0)
+                };
+    
+                for (let dayIndex = 0; dayIndex < 7; dayIndex++) {
+                    const currentDay = new Date(current);
+                    currentDay.setDate(currentDay.getDate() + dayIndex);
+                    if (currentDay.getMonth() === current.getMonth()) {
+                        week.stopsByDay[dayIndex].date = `${daysOfWeek[dayIndex]} ${currentDay.getDate()} ${currentDay.toLocaleDateString('fr-FR', { month: 'long' })}`;
+                    }
+                }
+    
+                weeks.push(week);
+                current.setDate(current.getDate() + 7); 
+            }
 
         filteredFeuilles.forEach(feuille => {
             const date = new Date(feuille.date.seconds * 1000)
-            const weekIndex = weeks.findIndex(week => date >= week.startDate && date <= week.endDate)
+            //const weekIndex = weeks.findIndex(week => date >= week.startDate && date <= week.endDate)
 
-            if (weekIndex !== -1) {
+            /*if (weekIndex !== -1) {
                 const dayOfWeek = date.getDay()
                 weeks[weekIndex].stopsByDay[dayOfWeek].date = `${daysOfWeek[dayOfWeek]} ${date.getDate()} ${date.toLocaleDateString('fr-FR', { month: 'long' })}`
 
@@ -61,6 +91,25 @@ const FeuillesMensuellesAdmin = ({ feuillesDeRoute, selectedMonthYear, selectedU
                     weeks[weekIndex].stopsByDay[dayOfWeek].stops.push({ ...stop })
                     weeks[weekIndex].totalKmByDay[dayOfWeek] += stop.distance || 0
                 })
+            }*/
+
+                const weekIndex = weeks.findIndex(week => date >= week.startDate && date < new Date(week.startDate).setDate(new Date(week.startDate).getDate() + 7));
+    
+            if (weekIndex !== -1) {
+                const dayOfWeek = date.getDay();
+                
+                if (!weeks[weekIndex].stopsByDay[dayOfWeek].date) {
+                    weeks[weekIndex].stopsByDay[dayOfWeek].date = `${daysOfWeek[dayOfWeek]} ${date.getDate()} ${date.toLocaleDateString('fr-FR', { month: 'long' })}`;
+                }
+              
+                if (feuille.isVisitsStarted === false && feuille.motif) {
+                    weeks[weekIndex].stopsByDay[dayOfWeek].motif = feuille.motif;
+                } else {  
+                    feuille?.stops?.forEach(stop => {
+                        weeks[weekIndex].stopsByDay[dayOfWeek].stops.push({ ...stop });
+                        weeks[weekIndex].totalKmByDay[dayOfWeek] += stop.distance || 0;
+                    });
+                }
             }
         })
 
@@ -141,8 +190,12 @@ const FeuillesMensuellesAdmin = ({ feuillesDeRoute, selectedMonthYear, selectedU
                                                     <p>{day.stops[rowIndex].departureTime}</p>
                                                 </div>
                                             ) : (
-                                                <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-around", padding: "5px", height: "100%", fontSize: "14px" }}>
-                                                    
+                                                <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-around", background: "#e0e0e0", padding: "10px", textAlign: "center", height: "220px", fontSize: "14px" }}>
+                                                    { rowIndex === 0 && day.motif && (
+                                                        <div>
+                                                            <p style={{color: "red"}}><strong>{day.motif}</strong></p>
+                                                        </div>
+                                                    )}
                                                 </div>
                                             )}
                                         </td>

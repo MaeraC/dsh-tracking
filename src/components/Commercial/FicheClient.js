@@ -1,35 +1,36 @@
 
 // ficheClient.js
 
-import back from "../../assets/back.png"
-import { useState, useCallback, useRef, useEffect } from "react" 
-import { db } from "../../firebase.config"
+import back                                                         from "../../assets/back.png"
+import { useState, useCallback, useRef, useEffect }                 from "react" 
+import { db }                                                       from "../../firebase.config"
 import { collection, query, where, getDocs, doc, updateDoc, getDoc } from "firebase/firestore"
 import jsPDF from "jspdf";   
 import html2canvas from "html2canvas";
 import ResultsFicheClient from "../ResultsFicheClient"
 
 function FicheClient({ onReturn, uid }) {
-    const [searchSalon, setSearchSalon] = useState("")
-    const [salonInfo, setSalonInfo] = useState(null)
-    const [suggestions, setSuggestions] = useState([])
-    const [message, setMessage] = useState("")
-    const [isModalOpen, setIsModalOpen] = useState(false)
-    const [allFiches, setAllFiches] = useState([]);
-    const [isAllFichesVisible, setIsAllFichesVisible] = useState(false);
-    const [startDate, setStartDate] = useState('');
-    const [endDate, setEndDate] = useState('')
-    const [isViewFilteredFichesOpen, setIsViewFilteredFichesOpen] = useState(false)
-    const [filteredFiches, setFilteredFiches] = useState([])
+    const [searchSalon, setSearchSalon]                             = useState("")
+    const [salonInfo, setSalonInfo]                                 = useState(null)
+    const [suggestions, setSuggestions]                             = useState([])
+    const [message, setMessage]                                     = useState("")
+    const [isModalOpen, setIsModalOpen]                             = useState(false)
+    const [allFiches, setAllFiches]                                 = useState([])
+    const [isAllFichesVisible, setIsAllFichesVisible]               = useState(false)
+    const [startDate, setStartDate]                                 = useState('')
+    const [endDate, setEndDate]                                     = useState('')
+    const [isViewFilteredFichesOpen, setIsViewFilteredFichesOpen]   = useState(false)
+    const [filteredFiches, setFilteredFiches]                       = useState([])
     // eslint-disable-next-line
-    const [rdvPresentationCount, setRdvPresentationCount] = useState(0)
-    const [formVisible, setFormVisible] = useState(true)
-    const [fichesThisYear, setFichesThisYear] = useState([])
-    const [thisYearOpen, setThisYearOpen] = useState(false)
-    const [selectedSalon, setSelectedSalon] = useState('');
-    const [currentYear, setCurrentYear] = useState("")
-    const [usersMap, setUsersMap] = useState({})
-    const [otherBrand, setOtherBrand] = useState('');
+    const [rdvPresentationCount, setRdvPresentationCount]           = useState(0)
+    const [formVisible, setFormVisible]                             = useState(true)
+    const [fichesThisYear, setFichesThisYear]                       = useState([])
+    const [thisYearOpen, setThisYearOpen]                           = useState(false)
+    const [selectedSalon, setSelectedSalon]                         = useState('')
+    const [currentYear, setCurrentYear]                             = useState("")
+    const [usersMap, setUsersMap]                                   = useState({})
+    const [otherBrand, setOtherBrand]                               = useState('')
+    const [buttonType, setButtonType]                               = useState("")
 
     const pageRef = useRef()
     const pageRef2 = useRef()
@@ -79,38 +80,49 @@ function FicheClient({ onReturn, uid }) {
 
     useEffect(() => {
         const fetchUsersData = async () => {
-            const usersData = {};
+            const usersData = {}
+
             try {
-                const usersSnapshot = await getDocs(collection(db, 'users'));
+                const usersSnapshot = await getDocs(collection(db, 'users'))
+
                 usersSnapshot.forEach((doc) => {
-                    const userData = doc.data();
-                    usersData[doc.id] = { firstname: userData.firstname, lastname: userData.lastname, departments: userData.departments }; // Assurez-vous que les champs firstname et lastname existent
-                });
+                    const userData = doc.data()
+                    usersData[doc.id] = { 
+                        firstname: userData.firstname, 
+                        lastname: userData.lastname, 
+                        departments: userData.departments 
+                    }
+                })
+
                 setUsersMap(usersData)
-            } catch (error) {
-                    console.error("Erreur lors de la récupération des utilisateurs : ", error);
+            } 
+            catch (error) {
+                console.error("Erreur lors de la récupération des utilisateurs : ", error)
             }
-        };
+        }
     
         fetchUsersData()
     }, [])
 
     const handleOtherBrandChange = (e) => {
-        setOtherBrand(e.target.value);
-        setFormData({ ...formData, marquesEnPlace: { ...formData.marquesEnPlace, autre: e.target.value } });
+        setOtherBrand(e.target.value)
+        setFormData({ ...formData, marquesEnPlace: { ...formData.marquesEnPlace, autre: e.target.value } })
     }
     
     const handleInputChange = (e) => {
         const { name, value } = e.target
         setFormData({ ...formData, [name]: value })
     }
+
     const handleCheckboxChange = (e) => {
-        const { name, checked } = e.target;
+        const { name, checked } = e.target
         setFormData({ ...formData, marquesEnPlace: { ...formData.marquesEnPlace, [name]: checked } })
     }
+
     const handleAddEquipeMember = () => {
         setFormData({ ...formData, équipe: [...formData.équipe, { nomPrenom: "", role: "" }] })
     }
+
     const handleEquipeChange = (index, field, value) => {
         const newéquipe = formData.équipe.map((member, i) => {
             if (i === index) {
@@ -120,29 +132,33 @@ function FicheClient({ onReturn, uid }) {
         })
         setFormData({ ...formData, équipe: newéquipe });
     }
+
     const handleAddSpecificite = () => {
-        setFormData({ ...formData, specificites: [...formData.specificites, ""] });
+        setFormData({ ...formData, specificites: [...formData.specificites, ""] })
     }
+
     const handleSpecificiteChange = (index, value) => {
         const newSpecificites = formData.specificites.map((specificite, i) => {
             if (i === index) {
-                return value;
+                return value
             }
-            return specificite;
-        });
-        setFormData({ ...formData, specificites: newSpecificites });
+            return specificite
+        })
+        setFormData({ ...formData, specificites: newSpecificites })
     }
+
     const handleAddProduits = () => {
-        setFormData({ ...formData, produitsProposés: [...formData.produitsProposés, ""] });
+        setFormData({ ...formData, produitsProposés: [...formData.produitsProposés, ""] })
     }
+    
     const handleProduitsChange = (index, value) => {
         const newProduit = formData.produitsProposés.map((produit, i) => {
             if (i === index) {
-                return value;
+                return value
             }
-            return produit; 
-        }); 
-        setFormData({ ...formData, produitsProposés: newProduit });
+            return produit
+        })
+        setFormData({ ...formData, produitsProposés: newProduit })
     }
 
     const normalizeString = (str) => {
@@ -152,10 +168,31 @@ function FicheClient({ onReturn, uid }) {
             .trim()
     }
 
+    const checkIfFicheExistsForToday = async (salonId) => {
+        const todayStart = new Date()
+        todayStart.setHours(0, 0, 0, 0)
+        const todayEnd = new Date()
+        todayEnd.setHours(23, 59, 59, 999)
+    
+        const salonRef = doc(db, "salons", salonId)
+        const salonSnapshot = await getDoc(salonRef)
+    
+        if (salonSnapshot.exists()) { 
+            const salonData = salonSnapshot.data()
+            const suiviClient = salonData.suiviClient || []
+    
+            return suiviClient.find(fiche => {
+                const ficheDate = fiche.createdAt.toDate()
+                return ficheDate >= todayStart && ficheDate <= todayEnd
+            })
+        }
+        return null
+    }
+    
     const handleSearch = async (e) => {
         const searchValue = e.target.value
         setSearchSalon(searchValue)
-        console.log(searchValue)
+        
         if (searchValue.length > 0) {
             try {
                 const q = query(collection(db, "salons"), where("name", ">=", searchValue), where("name", "<=", searchValue + "\uf8ff"));
@@ -164,28 +201,30 @@ function FicheClient({ onReturn, uid }) {
 
                 querySnapshot.forEach((doc) => {
                     const data = doc.data()
+
                     if (data.status === "Client") {
                         const salonDepartment = data.department || "" 
                         const userDepartments = usersMap[uid]?.departments || []
 
                         const normalizedDepartment = normalizeString(salonDepartment)
                         const normalizedUserDepartments = userDepartments.map(normalizeString)
-
                         
                         if (normalizedUserDepartments.includes(normalizedDepartment)) {
-                            searchResults.push({ id: doc.id, ...data });
+                            searchResults.push({ id: doc.id, ...data })
                         }
                     }
                 })
+                
                 setSuggestions(searchResults)
             } 
             catch (error) {
-                console.error("Erreur lors de la recherche du salon : ", error);
+                console.error("Erreur lors de la recherche du salon : ", error)
             }
         } else {
             setSuggestions([])
         }
     }
+
     const handleSelectSuggestion = async (salon) => {
         setSalonInfo(salon)
         setSuggestions([])
@@ -240,6 +279,9 @@ function FicheClient({ onReturn, uid }) {
                 typeOfForm: "Fiche de suivi Client",
                 userId: uid,
             })
+
+            const ficheExists = await checkIfFicheExistsForToday(salon.id)
+            setButtonType(ficheExists ? "update" : "new")
         }
     }  
 
@@ -260,6 +302,7 @@ function FicheClient({ onReturn, uid }) {
                             userId: uid
                         }
                     ]
+
                     await updateDoc(salonRef, { historique: newHistoryEntry })
                 } 
                 else {
@@ -270,138 +313,137 @@ function FicheClient({ onReturn, uid }) {
             }
         }
     }, [salonInfo, uid])
+
     const handleSubmit = async (e) => {
         e.preventDefault()
-
+        
         try {
             const salonRef = doc(db, "salons", salonInfo.id)
-            const SalonSnapshot = await getDoc(salonRef)
-           
-            if (SalonSnapshot.exists()) {
-                const salonData = SalonSnapshot.data()
-                const updatedSuiviClient = [...(salonData.suiviClient || []), formData]
-                await updateDoc(salonRef, { suiviClient: updatedSuiviClient })  
+            const salonSnapshot = await getDoc(salonRef)
+        
+            if (salonSnapshot.exists()) {
+                const salonData = salonSnapshot.data()
+                let updatedSuiviClient
+        
+                if (buttonType === "new") {
+                    updatedSuiviClient = [...(salonData.suiviClient || []), formData]
+                } 
+                else if (buttonType === "update") {
+                    updatedSuiviClient = salonData.suiviClient.map(fiche =>
+                        fiche.createdAt.toDate().toDateString() === new Date().toDateString()
+                            ? formData
+                            : fiche
+                    )
+                }
+        
+                await updateDoc(salonRef, { suiviClient: updatedSuiviClient })
                 await updateSalonHistory(formData)
-
-                setMessage("Fiche de suivi Client enregistré avec succès !")
-                setIsModalOpen(true)
-            }
+        
+                setMessage("Fiche de suivi Client enregistrée avec succès !")
+                setIsModalOpen(true);
+            } 
             else {
                 console.error("Document de visite non trouvé.")
             }
         } catch (error) {
-            console.error("Erreur lors de la mise à jour du salon : ", error);
+            console.error("Erreur lors de la mise à jour du salon : ", error)
         }
     }
-
+        
     const handleShowAllFiches = async () => {
         if (salonInfo) {
             try {
-                const salonRef = doc(db, "salons", salonInfo.id);
-                const salonSnapshot = await getDoc(salonRef);
+                const salonRef = doc(db, "salons", salonInfo.id)
+                const salonSnapshot = await getDoc(salonRef)
 
                 if (salonSnapshot.exists()) {
-                    const salonData = salonSnapshot.data();
-                    setAllFiches(salonData.suiviClient || []);
-                    setIsAllFichesVisible(true);
+                    const salonData = salonSnapshot.data()
+
+                    setAllFiches(salonData.suiviClient || [])
+                    setIsAllFichesVisible(true)
                     setFormVisible(false)
                     setThisYearOpen(false)
-                } else {
-                    console.error("Document de salon non trouvé.");
+                } 
+                else {
+                    console.error("Document de salon non trouvé.")
                 }
             } catch (error) {
-                console.error("Erreur lors de la récupération des fiches de suivi : ", error);
+                console.error("Erreur lors de la récupération des fiches de suivi : ", error)
             }
         }
     }
+
     const handleFilterByDate = async () => {
         try {
-            const salonRef = doc(db, "salons", salonInfo.id);
-            const salonSnapshot = await getDoc(salonRef);
+            const salonRef = doc(db, "salons", salonInfo.id)
+            const salonSnapshot = await getDoc(salonRef)
     
             if (salonSnapshot.exists()) {
-                const salonData = salonSnapshot.data();
-                const allFiches = salonData.suiviClient || [];
+                const salonData = salonSnapshot.data()
+                const allFiches = salonData.suiviClient || []
 
-                 // Convertir les dates de début et de fin en objets Date
-                const start = new Date(startDate);
-                const end = new Date(endDate);
+                const start = new Date(startDate)
+                const end = new Date(endDate)
+                end.setHours(23, 59, 59, 999)
     
-                // Filtrer les fiches par période
                 const filteredFiches = allFiches.filter((fiche) => {
-                    const ficheDate = fiche.createdAt instanceof Date ? fiche.createdAt : fiche.createdAt.toDate();
-                    console.log("Date de la fiche : ", ficheDate);
-                    return ficheDate >= start && ficheDate <= end;
-                });
-
-                 // Calcul du nombre de rdv de présentation
-                const rdvPresentationCount = filteredFiches.reduce((total, fiche) => {
-                    return total + (fiche.crPresentation ? fiche.crPresentation.length : 0);
-                }, 0);
+                    const ficheDate = fiche.createdAt instanceof Date ? fiche.createdAt : fiche.createdAt.toDate()
+                    return ficheDate >= start && ficheDate <= end
+                })
     
-                setFilteredFiches(filteredFiches);
-                setIsViewFilteredFichesOpen(true);
-                setRdvPresentationCount(rdvPresentationCount)
+                setFilteredFiches(filteredFiches)
+                setIsViewFilteredFichesOpen(true)
                 setFormVisible(false)
                 setThisYearOpen(false)
-            } else {
-                console.error("Document de visite non trouvé.");
+            } 
+            else {
+                console.error("Document de visite non trouvé.")
             }
         } catch (error) {
-            console.error("Erreur lors de la récupération des fiches : ", error);
+            console.error("Erreur lors de la récupération des fiches : ", error)
         }
     }
+
     const handleViewFichesCurrentYear = async () => {
         try {
-            const salonRef = doc(db, "salons", salonInfo.id);
-            const salonSnapshot = await getDoc(salonRef);
+            const salonRef = doc(db, "salons", salonInfo.id)
+            const salonSnapshot = await getDoc(salonRef)
     
             if (salonSnapshot.exists()) {
-                const salonData = salonSnapshot.data();
+                const salonData = salonSnapshot.data()
                 const allFiches = salonData.suiviClient || []
-                const currentYear = new Date().getFullYear();
+                const currentYear = new Date().getFullYear()
+
                 setCurrentYear(currentYear)
     
                 const currentYearFiches = allFiches.filter((fiche) => {
-                    const ficheDate = fiche.createdAt instanceof Date ? fiche.createdAt : fiche.createdAt.toDate();
-                    return ficheDate.getFullYear() === currentYear;
-                });
+                    const ficheDate = fiche.createdAt instanceof Date ? fiche.createdAt : fiche.createdAt.toDate()
+                    return ficheDate.getFullYear() === currentYear
+                })
     
-                setFichesThisYear(currentYearFiches);
-                setIsViewFilteredFichesOpen(false);
+                setFichesThisYear(currentYearFiches)
+                setIsViewFilteredFichesOpen(false)
                 setThisYearOpen(true)
                 setRdvPresentationCount(rdvPresentationCount)
                 setFormVisible(false)
-            } else {
-                console.error("Document de visite non trouvé.");
+            } 
+            else {
+                console.error("Document de visite non trouvé.")
             }
         } catch (error) {
-            console.error("Erreur lors de la récupération des fiches : ", error);
+            console.error("Erreur lors de la récupération des fiches : ", error)
         }
     }
 
-    const formatDate = (date) => {
-        if (!date || !date.seconds) {
-            return 'Date non disponible';
-        }
-        const days = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi']
-        const months = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre']
-
-        const d = new Date(date.seconds * 1000)
-        const dayName = days[d.getUTCDay()]
-        const day = d.getUTCDate()
-        const month = months[d.getUTCMonth()]
-        const year = d.getUTCFullYear()
-
-        return `${dayName} ${day} ${month} ${year}`
-    }
     const formatDate2 = (dateStr) => {
-        const date = new Date(dateStr);
-        const day = String(date.getDate()).padStart(2, '0');
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const year = date.getFullYear();
-        return `${day}/${month}/${year}`;
+        const date = new Date(dateStr)
+        const day = String(date.getDate()).padStart(2, '0')
+        const month = String(date.getMonth() + 1).padStart(2, '0')
+        const year = date.getFullYear()
+
+        return `${day}/${month}/${year}`
     }
+
     const generatePDF = (input, filename) => {
         if (!input) {
             console.error('Erreur : référence à l\'élément non valide')
@@ -503,7 +545,7 @@ function FicheClient({ onReturn, uid }) {
                     {suggestions.map((salon) => (
                         <div key={salon.id} onClick={() => handleSelectSuggestion(salon)}
                             style={{ cursor: "pointer", padding: "5px", borderBottom: "1px solid #ccc" }} >
-                            {salon.name}
+                            {salon.name + ", " + salon.city}
                         </div>
                     ))}
                 </div>
@@ -533,7 +575,7 @@ function FicheClient({ onReturn, uid }) {
                     <form onSubmit={handleSubmit}>
                         <div className="form-FSC">
                             <h2>{salonInfo.name}</h2>
-                            <p className="adress">{salonInfo.address}</p>
+                            <p className="adress" style={{marginBottom: "30px"}}>{salonInfo.address}</p>
                             
                             <p><strong>Responsable du salon</strong></p><br></br>
                             <input type="text" name="nomDuResponsable" placeholder="Nom Prénom" value={formData.nomDuResponsable} onChange={handleInputChange} /><br />
@@ -633,7 +675,13 @@ function FicheClient({ onReturn, uid }) {
                                 <label className="label-space"><strong>Observations (éléments à retenir)</strong> :</label><br></br>
                                 <textarea name="observations" value={formData.observations} onChange={handleInputChange} />
                             </div>
-                            <button className="button-colored" type="submit">ENREGISTRER</button>
+                            
+                            {buttonType === "new" && (
+                                <button type="submit" className="button-colored" onClick={() => setButtonType("new")}>Enregistrer une nouvelle fiche</button>
+                            )}
+                            {buttonType === "update" && (
+                                <button type="submit" className="button-colored" onClick={() => setButtonType("update")}>Mettre à jour la fiche</button>
+                            )}
                         </div>
                     </form>
                     
@@ -645,57 +693,53 @@ function FicheClient({ onReturn, uid }) {
                             <button style={{margin: "20px", marginLeft: "40px", padding: "10px 30px", marginBottom: "10px"}} className="button-colored" onClick={() => {setFormVisible(true); setIsAllFichesVisible(false)}} >Voir le formulaire</button>
                             <button style={{ padding: "10px 30px" }} onClick={downloadPDF} className='button-colored'>Télécharger les fiches clients</button>
                             <div ref={pageRef} style={{paddingTop: "20px", fontSize: "16px"}}>
-                            <h4 style={{textAlign: "center", fontSize: "20px", marginBottom: "20px"}}>Fiches de suivi client du salon {selectedSalon}</h4>  
-                            <ul> 
-                                {allFiches.map((fiche, index) => ( 
-                                      <li key={index}>
-                                      <div style={{paddingLeft: "100px"}}>Enregistré le : <strong>{formatDate(fiche.createdAt)}</strong>, par <strong>{usersMap[fiche.userId].firstname} {usersMap[fiche.userId].lastname}</strong></div>
-                                      
-                                      <ResultsFicheClient 
-                                          data={{ 
-                                              name: selectedSalon,
-                                              adresse: salonInfo.address,
-                                              city: salonInfo.city, 
-                                              téléphoneDuSalon: salonInfo.phoneNumber,
-                                              nomDuResponsable: fiche.nomDuResponsable,
-                                              EmailDuResponsable: fiche.EmailDuResponsable, // ??
-                                              portableDuResponsable: fiche.portableDuResponsable, // ??
-                                              responsablePrésent: fiche.responsablePrésent,
-                                              marquesEnPlace: fiche.marquesEnPlace,
-                                              équipe: fiche.équipe,
-                                              clientEnContrat: fiche.clientEnContrat,
-                                              typeDeContrat: fiche.typeDeContrat,
-                                              specificites: fiche.specificites,
-                                              dateDeVisite: fiche.dateDeVisite,
-                                              responsablePrésente: fiche.responsablePrésente,
-                                              produitsProposés: fiche.produitsProposés, // ??
-                                              animationProposée: fiche.animationProposée,
-                                              pointsPourLaProchaineVisite: fiche.pointsPourLaProchaineVisite,
-                                              priseDeCommande: fiche.priseDeCommande,
-                                              gammesCommandées: fiche.gammesCommandées,
-                                              autresPointsAbordés: fiche.autresPointsAbordés, // ?? 
-                                              observations: fiche.observations,
-                                          }}
-                                      />
-                                  </li>
-                            
-                                ))}
-                            </ul>
+                                <h4 style={{textAlign: "center", fontSize: "18px", marginBottom: "20px"}}>Fiches de suivi client du salon {selectedSalon}</h4>  
+                                <ul> 
+                                    {allFiches.map((fiche, index) => ( 
+                                        <li key={index}>
+                                            <ResultsFicheClient 
+                                                data={{ 
+                                                    name: selectedSalon,
+                                                    adresse: salonInfo.address,
+                                                    city: salonInfo.city, 
+                                                    téléphoneDuSalon: salonInfo.phoneNumber,
+                                                    nomDuResponsable: fiche.nomDuResponsable,
+                                                    EmailDuResponsable: fiche.EmailDuResponsable, // ??
+                                                    portableDuResponsable: fiche.portableDuResponsable, // ??
+                                                    responsablePrésent: fiche.responsablePrésent,
+                                                    marquesEnPlace: fiche.marquesEnPlace,
+                                                    équipe: fiche.équipe,
+                                                    clientEnContrat: fiche.clientEnContrat,
+                                                    typeDeContrat: fiche.typeDeContrat,
+                                                    specificites: fiche.specificites,
+                                                    dateDeVisite: fiche.dateDeVisite,
+                                                    responsablePrésente: fiche.responsablePrésente,
+                                                    produitsProposés: fiche.produitsProposés, // ??
+                                                    animationProposée: fiche.animationProposée,
+                                                    pointsPourLaProchaineVisite: fiche.pointsPourLaProchaineVisite,
+                                                    priseDeCommande: fiche.priseDeCommande,
+                                                    gammesCommandées: fiche.gammesCommandées,
+                                                    autresPointsAbordés: fiche.autresPointsAbordés, // ?? 
+                                                    observations: fiche.observations,
+                                                }}
+                                                isFirstFiche={index === 0}
+                                            />
+                                    </li>
+                                    ))}
+                                </ul>
                             </div>
                         </div> 
-                    )}
+                )}
 
-                    {salonInfo && isViewFilteredFichesOpen  && (
+                {salonInfo && isViewFilteredFichesOpen  && (
                         <div className="all-fiches-client">
                             <button  style={{margin: "20px", marginLeft: "40px", padding: "10px 30px"}} className="button-colored" onClick={() => {setFormVisible(true); setIsViewFilteredFichesOpen(false)}} >Voir le formulaire</button>
                             <button style={{ padding: "10px 30px" }} onClick={downloadPDF2} className='button-colored'>Télécharger les fiches clients</button>
                             <div ref={pageRef2} style={{paddingTop: "20px", fontSize: "16px"}}>
-                               <h3  style={{textAlign: "center", fontSize: "20px", marginBottom: "20px"}}>Fiches de suivi client du salon {selectedSalon} enregistrées entre le {formatDate2(startDate)} et le {formatDate2(endDate)}</h3>
+                               <h3  style={{textAlign: "center", fontSize: "18px", marginBottom: "20px"}}>Fiches de suivi client du salon {selectedSalon} enregistrées entre le {formatDate2(startDate)} et le {formatDate2(endDate)}</h3>
                                <ul> 
                                 {filteredFiches.map((fiche, index) => (
                                     <li key={index}>
-                                    <div style={{paddingLeft: "100px"}}>Enregistré le : <strong>{formatDate(fiche.createdAt)}</strong>, par <strong>{usersMap[fiche.userId].firstname} {usersMap[fiche.userId].lastname}</strong></div>
-                                    
                                     <ResultsFicheClient 
                                         data={{ 
                                             name: selectedSalon,
@@ -720,25 +764,24 @@ function FicheClient({ onReturn, uid }) {
                                             autresPointsAbordés: fiche.autresPointsAbordés, // ?? 
                                             observations: fiche.observations,
                                         }}
+                                        isFirstFiche={index === 0}
                                     />
                                 </li>
                                 ))}
                                 </ul>
                             </div>
                         </div>
-                    )}
+                )}
 
-                    {salonInfo && thisYearOpen  && (
+                {salonInfo && thisYearOpen  && (
                         <div className="all-fiches-client">
                             <button  style={{margin: "20px", marginLeft: "40px", padding: "10px 30px"}} className="button-colored" onClick={() => {setFormVisible(true); setIsViewFilteredFichesOpen(false)}} >Voir le formulaire</button>
                             <button style={{ padding: "10px 30px" }} onClick={downloadPDF3} className='button-colored'>Télécharger les fiches client de l'année en cours</button>
                             <div ref={pageRef3} style={{paddingTop: "20px", fontSize: "16px"}}>
-                               <h3  style={{textAlign: "center", fontSize: "20px", marginBottom: "20px"}}>Fiches de suivi client du salon {selectedSalon} de l'année {currentYear} </h3>
+                               <h3  style={{textAlign: "center", fontSize: "18px", marginBottom: "20px"}}>Fiches de suivi client du salon {selectedSalon} de l'année {currentYear} </h3>
                                <ul>
                                 {fichesThisYear.map((fiche, index) => (
                                    <li key={index}>
-                                   <div style={{paddingLeft: "100px"}}>Enregistré le : <strong>{formatDate(fiche.createdAt)}</strong>, par <strong>{usersMap[fiche.userId].firstname} {usersMap[fiche.userId].lastname}</strong></div>
-                                   
                                    <ResultsFicheClient 
                                        data={{ 
                                            name: selectedSalon,
@@ -763,21 +806,21 @@ function FicheClient({ onReturn, uid }) {
                                            autresPointsAbordés: fiche.autresPointsAbordés, // ?? 
                                            observations: fiche.observations,
                                        }}
+                                       isFirstFiche={index === 0}
                                    />
                                </li>
                                 ))}
                             </ul>
                             </div>
                         </div>
-                    )}
-                    
-
+                )}
                    
                 {isModalOpen && (
                     <div className="modal">
                         <div className="modal-content">
-                            <p className="success">{message}</p>
-                            <button className="button-colored" onClick={() => setIsModalOpen(false)}>Fermer</button>
+                            <p className="success">{message}</p>  
+                            <button className="button-colored" onClick={() => { onReturn() }}>Fermer</button>
+                            
                         </div> 
                     </div>
                 )}

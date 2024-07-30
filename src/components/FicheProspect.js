@@ -1,8 +1,8 @@
 
 // Fichier FicheProspect.js
 
-import back from "../assets/back.png"
-import plus from "../assets/plusplus.png"
+import back                                                                     from "../assets/back.png"
+import plus                                                         from "../assets/plusplus.png"
 import { useState, useCallback, useRef, useEffect } from "react"
 import { db } from "../firebase.config"
 import { collection, query, where, getDocs, doc, updateDoc, getDoc, arrayUnion } from "firebase/firestore"
@@ -178,7 +178,29 @@ function FicheProspect({uid, onReturn}) {
             .trim()
     }
 
-    // Recherche d'une fiche prospect par le nom du salon 
+    const [buttonType, setButtonType] = useState("");
+
+    const checkIfFicheExistsForToday = async (salonId) => {
+        const todayStart = new Date();
+        todayStart.setHours(0, 0, 0, 0);
+        const todayEnd = new Date();
+        todayEnd.setHours(23, 59, 59, 999);
+    
+        const salonRef = doc(db, "salons", salonId);
+        const salonSnapshot = await getDoc(salonRef);
+    
+        if (salonSnapshot.exists()) { 
+            const salonData = salonSnapshot.data();
+            const suiviProspect = salonData.suiviProspect || [];
+    
+            return suiviProspect.find(fiche => {
+                const ficheDate = fiche.createdAt.toDate(); // Assurez-vous que createdAt est un Timestamp
+                return ficheDate >= todayStart && ficheDate <= todayEnd;
+            });
+        }
+        return null;
+    }
+
     const handleSearch = async (e) => {
         const searchValue = e.target.value;
         setSearchSalon(searchValue);
@@ -191,7 +213,7 @@ function FicheProspect({uid, onReturn}) {
                 const searchResults = [];
                 querySnapshot.forEach((doc) => {
                     const data = doc.data();
-                    console.log(data.department)
+
                     if (data.status === "Prospect") {
                         const salonDepartment = data.department || "" 
                         const userDepartments = usersMap[uid]?.departments || []
@@ -271,6 +293,9 @@ function FicheProspect({uid, onReturn}) {
                 typeOfForm: "Fiche de suivi Prospect",
                 userId: uid,
             })
+
+            const ficheExists = await checkIfFicheExistsForToday(salon.id);
+            setButtonType(ficheExists ? "update" : "new");
         }
     }
     const updateSalonHistory = useCallback(async (updatedData) => {
@@ -297,48 +322,53 @@ function FicheProspect({uid, onReturn}) {
             }
         }
     }, [salonInfo, uid])
+
     const handleSubmit = async (e) => {
-        e.preventDefault()
-  
-        try {
-            const salonRef = doc(db, "salons", salonInfo.id)
-            const SalonSnapshot = await getDoc(salonRef)
-           
-            if (SalonSnapshot.exists()) {
-                const salonData = SalonSnapshot.data()
-                const modifiedFields = {};
-                Object.keys(formData).forEach(key => {
-                    if (formData[key] !== salonData[key]) {
-                        modifiedFields[key] = formData[key];
+            e.preventDefault();
+        
+            try {
+                const salonRef = doc(db, "salons", salonInfo.id);
+                const salonSnapshot = await getDoc(salonRef);
+        
+                if (salonSnapshot.exists()) {
+                    const salonData = salonSnapshot.data();
+                    let updatedSuiviProspect;
+        
+                    if (buttonType === "new") {
+                        // Enregistrer une nouvelle fiche
+                        updatedSuiviProspect = [...(salonData.suiviProspect || []), formData];
+                    } else if (buttonType === "update") {
+                        // Mettre à jour la fiche existante pour aujourd'hui
+                        updatedSuiviProspect = salonData.suiviProspect.map(fiche =>
+                            fiche.createdAt.toDate().toDateString() === new Date().toDateString()
+                                ? formData
+                                : fiche
+                        );
                     }
-                });
-
-                const updatedSuiviProspect = [...(salonData.suiviProspect || []), modifiedFields]
-                await updateDoc(salonRef, { suiviProspect: updatedSuiviProspect })   
-                await updateSalonHistory(modifiedFields)
-                setMessage("Fiche de suivi Prospect enregistré avec succès !") 
-                setIsModalOpen(true)
-
-                if (formData.commande === "OUI") {
-                    await updateDoc(salonRef, { 
-                        status: "Client" ,
-                        historique: arrayUnion({ date: new Date(), action: "Status mis à jour : Client", userId: uid })
-                    })
-                    setIsOpenModal(true)
-                    setIsModalOpen(false)
-                } 
-                else {
-                    setMessage("Fiche de suivi Prospect enregistrée avec succès !");
+        
+                    await updateDoc(salonRef, { suiviProspect: updatedSuiviProspect });
+                    await updateSalonHistory(formData);
+        
+                    setMessage("Fiche de suivi Prospect " + (buttonType === "new" ? "enregistrée" : "mise à jour") + " avec succès !");
+                    setIsModalOpen(true);
+        
+                    if (formData.commande === "OUI") {
+                        await updateDoc(salonRef, { 
+                            status: "Client",
+                            historique: arrayUnion({ date: new Date(), action: "Status mis à jour : Client", userId: uid })
+                        });
+                        setIsOpenModal(true);
+                        setIsModalOpen(false);
+                    }
+                } else {
+                    console.error("Document de visite non trouvé.");
                 }
+            } catch (error) {
+                console.error("Erreur lors de la mise à jour du salon : ", error);
             }
-            else {
-                console.error("Document de visite non trouvé.")
-            }
-
-        } catch (error) {
-            console.error("Erreur lors de la mise à jour du salon : ", error);
         }
-    }
+        
+
 
     const handleViewAllFiches = async () => {
         try {
@@ -371,6 +401,7 @@ function FicheProspect({uid, onReturn}) {
                   // Convertir les dates de début et de fin en objets Date
                   const start = new Date(startDate);
                   const end = new Date(endDate);
+                  end.setHours(23, 59, 59, 999)
       
                   // Filtrer les fiches par période
                   const filteredFiches = allFiches.filter((fiche) => {
@@ -423,21 +454,7 @@ function FicheProspect({uid, onReturn}) {
             console.error("Erreur lors de la récupération des fiches : ", error);
         }
     }
-    const formatDate = (date) => {
-        if (!date || !date.seconds) {
-            return 'Date non disponible';
-        }
-        const days = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi']
-        const months = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre']
-
-        const d = new Date(date.seconds * 1000)
-        const dayName = days[d.getUTCDay()]
-        const day = d.getUTCDate()
-        const month = months[d.getUTCMonth()]
-        const year = d.getUTCFullYear()
-
-        return `${dayName} ${day} ${month} ${year}`
-    }
+ 
     const formatDate2 = (dateStr) => {
         const date = new Date(dateStr);
         const day = String(date.getDate()).padStart(2, '0');
@@ -544,7 +561,7 @@ function FicheProspect({uid, onReturn}) {
                 <input  className="input-sugg" type="text" placeholder="Rechercher un salon par son nom" value={searchSalon} onChange={handleSearch} />
                 <div  className="select-sugg">
                     {suggestions.map((salon) => (
-                        <div key={salon.id} onClick={() => handleSelectSuggestion(salon)} style={{ cursor: "pointer", padding: "5px", borderBottom: "1px solid #ccc" }} >{salon.name}</div>
+                        <div key={salon.id} onClick={() => handleSelectSuggestion(salon)} style={{ cursor: "pointer", padding: "5px", borderBottom: "1px solid #ccc" }} >{salon.name + ", " + salon.city}</div>
                     ))}
                 </div>
 
@@ -816,7 +833,13 @@ function FicheProspect({uid, onReturn}) {
                                     </label>
                                 </div>
                             </div>
-                            <button type="submit" className="button-colored">Enregistrer</button>
+
+                            {buttonType === "new" && (
+                                <button type="submit" className="button-colored" onClick={() => setButtonType("new")}>Enregistrer une nouvelle fiche</button>
+                            )}
+                            {buttonType === "update" && (
+                                <button type="submit" className="button-colored" onClick={() => setButtonType("update")}>Mettre à jour la fiche</button>
+                            )}
                         </div>
                     </form>  
                     </>
@@ -829,12 +852,10 @@ function FicheProspect({uid, onReturn}) {
                         <button style={{margin: "20px", marginLeft: "40px", padding: "10px 30px"}} className="button-colored" onClick={() => {setFormVisible(true); setIsViewAllFichesOpen(false)}} >Voir le formulaire</button>
                         <button style={{ padding: "10px 30px" }} onClick={downloadPDF} className='button-colored'>Télécharger les fiches prospect</button>
                         <div ref={pageRef} style={{paddingTop: "20px", fontSize: "16px"}}>
-                            <h4 style={{textAlign: "center", fontSize: "20px", marginBottom: "20px"}}>Fiches de suivi prospect du salon {selectedSalon}</h4>
+                            <h4 style={{textAlign: "center", fontSize: "18px", marginBottom: "20px"}}>Fiches de suivi prospect du salon {selectedSalon}</h4>
                             <ul>
                                 {allFiches.map((fiche, index) => (
                                     <li key={index}>
-                                        <div style={{paddingLeft: "100px"}}>Enregistré le : <strong>{formatDate(fiche.createdAt)}</strong>, par <strong>{usersMap[fiche.userId].firstname} {usersMap[fiche.userId].lastname}</strong></div>
-                                        
                                         <ResultsFiches 
                                             data={{ 
                                                 name: selectedSalon,
@@ -876,6 +897,7 @@ function FicheProspect({uid, onReturn}) {
                                                 commande: fiche.commande,
                                                 savedAt: createdAt,
                                             }}
+                                            isFirstFiche={index === 0}
                                         />
                                     </li>
                                 ))}
@@ -889,55 +911,54 @@ function FicheProspect({uid, onReturn}) {
                         <button  style={{margin: "20px", marginLeft: "40px", padding: "10px 30px"}} className="button-colored" onClick={() => {setFormVisible(true); setIsViewFilteredFichesOpen(false)}} >Voir le formulaire</button>
                         <button style={{ padding: "10px 30px" }} onClick={downloadPDF2} className='button-colored'>Télécharger les fiches prospect</button>
                         <div ref={pageRef2} style={{paddingTop: "20px", fontSize: "16px"}}>
-                        <h3  style={{textAlign: "center", fontSize: "20px", marginBottom: "20px"}}>Fiches prospect du salon {selectedSalon} enregistrées entre le {formatDate2(startDate)} et le {formatDate2(endDate)}</h3>
+                        <h3  style={{textAlign: "center", fontSize: "18px", marginBottom: "20px"}}>Fiches prospect du salon {selectedSalon} enregistrées entre le {formatDate2(startDate)} et le {formatDate2(endDate)}</h3>
                             <ul>
                                 {filteredFiches.map((fiche, index) => (
                                     <li key={index}>
-                                    <div style={{paddingLeft: "100px"}}>Enregistré le : <strong>{formatDate(fiche.createdAt)}</strong>, par <strong>{usersMap[fiche.userId].firstname} {usersMap[fiche.userId].lastname}</strong></div>
-                                    
-                                    <ResultsFiches 
-                                        data={{ 
-                                            name: selectedSalon,
-                                            adresse: salonInfo.address,
-                                            city: salonInfo.city, 
-                                            département: salonInfo.department, 
-                                            téléphoneDuSalon:  salonInfo.phoneNumber || fiche.téléphoneDuSalon,
-                                            tenueDuSalon: fiche.tenueDuSalon,
-                                            salonTenuPar: fiche.salonTenuPar,
-                                            nombreDePersonnes: fiche.nombreDePersonnes, // à ajouter 
-                                            jFture: fiche.jFture,
-                                            responsablePrésent: fiche.responsablePrésent,
-                                            nomDuResponsable: fiche.nomDuResponsable,
-                                            âgeDuResponsable: fiche.âgeDuResponsable,
-                                            numéroDuResponsable: fiche.numéroDuResponsable,
-                                            emailDuResponsable: fiche.emailDuResponsable,
-                                            facebook: fiche.facebook,
-                                            instagram: fiche.instagram,
-                                            dateDeVisite: fiche.dateDeVisite,
-                                            origineDeLaVisite: fiche.origineDeLaVisite,
-                                            conceptsProposés: fiche.conceptsProposés,
-                                            animationProposée: fiche.animationProposée,
-                                            pointsPourLaProchaineVisite: fiche.pointsPourLaProchaineVisite,
-                                            intéressésPar: fiche.intéressésPar,
+                                        <ResultsFiches 
+                                            data={{ 
+                                                name: selectedSalon,
+                                                adresse: salonInfo.address,
+                                                city: salonInfo.city, 
+                                                département: salonInfo.department, 
+                                                téléphoneDuSalon:  salonInfo.phoneNumber || fiche.téléphoneDuSalon,
+                                                tenueDuSalon: fiche.tenueDuSalon,
+                                                salonTenuPar: fiche.salonTenuPar,
+                                                nombreDePersonnes: fiche.nombreDePersonnes, // à ajouter 
+                                                jFture: fiche.jFture,
+                                                responsablePrésent: fiche.responsablePrésent,
+                                                nomDuResponsable: fiche.nomDuResponsable,
+                                                âgeDuResponsable: fiche.âgeDuResponsable,
+                                                numéroDuResponsable: fiche.numéroDuResponsable,
+                                                emailDuResponsable: fiche.emailDuResponsable,
+                                                facebook: fiche.facebook,
+                                                instagram: fiche.instagram,
+                                                dateDeVisite: fiche.dateDeVisite,
+                                                origineDeLaVisite: fiche.origineDeLaVisite,
+                                                conceptsProposés: fiche.conceptsProposés,
+                                                animationProposée: fiche.animationProposée,
+                                                pointsPourLaProchaineVisite: fiche.pointsPourLaProchaineVisite,
+                                                intéressésPar: fiche.intéressésPar,
 
-                                            colorationsAvecAmmoniaque: fiche.colorationsAvecAmmoniaque,
-                                            colorationsSansAmmoniaque: fiche.colorationsSansAmmoniaque,
-                                            colorationsVégétales: fiche.colorationsVégétales,
-                                            autresMarques: fiche.autresMarques,
+                                                colorationsAvecAmmoniaque: fiche.colorationsAvecAmmoniaque,
+                                                colorationsSansAmmoniaque: fiche.colorationsSansAmmoniaque,
+                                                colorationsVégétales: fiche.colorationsVégétales,
+                                                autresMarques: fiche.autresMarques,
 
-                                            autresPoints: fiche.autresPoints,
-                                            observations: fiche.observations,
-                                            statut: fiche.statut,
-                                            aRevoir: fiche.aRevoir, // ?? 
-                                            rdvObtenu: fiche.rdvObtenu,
-                                            rdvPrévuLe: fiche.rdvPrévuLe,
-                                            typeDeRdv: fiche.typeDeRdv,
-                                            typeDeDémonstration: fiche.typeDeDémonstration,
-                                            commande: fiche.commande,
-                                            savedAt: createdAt,
-                                        }}
-                                    />
-                                </li>
+                                                autresPoints: fiche.autresPoints,
+                                                observations: fiche.observations,
+                                                statut: fiche.statut,
+                                                aRevoir: fiche.aRevoir, // ?? 
+                                                rdvObtenu: fiche.rdvObtenu,
+                                                rdvPrévuLe: fiche.rdvPrévuLe,
+                                                typeDeRdv: fiche.typeDeRdv,
+                                                typeDeDémonstration: fiche.typeDeDémonstration,
+                                                commande: fiche.commande,
+                                                savedAt: createdAt,
+                                            }}
+                                            isFirstFiche={index === 0}
+                                        />
+                                    </li>
                                 ))}
                             </ul>
                         </div>     
@@ -949,55 +970,54 @@ function FicheProspect({uid, onReturn}) {
                         <button style={{margin: "20px", marginLeft: "40px", padding: "10px 30px"}} className="button-colored" onClick={() => {setFormVisible(true); setThisYearOpen(false)}} >Voir le formulaire</button>
                         <button style={{ padding: "10px 30px" }} onClick={downloadPDF3} className='button-colored'>Télécharger les fiches prospect de l'année en cours</button>
                             <div ref={pageRef3} style={{paddingTop: "20px", fontSize: "16px"}}>
-                            <h4 style={{textAlign: "center", fontSize: "20px", marginBottom: "20px"}}>Fiches de suivi prospect du salon {selectedSalon} du mois de {currentYear}</h4>
+                            <h4 style={{textAlign: "center", fontSize: "18px", marginBottom: "20px"}}>Fiches de suivi prospect du salon {selectedSalon} du mois de {currentYear}</h4>
                             <ul>
                                 {fichesThisYear.map((fiche, index) => (
-                                  <li key={index}>
-                                  <div style={{paddingLeft: "100px"}}>Enregistré le : <strong>{formatDate(fiche.createdAt)}</strong>, par <strong>{usersMap[fiche.userId].firstname} {usersMap[fiche.userId].lastname}</strong></div>
-                                  
-                                  <ResultsFiches 
-                                      data={{ 
-                                          name: selectedSalon,
-                                          adresse: salonInfo.address,
-                                          city: salonInfo.city, 
-                                          département: salonInfo.department, 
-                                          téléphoneDuSalon:  salonInfo.phoneNumber || fiche.téléphoneDuSalon,
-                                          tenueDuSalon: fiche.tenueDuSalon,
-                                          salonTenuPar: fiche.salonTenuPar,
-                                          nombreDePersonnes: fiche.nombreDePersonnes, // à ajouter 
-                                          jFture: fiche.jFture,
-                                          responsablePrésent: fiche.responsablePrésent,
-                                          nomDuResponsable: fiche.nomDuResponsable,
-                                          âgeDuResponsable: fiche.âgeDuResponsable,
-                                          numéroDuResponsable: fiche.numéroDuResponsable,
-                                          emailDuResponsable: fiche.emailDuResponsable,
-                                          facebook: fiche.facebook,
-                                          instagram: fiche.instagram,
-                                          dateDeVisite: fiche.dateDeVisite,
-                                          origineDeLaVisite: fiche.origineDeLaVisite,
-                                          conceptsProposés: fiche.conceptsProposés,
-                                          animationProposée: fiche.animationProposée,
-                                          pointsPourLaProchaineVisite: fiche.pointsPourLaProchaineVisite,
-                                          intéressésPar: fiche.intéressésPar,
+                                    <li key={index}>
+                                        <ResultsFiches 
+                                            data={{ 
+                                                name: selectedSalon,
+                                                adresse: salonInfo.address,
+                                                city: salonInfo.city, 
+                                                département: salonInfo.department, 
+                                                téléphoneDuSalon:  salonInfo.phoneNumber || fiche.téléphoneDuSalon,
+                                                tenueDuSalon: fiche.tenueDuSalon,
+                                                salonTenuPar: fiche.salonTenuPar,
+                                                nombreDePersonnes: fiche.nombreDePersonnes, // à ajouter 
+                                                jFture: fiche.jFture,
+                                                responsablePrésent: fiche.responsablePrésent,
+                                                nomDuResponsable: fiche.nomDuResponsable,
+                                                âgeDuResponsable: fiche.âgeDuResponsable,
+                                                numéroDuResponsable: fiche.numéroDuResponsable,
+                                                emailDuResponsable: fiche.emailDuResponsable,
+                                                facebook: fiche.facebook,
+                                                instagram: fiche.instagram,
+                                                dateDeVisite: fiche.dateDeVisite,
+                                                origineDeLaVisite: fiche.origineDeLaVisite,
+                                                conceptsProposés: fiche.conceptsProposés,
+                                                animationProposée: fiche.animationProposée,
+                                                pointsPourLaProchaineVisite: fiche.pointsPourLaProchaineVisite,
+                                                intéressésPar: fiche.intéressésPar,
 
-                                          colorationsAvecAmmoniaque: fiche.colorationsAvecAmmoniaque,
-                                          colorationsSansAmmoniaque: fiche.colorationsSansAmmoniaque,
-                                          colorationsVégétales: fiche.colorationsVégétales,
-                                          autresMarques: fiche.autresMarques,
+                                                colorationsAvecAmmoniaque: fiche.colorationsAvecAmmoniaque,
+                                                colorationsSansAmmoniaque: fiche.colorationsSansAmmoniaque,
+                                                colorationsVégétales: fiche.colorationsVégétales,
+                                                autresMarques: fiche.autresMarques,
 
-                                          autresPoints: fiche.autresPoints,
-                                          observations: fiche.observations,
-                                          statut: fiche.statut,
-                                          aRevoir: fiche.aRevoir, // ?? 
-                                          rdvObtenu: fiche.rdvObtenu,
-                                          rdvPrévuLe: fiche.rdvPrévuLe,
-                                          typeDeRdv: fiche.typeDeRdv,
-                                          typeDeDémonstration: fiche.typeDeDémonstration,
-                                          commande: fiche.commande,
-                                          savedAt: createdAt,
-                                      }}
-                                  />
-                              </li>
+                                                autresPoints: fiche.autresPoints,
+                                                observations: fiche.observations,
+                                                statut: fiche.statut,
+                                                aRevoir: fiche.aRevoir, // ?? 
+                                                rdvObtenu: fiche.rdvObtenu,
+                                                rdvPrévuLe: fiche.rdvPrévuLe,
+                                                typeDeRdv: fiche.typeDeRdv,
+                                                typeDeDémonstration: fiche.typeDeDémonstration,
+                                                commande: fiche.commande,
+                                                savedAt: createdAt,
+                                            }}
+                                            isFirstFiche={index === 0}
+                                        />
+                                    </li>
                                 ))}
                             </ul>
                         </div>
@@ -1016,7 +1036,7 @@ function FicheProspect({uid, onReturn}) {
                     <div className="modal-success">
                         <div className="content">
                             <p className="success">{message}</p>
-                            <button onClick={() => setIsModalOpen(false)}>Fermer</button>
+                            <button onClick={() => { onReturn() }}>Fermer</button>
                         </div> 
                     </div>
                 )}

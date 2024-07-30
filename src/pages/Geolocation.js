@@ -121,11 +121,7 @@ function Geolocation({ uid }) {
     const [departmentSuggestions, setDepartmentSuggestions] = useState([])
     const [showContinue, setShowContinue]               = useState(false)
     const [isButtonShow, setIsButtonShow]               = useState(false)
-    //const [logs, setLogs] = useState([]);
-
-    /*const addLog = (message) => {
-        setLogs((prevLogs) => [...prevLogs, message]);
-    };*/
+    const [lastStop, setLastStop] = useState(null)
 
     useEffect(() => {
         if (window.google && window.google.maps && window.google.maps.marker && window.google.maps.geometry) {
@@ -715,14 +711,10 @@ function Geolocation({ uid }) {
                     counter: increment(1)
                 })
 
-                const counterSnapshot = await getDoc(counterDoc)
-                const counterValue = counterSnapshot.data().counter
-
                 if (!salonSnapshot.exists()) {
 
                     await setDoc(salonRef, {
-                        salonId: `ID${counterValue}`,
-                        name: `${salon.name} ID${counterValue}`,
+                        name: `${salon.name}`,
                         address: salon.vicinity || salon.address,
                         city: city,
                         postalCode: postalCode || "",
@@ -735,8 +727,12 @@ function Geolocation({ uid }) {
                 } else {
                     const salonData = salonSnapshot.data()
         
-                    if (!salonData.status) { setIsRadioVisible(true) } 
-                    else { setStatus(salonData.status); setIsRadioVisible(false) }
+                    if (!salonData.status) { 
+                        setIsRadioVisible(true) 
+                    } 
+                    else { 
+                        setStatus(salonData.status); setIsRadioVisible(false) 
+                    }
                     setRecentlyAddedSalon(false)
                 }
             } catch (error) { console.error("Error computing distance:", error) }
@@ -744,11 +740,11 @@ function Geolocation({ uid }) {
     }
     const handleBack = async () => {
         if (recentlyAddedSalon && selectedSalon) {
-            const salonRef = doc(db, "salons", selectedSalon.place_id || selectedSalon.id);
-            await deleteDoc(salonRef);
+            const salonRef = doc(db, "salons", selectedSalon.place_id || selectedSalon.id)
+            await deleteDoc(salonRef)
         }
         if (!recentlyAddedSalon && recentlyAddedAction) {
-            const salonRef = doc(db, "salons", selectedSalon.place_id || selectedSalon.id);
+            const salonRef = doc(db, "salons", selectedSalon.place_id || selectedSalon.id)
             await updateDoc(salonRef, {
                 status: initialStatus,
                 historique: arrayRemove(recentlyAddedAction)
@@ -759,6 +755,7 @@ function Geolocation({ uid }) {
         setStatus(initialStatus)
         setSelectedSalon(null)
         setRecentlyAddedAction(null)
+        setIsModalTimeOpen(false)
     }
     const handleStatusChange = async (e) => {
         const selectedStatus = e.target.value;
@@ -796,19 +793,55 @@ function Geolocation({ uid }) {
         setIsCheckedNewSalon(selectedStatus === 'Prospect' || selectedStatus === 'Client') 
     }   
 
+    const handleCancel = async () => {
+        setIsModalTimeOpen(false);
+        setIsTracking(false);
+        currentArrivalTime = null;
+        setIsModalCounterOpen(false);
+        setTotalDistance(0);
+        setDistance(0);
+        setStatus('');
+        setIsChecked(false);
+        setIsCheckedNewSalon(false);
+        setIsRadioVisible(true);
+    
+        if (lastStop) {
+            setStops((prevStops) => {
+                const updatedStops = prevStops.filter(stop => stop.name !== lastStop.name);
+                
+                const routeDocRef = doc(db, 'feuillesDeRoute', currentRouteId);
+                updateDoc(routeDocRef, {
+                    stops: updatedStops,
+                }).catch((error) => console.error('Erreur lors de la mise à jour de la feuille de route :', error));
+    
+                return updatedStops;
+            });
+    
+            const salonId = selectedSalon.place_id || selectedSalon.id;
+            const salonRef = doc(db, 'salons', salonId);
+            await updateDoc(salonRef, {
+                historique: arrayRemove({
+                    date: new Date(),
+                    action: 'Nouvelle visite',
+                    userId: uid,
+                }),
+            });
+        }
+    };
+    
+    /*
     const handleStartTracking = async () => {    
-        //setIsTracking(true)
         const unit = totalDistance < 1000 ? 'm' : 'km'
         const getLatLng = (value) => typeof value === 'function' ? value() : value
         const salonLat = getLatLng(selectedSalon.geometry?.location?.lat) || getLatLng(selectedSalon.location?.lat)
         const salonLng = getLatLng(selectedSalon.geometry?.location?.lng) || getLatLng(selectedSalon.location?.lng)
         const postalCode = await getPostalCodeFromCoords(salonLat, salonLng)
 
-        handleArrivalTime();
+        handleArrivalTime()
         
         setStops((prevStops) => {
-                const updatedStops = [
-                    ...prevStops,
+            const updatedStops = [
+                ...prevStops,
                     {
                         name: selectedSalon.name,
                         salonId: `ID${selectedSalon.counterValue}`,
@@ -822,16 +855,16 @@ function Geolocation({ uid }) {
                         lat: salonLat,
                         lng: salonLng,
                     },
-                ];
+            ];
         
-                const routeDocRef = doc(db, "feuillesDeRoute", currentRouteId)
-                updateDoc(routeDocRef, {
+            const routeDocRef = doc(db, "feuillesDeRoute", currentRouteId)
+            updateDoc(routeDocRef, {
                     stops: updatedStops, 
                     isClotured: false,
                     isEnded: false,
-                }).catch((error) => console.error("Erreur lors de la mise à jour de la feuille de route :", error));
+            }).catch((error) => console.error("Erreur lors de la mise à jour de la feuille de route :", error));
         
-                return updatedStops;
+            return updatedStops
         })
 
         const salonId = selectedSalon.place_id || selectedSalon.id
@@ -855,7 +888,68 @@ function Geolocation({ uid }) {
         setIsChecked(false)
         setIsCheckedNewSalon(false)
         setIsRadioVisible(true)
-    } 
+    } */
+
+        const handleStartTracking = async () => {
+            const unit = totalDistance < 1000 ? 'm' : 'km';
+            const getLatLng = (value) => (typeof value === 'function' ? value() : value);
+            const salonLat = getLatLng(selectedSalon.geometry?.location?.lat) || getLatLng(selectedSalon.location?.lat);
+            const salonLng = getLatLng(selectedSalon.geometry?.location?.lng) || getLatLng(selectedSalon.location?.lng);
+            const postalCode = await getPostalCodeFromCoords(salonLat, salonLng);
+        
+            handleArrivalTime();
+        
+            const newStop = {
+                name: selectedSalon.name,
+                address: selectedSalon.vicinity || selectedSalon.address,
+                postalCode: postalCode,
+                distance: distance,
+                unitDistance: unit,
+                status: status,
+                arrivalTime: currentArrivalTime,
+                departureTime: currentDepartureTime,
+                lat: salonLat,
+                lng: salonLng,
+            };
+        
+            setLastStop(newStop);
+        
+            setStops((prevStops) => {
+                const updatedStops = [...prevStops, newStop];
+        
+                const routeDocRef = doc(db, 'feuillesDeRoute', currentRouteId);
+                updateDoc(routeDocRef, {
+                    stops: updatedStops,
+                    isClotured: false,
+                    isEnded: false,
+                }).catch((error) => console.error('Erreur lors de la mise à jour de la feuille de route :', error));
+        
+                return updatedStops;
+            });
+        
+            const salonId = selectedSalon.place_id || selectedSalon.id;
+            const logMessage = `Nouvelle visite`;
+            const salonRef = doc(db, 'salons', salonId);
+            await updateDoc(salonRef, {
+                historique: arrayUnion({
+                    date: new Date(),
+                    action: logMessage,
+                    userId: uid,
+                }),
+            });
+        
+            currentArrivalTime = null;
+            setIsTracking(false);
+            setIsModalCounterOpen(false);
+            setTotalDistance(0);
+            setDistance(0);
+            setIsModalTimeOpen(true);
+            setStatus('');
+            setIsChecked(false);
+            setIsCheckedNewSalon(false);
+            setIsRadioVisible(true);
+        };
+        
 
     let currentArrivalTime = null
     let currentDepartureTime = null
@@ -874,66 +968,7 @@ function Geolocation({ uid }) {
         const minutes = String(now.getMinutes()).padStart(2, '0');
         return `${hours}:${minutes}`;
     }
-/*
-    const handleStopTracking = async () => {
-        const unit = totalDistance < 1000 ? 'm' : 'km'
-        const getLatLng = (value) => typeof value === 'function' ? value() : value
-        const salonLat = getLatLng(selectedSalon.geometry?.location?.lat) || getLatLng(selectedSalon.location?.lat)
-        const salonLng = getLatLng(selectedSalon.geometry?.location?.lng) || getLatLng(selectedSalon.location?.lng)
-        const postalCode = await getPostalCodeFromCoords(salonLat, salonLng)
 
-        handleArrivalTime();
-        
-        setStops((prevStops) => {
-                const updatedStops = [
-                    ...prevStops,
-                    {
-                        name: selectedSalon.name,
-                        salonId: `ID${selectedSalon.counterValue}`,
-                        address: selectedSalon.vicinity || selectedSalon.address,
-                        postalCode: postalCode,
-                        distance: distance,
-                        unitDistance: unit,
-                        status: status,
-                        arrivalTime: currentArrivalTime,
-                        departureTime: currentDepartureTime,
-                        lat: salonLat,
-                        lng: salonLng,
-                    },
-                ];
-        
-                const routeDocRef = doc(db, "feuillesDeRoute", currentRouteId)
-                updateDoc(routeDocRef, {
-                    stops: updatedStops, 
-                    isClotured: false,
-                    isEnded: false,
-                }).catch((error) => console.error("Erreur lors de la mise à jour de la feuille de route :", error));
-        
-                return updatedStops;
-        })
-
-        const salonId = selectedSalon.place_id || selectedSalon.id
-        const logMessage = `Nouvelle visite`
-        const salonRef = doc(db, "salons", salonId)
-        await updateDoc(salonRef, {
-            historique: arrayUnion({
-                date: new Date(),
-                action: logMessage,
-                userId: uid,
-            }),
-        })
-        currentArrivalTime = null;
-        //currentDepartureTime = null;
-        setIsTracking(false)
-        setIsModalCounterOpen(false)
-        setTotalDistance(0)  
-        setDistance(0)
-        setIsModalTimeOpen(true)  
-        setStatus('')
-        setIsChecked(false)
-        setIsCheckedNewSalon(false)
-        setIsRadioVisible(true)
-    }*/
     const updateStopWithDepartureTime = async (departureTime) => {
         setStops((prevStops) => {
             const updatedStops = [...prevStops];
@@ -959,13 +994,21 @@ function Geolocation({ uid }) {
         
         const fullAddress = `${startAddress}, ${startCity}`
         const location = await geocodeAddress(fullAddress)
-        const lastStop = stops.length > 0 ? stops[stops.length - 1] : null 
+        const thisLastStop = stops.length > 0 ? stops[stops.length - 1] : null 
 
-        if (lastStop) {
+        if (thisLastStop) {
             computeAndSetHomeDistance(
-                { lat: lastStop.lat, lng: lastStop.lng }, 
+                { lat: thisLastStop.lat, lng: thisLastStop.lng }, 
                 { lat: location.lat, lng: location.lng }
         )} 
+    }
+    const handleCancelHome = async () => {
+        setIsHomeTracking(false);
+        setHomeDistance(0);
+        setIsModalHomeOpen(false);
+        setIsModalConfirmHomeOpen(false);
+        setIsRetourVisible(true);
+        setIsTerminerVisible(false);
     }
     const handleStartHomeTracking = async () => {
         setIsHomeTracking(false)
@@ -975,6 +1018,7 @@ function Geolocation({ uid }) {
             ...prevStops,
             {
                 name: startAddress + ", " + startCity ,
+                domicile: true,
                 address: startAddress + ", " + startCity, 
                 city: startCity,
                 distance: homeDistance,
@@ -989,23 +1033,7 @@ function Geolocation({ uid }) {
         const lastStop = stops.length > 0 ? stops[stops.length - 1] : null
         if (lastStop) {computeAndSetNewHomeDistance({ lat: lastStop.lat, lng: lastStop.lng }, { lat: newHomeBackAddressLat, lng: newHomeBackAddressLng })}
     }
-    /*
-    const handleStopHomeTracking = () => {
-        setIsHomeTracking(false);
-       
-        const unit = homeDistance < 1000 ? 'm' : 'km'
-        setStops((prevStops) => [
-            ...prevStops,
-            {
-                name: startAddress + ", " + startCity ,
-                address: startAddress + ", " + startCity, 
-                city: startCity,
-                distance: homeDistance,
-                unitDistance: unit,
-            },
-        ])
-        setIsModalHomeOpen(false)
-    }*/
+
     const handleStopNewHomeTracking = () => {
         setIsNewHomeTracking(false)  
         setIsModalBackOpen(false)
@@ -1035,6 +1063,8 @@ function Geolocation({ uid }) {
             setNewHomeBackAddressLat(location.lat)
             setNewHomeBackAddressLng(location.lng)
             setIsModalNewHomeOpen(true)
+            setIsModalBackOpen(false)
+            setIsModalConfirmHomeOpen(false)       
         } catch (error) {
             console.error("Erreur lors de la géolocalisation de la nouvelle adresse de retour :", error)
         }
@@ -1121,7 +1151,21 @@ function Geolocation({ uid }) {
     }
 
     const handleRemoveStop = (index) => {
-        setStops((prevStops) => prevStops.filter((_, i) => i !== index))
+        setStops((prevStops) => {
+            const updatedStops = prevStops.filter((_, i) => i !== index);
+            
+            const routeDocRef = doc(db, 'feuillesDeRoute', currentRouteId);
+            updateDoc(routeDocRef, {
+                stops: updatedStops,
+            }).catch((error) => console.error('Erreur lors de la mise à jour de la feuille de route :', error));
+    
+            return updatedStops;
+        })
+
+        if (isRetourVisible === false) {
+            setIsRetourVisible(true)
+            setIsTerminerVisible(false)
+        }
     }
     const formatDistance = (distance) => {
         if (distance < 1000) { return `${distance.toFixed(0)} m` }
@@ -1186,6 +1230,12 @@ function Geolocation({ uid }) {
             setIsParcoursStarted(true)
             setIsButtonShow(true)
             handleSalonsNearBy()
+
+            const stops = feuilleDuJour.stops
+
+            if (stops.length > 0 && stops[stops.length - 1].departureTime === null) {
+                setIsModalTimeOpen(true)
+            }
         }
         
     }
@@ -1313,9 +1363,11 @@ function Geolocation({ uid }) {
                         {isRetourVisible && (
                             <button style={{width: "95%"}} className="button-colored back-home-btn" onClick={() => { setIsModalConfirmHomeOpen(true); setIsRetourVisible(false); setIsTerminerVisible(true); }}>Retour à mon domicile</button>
                         )}
+
                         {isTerminerVisible && (
                             <button style={{width: "95%"}} className="button-colored xx" onClick={() => setIsModalEndingOpen(true)}>Terminer mon parcours</button>
-                        )}                       
+                        )}    
+
                         <div className="distance-results">
                             <p className="total"><strong>{formatDistance(getTotalStopDistances())}</strong> kilomètres parcourus aujourd'hui</p>
                             <div className="arrets">
@@ -1334,57 +1386,55 @@ function Geolocation({ uid }) {
                                     ))}
                                 </ul>
                             </div>
-                            <div>
-                            {/*logs.map((log, index) => (
-                                <p key={index}>{log}</p>
-                            ))*/}
-                            </div>
                         </div>
+
                         {isModalHomeOpen && (
-                            <ReactModal isOpen={isModalHomeOpen} onRequestClose={() => setIsModalHomeOpen(false)} contentLabel="Retour à mon domicile" className="modal">
-                                <div className="modal-content">
+                            <div className="modal">
+                                 <div className="modal-content">
                                     <h2 style={{marginBottom: "30px", fontSize: "20px"}}>Retour à mon domicile</h2>
                                     <p style={{marginBottom: "30px", color: "grey", fontStyle: "italic"}} className="city">{startAddress}, {startCity}</p>
                                     <p style={{marginBottom: "30px"}}>Distance <strong style={{background: "#3D9B9B", color: "white", padding: "5px 10px", borderRadius: "5px", marginLeft: "10px"}}>{formatDistance(homeDistance)}</strong></p>  
                                     {isHomeTracking && (
                                         <button className="button-colored" onClick={handleStartHomeTracking} >Arrivé au domicile</button>
                                     )}
+                                    <button className="cancel" onClick={handleCancelHome} >Annuler</button>
                                 </div>
-                            </ReactModal>
+                            </div>
                         )}
+
                         {isSalonsLoading && (
                             <div style={{display: "flex", justifyContent: "center"}}>
                                 {<img src={loader} alt='chargement en cours' />}
                             </div>
                         )}
+
                         {!isSalonsLoading && (
                             <div className="geoloc-results">
-                            <ul>
-                                {salons.map((salon, index) => (
-                                    <li key={index}>
-                                        <div>
-                                            <div className="distance">
-                                                <span>{salon.name} </span> 
-                                                <p>{formatDistance(salon.distance)}</p>
-                                            </div>
-                                            <p>{salon.vicinity || salon.address}</p> 
-                                            {salon.opening_hours ? (
-                                                salon.opening_hours.isOpen() ? (
-                                                    <p><span className="open">Ouvert</span> - Ferme à : {getNextCloseTime(salon.opening_hours)}</p>
+                                <ul>
+                                    {salons.map((salon, index) => (
+                                        <li key={index}>
+                                            <div>
+                                                <div className="distance">
+                                                    <span>{salon.name} </span> 
+                                                    <p>{formatDistance(salon.distance)}</p>
+                                                </div>
+                                                <p>{salon.vicinity || salon.address}</p> 
+                                                {salon.opening_hours ? (
+                                                    salon.opening_hours.isOpen() ? (
+                                                        <p><span className="open">Ouvert</span> - Ferme à : {getNextCloseTime(salon.opening_hours)}</p>
+                                                    ) : (
+                                                        <p><span className="close">Fermé</span> - Ouvre à : {getNextOpenTime(salon.opening_hours)}</p>
+                                                    )
                                                 ) : (
-                                                    <p><span className="close">Fermé</span> - Ouvre à : {getNextOpenTime(salon.opening_hours)}</p>
-                                                )
-                                            ) : (
-                                                <p>Heures d'ouverture inconnues</p>  
-                                            )}
-                                        </div>
-                                        <button className="button-colored btn" onClick={() => handleSelectSalon(salon)}><img src={startIcon} alt="choisir ce salon"/></button>
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
+                                                    <p>Heures d'ouverture inconnues</p>  
+                                                )}
+                                            </div>
+                                            <button className="button-colored btn" onClick={() => handleSelectSalon(salon)}><img src={startIcon} alt="choisir ce salon"/></button>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
                         )}
-                        
                     </div>
                 )}
 
@@ -1412,161 +1462,169 @@ function Geolocation({ uid }) {
                                 <button className="cancel"  onClick={handleBack}>Annuler</button>
                                 </>
                             )} 
-                            {/*isTracking ? (
-                                <div>
-                                    <p style={{marginBottom: "30px"}} className="total">Distance <strong style={{background: "#3D9B9B", color: "white", padding: "5px 10px", borderRadius: "5px", marginLeft: "10px"}}>{formatDistance(distance)}</strong></p>
-                                    <button className="button-colored" onClick={handleStopTracking}>Arrivé à destination</button>
-                                    <button className="cancel" onClick={handleBack}>Annuler</button>
-                                </div>
-                            ) : (
-                                <>
-                                <button style={{marginBottom: "20px"}} className="button-colored" onClick={handleStartTracking} disabled={!isChecked}>Démarrer le compteur de km</button>
-                                <button className="cancel"  onClick={handleBack}>Annuler</button>
-                                </>
-                            )*/} 
                         </div>
                     </div>
                 )}
 
-                <ReactModal isOpen={isModalSalonOpen} onRequestClose={() => setIsModalSalonOpen(false)} contentLabel="Ajouter un nouveau salon" className="modal" >    
-                    <div className="new-salon modal-content">
-                        <h2>Ajouter un nouveau salon</h2>
-                        <input type="text" placeholder="Nom du salon" value={newSalonName} onChange={(e) => setNewSalonName(e.target.value)} /><br></br>
-                        <input type="text" placeholder="Adresse du salon" value={newSalonAddress} onChange={(e) => { setNewSalonAddress(e.target.value); fetchAddressSuggestions(e.target.value, setAddressSuggestions); }} /><br></br>
-                        {addressSuggestions.length > 0 && (
-                            <ul className="city-suggestions" style={{ width: "100%" }}>
-                                {addressSuggestions.map((suggestion, index) => (
-                                    <li key={index} onClick={() => handleAddressSelectWithDepartment(suggestion.place_id, setNewSalonAddress, setNewSalonCity, setNewSalonDepartment, setAddressSuggestions)}>
-                                        {suggestion.description}
-                                    </li>
-                                ))}
-                            </ul>
-                        )}
-                        <input type="text" placeholder="Ville du salon" value={newSalonCity}  onChange={(e) => { setNewSalonCity(e.target.value); fetchCitySuggestions(e.target.value, setCitySuggestions); }} /><br></br>
-                        {citySuggestions.length > 0 && (
-                            <ul className="city-suggestions">
-                                {citySuggestions.map((suggestion, index) => (
-                                    <li key={index} onClick={() => { setNewSalonCity(suggestion); setCitySuggestions([]); }}>
-                                        {suggestion}
-                                    </li>
-                                ))}
-                            </ul>
-                        )}
-                       <input type="text" placeholder="Département du salon" value={newSalonDepartment} onChange={(e) => { setNewSalonDepartment(e.target.value); fetchDepartmentSuggestions(e.target.value, setDepartmentSuggestions); }} /><br />
-                        {departmentSuggestions.length > 0 && (
-                            <ul className="department-suggestions">
-                                {departmentSuggestions.map((suggestion, index) => (
-                                    <li key={index} onClick={() => { setNewSalonDepartment(suggestion); setDepartmentSuggestions([]); }}>
-                                        {suggestion}
-                                    </li>
-                                ))}
-                            </ul>
-                        )}
-                        <div style={{marginBottom: "20px"}} className="status"> 
-                            <input className="checkbox" type="checkbox" id="Prospect" name="status" value="Prospect" checked={status === "Prospect"} onChange={handleStatusChange2} />
-                            <label htmlFor="Prospect">Prospect</label>
+                {isModalSalonOpen && (
+                    <div className="modal">
+                        <div className="new-salon modal-content">
+                            <h2>Ajouter un nouveau salon</h2>
 
-                            <input className="checkbox" type="checkbox" id="Client" name="status" value="Client" checked={status === "Client"} onChange={handleStatusChange2} />
-                            <label htmlFor="Client">Client</label>
+                            <input type="text" placeholder="Nom du salon" value={newSalonName} onChange={(e) => setNewSalonName(e.target.value)} /><br></br>
+                            <input type="text" placeholder="Adresse du salon" value={newSalonAddress} onChange={(e) => { setNewSalonAddress(e.target.value); fetchAddressSuggestions(e.target.value, setAddressSuggestions); }} /><br></br>
+                            {addressSuggestions.length > 0 && (
+                                <ul className="city-suggestions" style={{ width: "100%" }}>
+                                    {addressSuggestions.map((suggestion, index) => (
+                                        <li key={index} onClick={() => handleAddressSelectWithDepartment(suggestion.place_id, setNewSalonAddress, setNewSalonCity, setNewSalonDepartment, setAddressSuggestions)}>
+                                            {suggestion.description}
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
+
+                            <input type="text" placeholder="Ville du salon" value={newSalonCity}  onChange={(e) => { setNewSalonCity(e.target.value); fetchCitySuggestions(e.target.value, setCitySuggestions); }} /><br></br>
+                            {citySuggestions.length > 0 && (
+                                <ul className="city-suggestions">
+                                    {citySuggestions.map((suggestion, index) => (
+                                        <li key={index} onClick={() => { setNewSalonCity(suggestion); setCitySuggestions([]); }}>
+                                            {suggestion}
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
+
+                            <input type="text" placeholder="Département du salon" value={newSalonDepartment} onChange={(e) => { setNewSalonDepartment(e.target.value); fetchDepartmentSuggestions(e.target.value, setDepartmentSuggestions); }} /><br />
+                            {departmentSuggestions.length > 0 && (
+                                <ul className="department-suggestions">
+                                    {departmentSuggestions.map((suggestion, index) => (
+                                        <li key={index} onClick={() => { setNewSalonDepartment(suggestion); setDepartmentSuggestions([]); }}>
+                                            {suggestion}
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
+
+                            <div style={{marginBottom: "20px"}} className="status"> 
+                                <input className="checkbox" type="checkbox" id="Prospect" name="status" value="Prospect" checked={status === "Prospect"} onChange={handleStatusChange2} />
+                                <label htmlFor="Prospect">Prospect</label>
+
+                                <input className="checkbox" type="checkbox" id="Client" name="status" value="Client" checked={status === "Client"} onChange={handleStatusChange2} />
+                                <label htmlFor="Client">Client</label>
+                            </div>
+                            {errorMessage && <p className="error-message">{errorMessage}</p>}
+                            <button onClick={handleAddSalon} disabled={!isCheckedNewSalon} className="button-colored">Ajouter</button>
+                            <button style={{cursor: "pointer"}} onClick={() => setIsModalSalonOpen(false)} className="btn-cancel">Annuler</button>  
                         </div>
-                        {errorMessage && <p className="error-message">{errorMessage}</p>}
-                        <button onClick={handleAddSalon} disabled={!isCheckedNewSalon} className="button-colored">Ajouter</button>
-                        <button style={{cursor: "pointer"}} onClick={() => setIsModalSalonOpen(false)} className="btn-cancel">Annuler</button>  
                     </div>
-                </ReactModal>
+                )}
 
-               {isModalTimeOpen && (
+                {isModalTimeOpen && (
                     <div className="modal" >    
                         <div className="modal-content">
                             <h2 style={{marginBottom: "20px", fontSize: "20px"}}>Fin de visite</h2>  
                             <p style={{marginBottom: "20px"}}>Cliquer sur ce bouton lorsque vous avez terminée votre visite</p>
                             <button onClick={handleDepartureTime} className="button-colored">Visite terminée</button>
+                            <button className="cancel" onClick={handleCancel} >Annuler</button>
                         </div>
                     </div>
-               )}
+                )}
 
-                <ReactModal isOpen={isModalConfirmHomeOpen} onRequestClose={() => setIsModalConfirmHomeOpen(false)} contentLabel="Confirmer l'adresse de retour" className="modal">
-                    <div className="modal-content">
-                        <h2 style={{marginBottom: "20px", fontSize: "20px"}}>Confirmer l'adresse de retour</h2>
-                        <p style={{marginBottom: "20px"}}>L'adresse de retour est-elle la même que l'adresse de départ ?</p>
-                        <p style={{marginBottom: "30px", color: "grey", fontStyle: "italic"}} className="city">{startAddress}, {startCity}</p>
-                        <div className="mini-buttons">
-                            <button onClick={handleYesHome}>Oui</button>
-                            <button onClick={() => setIsModalBackOpen(true)}>Non</button>
+                {isModalConfirmHomeOpen && (
+                    <div className="modal">
+                        <div className="modal-content">
+                            <h2 style={{marginBottom: "20px", fontSize: "20px"}}>Confirmer l'adresse de retour</h2>
+                            <p style={{marginBottom: "20px"}}>L'adresse de retour est-elle la même que l'adresse de départ ?</p>
+                            <p style={{marginBottom: "30px", color: "grey", fontStyle: "italic"}} className="city">{startAddress}, {startCity}</p>
+                            <div className="mini-buttons">
+                                <button onClick={handleYesHome}>Oui</button>
+                                <button onClick={() => setIsModalBackOpen(true)}>Non</button>
+                            </div>
+                            <button className="cancel" onClick={() =>{ setIsModalConfirmHomeOpen(false); setIsRetourVisible(true); setIsTerminerVisible(false); }}>Annuler</button> 
                         </div>
-                        <button className="cancel" onClick={() =>{ setIsModalConfirmHomeOpen(false); setIsRetourVisible(true); setIsTerminerVisible(false); }}>Annuler</button> 
                     </div>
-                </ReactModal>
+                )}
 
-                <ReactModal isOpen={isModalBackOpen} onRequestClose={() => setIsModalBackOpen(false)} contentLabel="Entrer une nouvelle adresse de retour" className="modal">
-                    <div className="modal-content">
-                        <h2 style={{ marginBottom: "30px", fontSize: "20px" }}>Entrer une nouvelle adresse de retour</h2>
-                        {userAdresses.length > 0 && (
-                            <select onChange={(e) => {
-                                const selectedAddress = userAdresses.find(address => address.address === e.target.value);
-                                if (selectedAddress) {
-                                    setNewHomeBackAddress(selectedAddress.address);
-                                    setNewHomeBackCity(selectedAddress.city);
-                                }
-                            }}>
-                                <option value="">Sélectionner une adresse enregistrée</option>
-                                {userAdresses.map((address, index) => (
-                                    <option key={index} value={address.address}>
-                                        {address.address}, {address.city}
-                                    </option>
-                                ))}
-                            </select>
-                        )}
-                        <input type="text" placeholder="Nouvelle adresse de retour" value={newHomeBackAddress} onChange={(e) => { setNewHomeBackAddress(e.target.value); fetchAddressSuggestions(e.target.value, setAddressSuggestions); }} />
-                        {addressSuggestions.length > 0 && (
-                            <ul className="city-suggestions" style={{ width: "100%" }}>
-                                {addressSuggestions.map((suggestion, index) => (
-                                    <li key={index} onClick={() => handleAddressSelect(suggestion.place_id, setNewHomeBackAddress, setNewHomeBackCity, setAddressSuggestions)}>
-                                        {suggestion.description}
-                                    </li>
-                                ))}
-                            </ul>
-                        )}
-                        <input type="text" placeholder="Nouvelle ville de retour" value={newHomeBackCity} onChange={(e) => { setNewHomeBackCity(e.target.value); fetchCitySuggestions(e.target.value, setCitySuggestions); }} />
-                        {citySuggestions.length > 0 && (
-                            <ul className="city-suggestions">
-                                {citySuggestions.map((suggestion, index) => (
-                                    <li key={index} onClick={() => { setNewHomeBackCity(suggestion); setCitySuggestions([]); }}>
-                                        {suggestion}
-                                    </li>
-                                ))}
-                            </ul>
-                        )}
-                        {error && <p className="error-message">{error}</p>}
-                        <button className="button-colored" onClick={handleNewHomeBackAddress}>Valider</button>
-                        <button className="cancel" onClick={() => setIsModalBackOpen(false)}>Annuler</button>
+                {isModalBackOpen && (
+                    <div className="modal">
+                        <div className="modal-content">
+                            <h2 style={{ marginBottom: "30px", fontSize: "20px" }}>Entrer une nouvelle adresse de retour</h2>
+
+                            {userAdresses.length > 0 && (
+                                <select onChange={(e) => {
+                                    const selectedAddress = userAdresses.find(address => address.address === e.target.value);
+                                    if (selectedAddress) {
+                                        setNewHomeBackAddress(selectedAddress.address);
+                                        setNewHomeBackCity(selectedAddress.city);
+                                    }
+                                }}>
+                                    <option value="">Sélectionner une adresse enregistrée</option>
+                                    {userAdresses.map((address, index) => (
+                                        <option key={index} value={address.address}>
+                                            {address.address}, {address.city}
+                                        </option>
+                                    ))}
+                                </select>
+                            )}
+
+                            <input type="text" placeholder="Nouvelle adresse de retour" value={newHomeBackAddress} onChange={(e) => { setNewHomeBackAddress(e.target.value); fetchAddressSuggestions(e.target.value, setAddressSuggestions); }} />
+                            {addressSuggestions.length > 0 && (
+                                <ul className="city-suggestions" style={{ width: "100%" }}>
+                                    {addressSuggestions.map((suggestion, index) => (
+                                        <li key={index} onClick={() => handleAddressSelect(suggestion.place_id, setNewHomeBackAddress, setNewHomeBackCity, setAddressSuggestions)}>
+                                            {suggestion.description}
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
+
+                            <input type="text" placeholder="Nouvelle ville de retour" value={newHomeBackCity} onChange={(e) => { setNewHomeBackCity(e.target.value); fetchCitySuggestions(e.target.value, setCitySuggestions); }} />
+                            {citySuggestions.length > 0 && (
+                                <ul className="city-suggestions">
+                                    {citySuggestions.map((suggestion, index) => (
+                                        <li key={index} onClick={() => { setNewHomeBackCity(suggestion); setCitySuggestions([]); }}>
+                                            {suggestion}
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
+
+                            {error && <p className="error-message">{error}</p>}
+                            <button className="button-colored" onClick={handleNewHomeBackAddress}>Valider</button>
+                            <button className="cancel" onClick={() => setIsModalBackOpen(false)}>Annuler</button>
+                        </div>
                     </div>
-                </ReactModal>
+                )}
 
-                <ReactModal isOpen={isModalNewHomeOpen} onRequestClose={() => setIsModalNewHomeOpen(false)} contentLabel="Retour à mon domicile (nouveau)" className="modal">
-                    <div className="modal-content">
-                                    <h2 style={{marginBottom: "20px"}}>Retour à mon domicile</h2>
-                                    <p style={{marginBottom: "30px"}} className="city">{newHomeBackAddress}, {newHomeBackCity}</p>
-                                    {isNewHomeTracking ? (
-                                        <div>
-                                            <p style={{marginBottom: "30px"}}>Distance <strong style={{background: "#3D9B9B", color: "white", padding: "5px 10px", borderRadius: "5px", marginLeft: "10px"}}>{formatDistance(newHomeDistance)}</strong></p>  
-                                            <button className="button-colored" onClick={handleStopNewHomeTracking}>Arrivé à destination</button>
-                                        </div>
-                                    ) : (
-                                        <button className="button-colored" onClick={handleStartNewHomeTracking} >Démarrer le compteur de km</button>
-                                    )}
+                {isModalNewHomeOpen && (
+                    <div className="modal">
+                        <div className="modal-content">
+                            <h2 style={{marginBottom: "20px"}}>Retour à mon domicile</h2>
+                            <p style={{marginBottom: "30px"}} className="city">{newHomeBackAddress}, {newHomeBackCity}</p>
+                            {isNewHomeTracking ? (
+                                <div>
+                                    <p style={{marginBottom: "30px"}}>Distance <strong style={{background: "#3D9B9B", color: "white", padding: "5px 10px", borderRadius: "5px", marginLeft: "10px"}}>{formatDistance(newHomeDistance)}</strong></p>  
+                                    <button className="button-colored" onClick={handleStopNewHomeTracking}>Arrivé à destination</button>
                                 </div>
-                </ReactModal>
-                
-                <ReactModal isOpen={isModalEndingOpen} onRequestClose={() => setIsModalEndingOpen(false)} contentLabel="Terminer mon parcours" className="modal" >   
-                    <div className="modal-content">
-                        <p style={{marginBottom: "20px"}}>Êtes-vous sûr de vouloir terminer votre parcours ?</p>
-                        <div className="mini-buttons">
-                            <button onClick={endParcours}>Oui</button> 
-                            <button onClick={() => setIsModalEndingOpen(false)}>Non</button>
+                            ) : (
+                                <button className="button-colored" onClick={handleStartNewHomeTracking} >Démarrer le compteur de km</button>
+                            )}
+                            <button className="cancel" onClick={() => { setIsModalNewHomeOpen(false); setIsModalBackOpen(false)}} >Annuler</button>
                         </div>
-                    </div> 
-                </ReactModal>
+                    </div>
+                )}
+                
+                {isModalEndingOpen && (
+                    <div className="modal">
+                        <div className="modal-content">
+                            <p style={{marginBottom: "20px"}}>Êtes-vous sûr de vouloir terminer votre parcours ?</p>
+                            <div className="mini-buttons">
+                                <button onClick={endParcours}>Oui</button> 
+                                <button onClick={() => setIsModalEndingOpen(false)}>Non</button>
+                            </div>
+                        </div>
+                    </div>
+                )}
 
                 {isParcoursEnded && (
                     <div className="congrats">

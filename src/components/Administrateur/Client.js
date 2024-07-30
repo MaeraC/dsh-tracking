@@ -100,7 +100,8 @@ function Client({ onReturn, uid }) {
                     setIsAllFichesVisible(true)
                     setFormVisible(false)
                     setThisYearOpen(false)
-                } else {
+                } 
+                else {
                     console.error("Document de salon non trouvé.")
                 }
             } catch (error) {
@@ -108,6 +109,7 @@ function Client({ onReturn, uid }) {
             }
         }
     }
+
     const handleFilterByDate = async () => {
         try {
             const salonRef = doc(db, "salons", salonInfo.id)
@@ -118,6 +120,7 @@ function Client({ onReturn, uid }) {
                 const allFiches = salonData.suiviClient || []
                 const start = new Date(startDate)
                 const end = new Date(endDate)
+                end.setHours(23, 59, 59, 999)
     
                 const filteredFiches = allFiches.filter((fiche) => {
                     const ficheDate = fiche.createdAt instanceof Date ? fiche.createdAt : fiche.createdAt.toDate()
@@ -136,6 +139,7 @@ function Client({ onReturn, uid }) {
             console.error("Erreur lors de la récupération des fiches : ", error)
         }
     }
+
     const handleViewFichesCurrentYear = async () => {
         try {
             const salonRef = doc(db, "salons", salonInfo.id)
@@ -165,21 +169,6 @@ function Client({ onReturn, uid }) {
         }
     }
 
-    const formatDate = (date) => {
-        if (!date || !date.seconds) {
-            return 'Date non disponible'
-        }
-        const days = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi']
-        const months = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre']
-
-        const d = new Date(date.seconds * 1000)
-        const dayName = days[d.getUTCDay()]
-        const day = d.getUTCDate()
-        const month = months[d.getUTCMonth()]
-        const year = d.getUTCFullYear()
-
-        return `${dayName} ${day} ${month} ${year}`
-    }
     const formatDate2 = (dateStr) => {
         const date = new Date(dateStr)
         const day = String(date.getDate()).padStart(2, '0')
@@ -188,6 +177,7 @@ function Client({ onReturn, uid }) {
 
         return `${day}/${month}/${year}`
     }
+    
     const generatePDF = (input, filename) => {
         if (!input) {
             console.error('Erreur : référence à l\'élément non valide')
@@ -319,7 +309,7 @@ function Client({ onReturn, uid }) {
                     {suggestions.map((salon) => (
                         <div key={salon.id} onClick={() => handleSelectSuggestion(salon)}
                             style={{ cursor: "pointer", padding: "5px", borderBottom: "1px solid #ccc" }} >
-                            {salon.name}
+                            {salon.name + ", " + salon.city}
                         </div>
                     ))}
                 </div>
@@ -354,131 +344,140 @@ function Client({ onReturn, uid }) {
                             <button style={{margin: "20px", marginLeft: "40px", padding: "10px 30px", marginBottom: "10px"}} className="button-colored" onClick={() => {setFormVisible(true); setIsAllFichesVisible(false)}} >Retour</button>
                             <button style={{ padding: "10px 30px" }} onClick={downloadPDF} className='button-colored'>Télécharger les fiches clients</button>
                             <div ref={pageRef} style={{paddingTop: "20px", fontSize: "16px"}}>
-                            <h4 style={{textAlign: "center", fontSize: "20px", margin: "20px"}}>Fiches de suivi client du salon {selectedSalon}</h4>  
+                            <h4 style={{textAlign: "center", fontSize: "18px", margin: "20px"}}>Fiches de suivi client du salon {selectedSalon}</h4>  
                             <ul> 
                                 {allFiches.map((fiche, index) => ( 
-                                      <li key={index}>
-                                      <div className="info-client" style={{paddingLeft: "100px"}}>Enregistré le : <strong>{formatDate(fiche.createdAt)}</strong>, par <strong>{usersMap[fiche.userId].firstname} {usersMap[fiche.userId].lastname}</strong></div>
-                                      
-                                      <ResultsFicheClient 
-                                          data={{ 
-                                              name: selectedSalon,
-                                              adresse: salonInfo.address,
-                                              city: salonInfo.city, 
-                                              téléphoneDuSalon: salonInfo.phoneNumber,
-                                              nomDuResponsable: fiche.nomDuResponsable,
-                                              EmailDuResponsable: fiche.EmailDuResponsable, // ??
-                                              portableDuResponsable: fiche.portableDuResponsable, // ??
-                                              responsablePrésent: fiche.responsablePrésent,
-                                              marquesEnPlace: fiche.marquesEnPlace,
-                                              équipe: fiche.équipe,
-                                              clientEnContrat: fiche.clientEnContrat,
-                                              typeDeContrat: fiche.typeDeContrat,
-                                              tarifSpécifique: fiche.tarifSpécifique,
-                                              dateDeVisite: fiche.dateDeVisite,
-                                              responsablePrésente: fiche.responsablePrésente,
-                                              produitsProposés: fiche.produitsProposés, // ??
-                                              animationProposée: fiche.animationProposée,
-                                              pointsPourLaProchaineVisite: fiche.pointsPourLaProchaineVisite,
-                                              priseDeCommande: fiche.priseDeCommande,
-                                              gammesCommandées: fiche.gammesCommandées,
-                                              autresPointsAbordés: fiche.autresPointsAbordés, // ?? 
-                                              observations: fiche.observations,
-                                          }}
-                                      />
+                                    <li key={index}>
+                                        {index === 0 && (
+                                            <div className="info-client" style={{paddingLeft: "50px", color: "grey", marginBottom: "10px", fontStyle: "italic"}}><strong>VRP</strong> : {usersMap[fiche.userId].firstname} {usersMap[fiche.userId].lastname}</div>
+                                        )}
+                                        
+                                        <ResultsFicheClient 
+                                            data={{ 
+                                                name: selectedSalon,
+                                                adresse: salonInfo.address,
+                                                city: salonInfo.city, 
+                                                téléphoneDuSalon: salonInfo.phoneNumber,
+                                                nomDuResponsable: fiche.nomDuResponsable,
+                                                EmailDuResponsable: fiche.EmailDuResponsable, // ??
+                                                portableDuResponsable: fiche.portableDuResponsable, // ??
+                                                responsablePrésent: fiche.responsablePrésent,
+                                                marquesEnPlace: fiche.marquesEnPlace,
+                                                équipe: fiche.équipe,
+                                                clientEnContrat: fiche.clientEnContrat,
+                                                typeDeContrat: fiche.typeDeContrat,
+                                                tarifSpécifique: fiche.tarifSpécifique,
+                                                dateDeVisite: fiche.dateDeVisite,
+                                                responsablePrésente: fiche.responsablePrésente,
+                                                produitsProposés: fiche.produitsProposés, // ??
+                                                animationProposée: fiche.animationProposée,
+                                                pointsPourLaProchaineVisite: fiche.pointsPourLaProchaineVisite,
+                                                priseDeCommande: fiche.priseDeCommande,
+                                                gammesCommandées: fiche.gammesCommandées,
+                                                autresPointsAbordés: fiche.autresPointsAbordés, // ?? 
+                                                observations: fiche.observations,
+                                            }}
+                                            isFirstFiche={index === 0}
+                                        />
                                   </li>
-                            
                                 ))}
                             </ul>
                             </div>
                         </div> 
-                    )}
+                )}
 
-                    {salonInfo && isViewFilteredFichesOpen  && (
+                {salonInfo && isViewFilteredFichesOpen  && (
                         <div className="all-fiches-client">
                             <button  style={{margin: "20px", marginLeft: "40px", padding: "10px 30px"}} className="button-colored" onClick={() => {setFormVisible(true); setIsViewFilteredFichesOpen(false)}} >Retour</button>
                             <button style={{ padding: "10px 30px" }} onClick={downloadPDF2} className='button-colored'>Télécharger les fiches clients</button>
                             <div ref={pageRef2} style={{paddingTop: "20px", fontSize: "16px"}}>
-                               <h3  style={{textAlign: "center", fontSize: "20px", marginBottom: "20px"}}>Fiches de suivi client de{selectedSalon} enregistrées entre le {formatDate2(startDate)} et le {formatDate2(endDate)}</h3>
+                               <h3  style={{textAlign: "center", fontSize: "18px", marginBottom: "20px"}}>Fiches de suivi client de {selectedSalon} enregistrées entre le {formatDate2(startDate)} et le {formatDate2(endDate)}</h3>
                                <ul> 
                                 {filteredFiches.map((fiche, index) => (
                                     <li key={index}>
-                                    <div style={{paddingLeft: "100px"}}>Enregistré le : <strong>{formatDate(fiche.createdAt)}</strong>, par <strong>{usersMap[fiche.userId].firstname} {usersMap[fiche.userId].lastname}</strong></div>
-                                    
-                                    <ResultsFicheClient 
-                                        data={{ 
-                                            name: selectedSalon,
-                                            adresse: salonInfo.address,
-                                            city: salonInfo.city, 
-                                            téléphoneDuSalon: salonInfo.phoneNumber,
-                                            nomDuResponsable: fiche.nomDuResponsable,
-                                            EmailDuResponsable: fiche.EmailDuResponsable, // ??
-                                            portableDuResponsable: fiche.portableDuResponsable, // ??
-                                            marquesEnPlace: fiche.marquesEnPlace,
-                                            équipe: fiche.équipe,
-                                            clientEnContrat: fiche.clientEnContrat,
-                                            typeDeContrat: fiche.typeDeContrat,
-                                            tarifSpécifique: fiche.tarifSpécifique,
-                                            dateDeVisite: fiche.dateDeVisite,
-                                            responsablePrésente: fiche.responsablePrésente,
-                                            produitsProposés: fiche.produitsProposés, // ??
-                                            animationProposée: fiche.animationProposée,
-                                            pointsPourLaProchaineVisite: fiche.pointsPourLaProchaineVisite,
-                                            priseDeCommande: fiche.priseDeCommande,
-                                            gammesCommandées: fiche.gammesCommandées,
-                                            autresPointsAbordés: fiche.autresPointsAbordés, // ?? 
-                                            observations: fiche.observations,
-                                        }}
-                                    />
+
+                                        {index === 0 && (
+                                            <div className="info-client" style={{paddingLeft: "50px", color: "grey", marginBottom: "10px", fontStyle: "italic"}}><strong>VRP</strong> : {usersMap[fiche.userId].firstname} {usersMap[fiche.userId].lastname}</div>
+                                        )}
+
+                                        <ResultsFicheClient 
+                                            data={{ 
+                                                name: selectedSalon,
+                                                adresse: salonInfo.address,
+                                                city: salonInfo.city, 
+                                                téléphoneDuSalon: salonInfo.phoneNumber,
+                                                nomDuResponsable: fiche.nomDuResponsable,
+                                                EmailDuResponsable: fiche.EmailDuResponsable, // ??
+                                                portableDuResponsable: fiche.portableDuResponsable, // ??
+                                                marquesEnPlace: fiche.marquesEnPlace,
+                                                équipe: fiche.équipe,
+                                                clientEnContrat: fiche.clientEnContrat,
+                                                typeDeContrat: fiche.typeDeContrat,
+                                                tarifSpécifique: fiche.tarifSpécifique,
+                                                dateDeVisite: fiche.dateDeVisite,
+                                                responsablePrésente: fiche.responsablePrésente,
+                                                produitsProposés: fiche.produitsProposés, // ??
+                                                animationProposée: fiche.animationProposée,
+                                                pointsPourLaProchaineVisite: fiche.pointsPourLaProchaineVisite,
+                                                priseDeCommande: fiche.priseDeCommande,
+                                                gammesCommandées: fiche.gammesCommandées,
+                                                autresPointsAbordés: fiche.autresPointsAbordés, // ?? 
+                                                observations: fiche.observations,
+                                            }}
+                                            isFirstFiche={index === 0}
+                                        />
                                 </li>
                                 ))}
                                 </ul>
                             </div>
                         </div>
-                    )}
+                )}
 
-                    {salonInfo && thisYearOpen  && (
+                {salonInfo && thisYearOpen  && (
                         <div className="all-fiches-client"> 
                             <button  style={{margin: "20px", marginLeft: "40px", padding: "10px 30px"}} className="button-colored" onClick={() => {setFormVisible(true); setIsViewFilteredFichesOpen(false); setThisYearOpen(false)}} >Retour</button>
                             <button style={{ padding: "10px 30px" }} onClick={downloadPDF3} className='button-colored'>Télécharger les fiches client de l'année en cours</button>
                             <div ref={pageRef3} style={{paddingTop: "20px", fontSize: "16px"}}>
-                               <h3  style={{textAlign: "center", fontSize: "20px", marginBottom: "20px"}}>Fiches de suivi client du salon {selectedSalon} de l'année {currentYear} </h3>
+                               <h3  style={{textAlign: "center", fontSize: "18px", marginBottom: "20px"}}>Fiches de suivi client du salon {selectedSalon} de l'année {currentYear} </h3>
                                <ul>
                                 {fichesThisYear.map((fiche, index) => (
                                    <li key={index}>
-                                   <div style={{paddingLeft: "100px"}}>Enregistré le : <strong>{formatDate(fiche.createdAt)}</strong>, par <strong>{usersMap[fiche.userId].firstname} {usersMap[fiche.userId].lastname}</strong></div>
-                                   
-                                   <ResultsFicheClient 
-                                       data={{ 
-                                           name: selectedSalon,
-                                           adresse: salonInfo.address,
-                                           city: salonInfo.city, 
-                                           téléphoneDuSalon: salonInfo.phoneNumber,
-                                           nomDuResponsable: fiche.nomDuResponsable,
-                                           EmailDuResponsable: fiche.EmailDuResponsable, // ??
-                                           portableDuResponsable: fiche.portableDuResponsable, // ??
-                                           marquesEnPlace: fiche.marquesEnPlace,
-                                           équipe: fiche.équipe,
-                                           clientEnContrat: fiche.clientEnContrat,
-                                           typeDeContrat: fiche.typeDeContrat,
-                                           tarifSpécifique: fiche.tarifSpécifique,
-                                           dateDeVisite: fiche.dateDeVisite,
-                                           responsablePrésente: fiche.responsablePrésente,
-                                           produitsProposés: fiche.produitsProposés, // ??
-                                           animationProposée: fiche.animationProposée,
-                                           pointsPourLaProchaineVisite: fiche.pointsPourLaProchaineVisite,
-                                           priseDeCommande: fiche.priseDeCommande,
-                                           gammesCommandées: fiche.gammesCommandées,
-                                           autresPointsAbordés: fiche.autresPointsAbordés, // ?? 
-                                           observations: fiche.observations,
-                                       }}
-                                   />
-                               </li>
+                                        {index === 0 && (
+                                            <div className="info-client" style={{paddingLeft: "50px", color: "grey", marginBottom: "10px", fontStyle: "italic"}}><strong>VRP</strong> : {usersMap[fiche.userId].firstname} {usersMap[fiche.userId].lastname}</div>
+                                        )}
+
+                                        <ResultsFicheClient 
+                                            data={{ 
+                                                name: selectedSalon,
+                                                adresse: salonInfo.address,
+                                                city: salonInfo.city, 
+                                                téléphoneDuSalon: salonInfo.phoneNumber,
+                                                nomDuResponsable: fiche.nomDuResponsable,
+                                                EmailDuResponsable: fiche.EmailDuResponsable, // ??
+                                                portableDuResponsable: fiche.portableDuResponsable, // ??
+                                                marquesEnPlace: fiche.marquesEnPlace,
+                                                équipe: fiche.équipe,
+                                                clientEnContrat: fiche.clientEnContrat,
+                                                typeDeContrat: fiche.typeDeContrat,
+                                                tarifSpécifique: fiche.tarifSpécifique,
+                                                dateDeVisite: fiche.dateDeVisite,
+                                                responsablePrésente: fiche.responsablePrésente,
+                                                produitsProposés: fiche.produitsProposés, // ??
+                                                animationProposée: fiche.animationProposée,
+                                                pointsPourLaProchaineVisite: fiche.pointsPourLaProchaineVisite,
+                                                priseDeCommande: fiche.priseDeCommande,
+                                                gammesCommandées: fiche.gammesCommandées,
+                                                autresPointsAbordés: fiche.autresPointsAbordés, // ?? 
+                                                observations: fiche.observations,
+                                            }}
+                                            isFirstFiche={index === 0}
+                                        />
+                                    </li>
                                 ))}
                             </ul>
                             </div>
                         </div>
-                    )}
+                )}
             </div>
         </div>
     )

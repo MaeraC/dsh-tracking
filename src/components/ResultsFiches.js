@@ -1,6 +1,6 @@
     
 
-function ResultsFiches({ data }) { 
+function ResultsFiches({ data, isFirstFiche }) { 
     const { colorationsAvecAmmoniaque, colorationsSansAmmoniaque, colorationsVégétales } = data;
     const formatDate2 = (dateStr) => {
         if (!dateStr) return '';
@@ -10,88 +10,90 @@ function ResultsFiches({ data }) {
     return (
         <div className="results-fiches" style={{background: "white"}}>
 
-            <p className='title-grid'>SALON DE COIFFURE / INSTITUT DE BEAUTE</p>
-            <div className='infos-salon'>
-                <div className='infos-generales'>
-                    <div className='line'>
-                        <p className='title-table'>Nom</p>
-                        <p className='txt-table'>{data.name}</p>
+            {isFirstFiche && (
+                <>
+                <p className='title-grid'>SALON DE COIFFURE / INSTITUT DE BEAUTE</p>
+                <div className='infos-salon' style={{marginBottom: "10px"}}>
+                    <div className='infos-generales'>
+                        <div className='line'>
+                            <p className='title-table'>Nom</p>
+                            <p className='txt-table'>{data.name}</p>
+                        </div>
+                        <div className='line'>
+                            <p className='title-table'>Adresse</p>
+                            <p className='txt-table'>{data.adresse}</p>
+                        </div>
+                        <div className='line'>
+                            <p className='title-table'>Ville</p>
+                            <p className='txt-table'>{data.city}</p>
+                        </div>
+                        <div className='line'>
+                            <p className='title-table'>Téléphone</p>
+                            <p className='txt-table'>{data.téléphoneDuSalon}</p>
+                        </div>
                     </div>
-                    <div className='line'>
-                        <p className='title-table'>Adresse</p>
-                        <p className='txt-table'>{data.adresse}</p>
+                    <div className='infos-generales-col'>
+                        <div className='col'>
+                            <p className='title-col'>Tenu du salon</p>
+                            <p className='txt-col'>{data.tenueDuSalon}</p>
+                        </div>
+                        <div className='col'>
+                            <p className='title-col'>Tenu par</p>
+                            <p className='txt-col'>{data.salonTenuPar}</p>
+                        </div>
+                        <div className='col'>
+                            <p className='title-col'>Département</p>
+                            <p className='txt-col'>{data.département}</p>
+                        </div>
+                        
                     </div>
-                    <div className='line'>
-                        <p className='title-table'>Ville</p>
-                        <p className='txt-table'>{data.city}</p>
-                    </div>
-                    <div className='line'>
-                        <p className='title-table'>Téléphone</p>
-                        <p className='txt-table'>{data.téléphoneDuSalon}</p>
-                    </div>
-                </div>
-                <div className='infos-generales-col'>
-                    <div className='col'>
-                        <p className='title-col'>Tenu du salon</p>
-                        <p className='txt-col'>{data.tenueDuSalon}</p>
-                    </div>
-                    <div className='col'>
-                        <p className='title-col'>Tenu par</p>
-                        <p className='txt-col'>{data.salonTenuPar}</p>
-                    </div>
-                    <div className='col'>
-                        <p className='title-col'>Département</p>
-                        <p className='txt-col'>{data.département}</p>
-                    </div>
-                    <div className='col'>
-                        <p className='title-col'>J.Fture</p>
-                        <p className='txt-col'>{data.jFture}</p>
-                    </div>
-                </div>
-                <div className='infos-generales'>
-                    <div className='line'>
-                        <p className='title-table'>Nom du responsable</p>
-                        <p className='txt-table'>{data.nomDuResponsable}</p> 
-                    </div>
-                    <div className='line'>
-                        <p className='title-table'>Téléphone</p>
-                        <p className='txt-table'>{data.numéroDuResponsable}</p>
-                    </div>
-                    <div className='line'>
-                        <p className='title-table'>Email</p>
-                        <p className='txt-table'>{data.emailDuResponsable}</p>
-                    </div>
-                    <div className='line'>
-                        <p className='title-table'>Réseaux sociaux</p>
-                        <div className='txt-table rs'>
-                            <div>
-                                <p className='title-fb'>Facebook</p>
-                                <p className='txt-fb'>{data.facebook}</p>
-                            </div>
-                            <div>
-                                <p className='title-ig'>Instagram</p>
-                                <p className='txt-ig'>{data.instagram}</p>
+                    <div className='infos-generales'>
+                        <div className='line'>
+                            <p className='title-table'>Nom du responsable</p>
+                            <p className='txt-table'>{data.nomDuResponsable}</p> 
+                        </div>
+                        <div className='line'>
+                            <p className='title-table'>Téléphone</p>
+                            <p className='txt-table'>{data.numéroDuResponsable}</p>
+                        </div>
+                        <div className='line'>
+                            <p className='title-table'>Email</p>
+                            <p className='txt-table'>{data.emailDuResponsable}</p>
+                        </div>
+                        <div className='line'>
+                            <p className='title-table'>Réseaux sociaux</p>
+                            <div className='txt-table rs'>
+                                <div>
+                                    <p className='title-fb'>Facebook</p>
+                                    <p className='txt-fb'>{data.facebook}</p>
+                                </div>
+                                <div>
+                                    <p className='title-ig'>Instagram</p>
+                                    <p className='txt-ig'>{data.instagram}</p>
+                                </div>
                             </div>
                         </div>
                     </div>
+                    <div className='infos-generales-col'>
+                        <div className='col col2'>
+                            <p className='title-col'>Âge du responsable</p>
+                            <p className='txt-col'>{data.âgeDuResponsable}</p>
+                        </div>
+                        <div className='col col2'>
+                            <p className='title-col'>Nb de personnes</p>
+                            <p className='txt-col'>{data.nombreDePersonnes}</p>
+                        </div>
+                        <div className='col col2'>
+                            <p className='title-col'>J.Fture</p>
+                            <p className='txt-col'>{data.jFture}</p>
+                        </div>
+                    </div>
                 </div>
-                <div className='infos-generales-col'>
-                    <div className='col col2'>
-                        <p className='title-col'>Âge du responsable</p>
-                        <p className='txt-col'>{data.âgeDuResponsable}</p>
-                    </div>
-                    <div className='col col2'>
-                        <p className='title-col'>Nb de personnes</p>
-                        <p className='txt-col'>{data.nombreDePersonnes}</p>
-                    </div>
-                    <div className='col col2'>
-                        <p className='title-col'>origine de la visite</p>
-                        <p className='txt-col'>{data.origineDeLaVisite}</p>
-                    </div>
-                </div>
-            </div> 
+                </>
+            )}
+             
 
-            <div style={{marginBottom: "20px"}} className='infos-salon2'>
+            <div style={{marginBottom: "0px"}} className='infos-salon2'>
                 <div style={{width: "100%", display: "flex"}}> 
                     <p style={{background: "#3D9B9B", padding: "10px", width: "50%", textAlign: "center", color: "white"}}>MARQUES DE COLORATION PRESENTES</p>
                     <p style={{background: "#3D9B9B", padding: "10px", width: "50%", textAlign: "center", color: "white"}}>AUTRES MARQUES</p>
@@ -164,7 +166,7 @@ function ResultsFiches({ data }) {
                 </div> 
             </div> 
 
-            <div style={{width: "90%", display: "flex",  background: "#f0f0f0"}} className='infos-salon3'>
+            <div style={{width: "90%", display: "flex",  background: "#f0f0f0", marginBottom: "30px"}} className='infos-salon3'>
                 <div style={{width: "40%"}}>
                     <div style={{display: "flex", width: "100%", border: "1px solid #cfcfcf"}}> 
                         <div style={{width: "50%",  border: "1px solid #cfcfcf", display: "flex", alignItems: "center"}}>
@@ -191,6 +193,10 @@ function ResultsFiches({ data }) {
                 </div>
                 <div style={{width: "35%"}}>
                     <div style={{border: "1px solid #cfcfcf", padding: "10px", background: "white"}}>
+                        <p style={{fontWeight : "bold", marginBottom: "5px"}}>Origine de la visite</p>
+                        <p>{data.origineDeLaVisite}</p>
+                    </div>
+                    <div style={{border: "1px solid #cfcfcf", padding: "10px", background: "white"}}>
                         <p style={{fontWeight : "bold", marginBottom: "5px"}}>Intéressés par ?</p>
                         <p>{data.intéressésPar}</p>
                     </div>
@@ -214,7 +220,7 @@ function ResultsFiches({ data }) {
                     </div>
                     <div style={{border: "1px solid #cfcfcf", background: "white", display: "flex"}}>
                         <p style={{fontWeight : "bold", marginBottom: "5px", background: "#e0e0e0",  padding: "5px 10px"}}>Si Oui, RDV Prévu le ?</p>
-                        <p style={{ padding: "5px 10px"}}>{data.rdvPrévuLe}</p>
+                        <p style={{ padding: "5px 10px"}}>{formatDate2(data.rdvPrévuLe)}</p>
                     </div> 
                     <div style={{border: "1px solid #cfcfcf", background: "white", display: "flex"}}>
                         <p style={{fontWeight : "bold", marginBottom: "5px", background: "#e0e0e0",  padding: "5px 10px"}}>Si Oui, RDV Prévu pour ?</p>

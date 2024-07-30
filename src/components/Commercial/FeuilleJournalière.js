@@ -1,12 +1,10 @@
-import React, { useEffect, useState, useRef } from 'react'
+import React, { useEffect, useState } from 'react'
 import { collection, getDocs, query, where, orderBy, doc, updateDoc } from 'firebase/firestore'
 import { signInWithEmailAndPassword } from 'firebase/auth'
 import { db , auth } from "../../firebase.config"
-import back from "../../assets/back.png"
-import jsPDF from "jspdf"
-import html2canvas from "html2canvas"
-import download from "../../assets/download.png"   
+import back from "../../assets/back.png"  
 import SearchFeuillesDuJourCom from './SearchFeuillesDuJourCom'
+import exportToExcel from '../ExportToExcel'
 
 function FeuilleJournalière({ uid, onReturn }) { 
     
@@ -17,11 +15,9 @@ function FeuilleJournalière({ uid, onReturn }) {
     // eslint-disable-next-line
     const [signature, setSignature] = useState('');
     const [errorMsg, setErrorMsg] = useState("")
-    const fdrJourRef = useRef()
     const [isEditing, setIsEditing] = useState(false);
     const [formData, setFormData] = useState({});
     const [showUpdateButton, setShowUpdateButton] = useState(true); 
-
 
     useEffect(() => {
         if (!uid) return;
@@ -97,7 +93,7 @@ function FeuilleJournalière({ uid, onReturn }) {
                         status: formData[`stop_${idx}_status`] || stop.status,
                     };
                 }
-                // Pour le dernier arrêt (retour), on conserve les données existantes
+               
                 return {
                     ...stop,
                 };
@@ -111,11 +107,8 @@ function FeuilleJournalière({ uid, onReturn }) {
         } catch (error) {
             console.error("Erreur de mise à jour:", error.message);
         }
-    };
+    }
     
-    
-    
-
     const formatDate = (date) => {
         if (!date) {
             return 'Date non disponible';
@@ -149,94 +142,50 @@ function FeuilleJournalière({ uid, onReturn }) {
     const today = new Date();
 
     const getNombreDeVisites = (stops) => {
-        return stops.length > 1 ? stops.length - 1 : 0
+        return stops?.length > 1 ? stops?.length - 1 : 0
     }
     const countVisitesByStatus = (stops, status) => {
-        return stops.filter(stop => stop.status === status).length 
-    }
+        return stops?.filter(stop => stop?.status === status).length 
+    }    
+
+    const handleExport = () => {
+        const feuilleData = feuilleDuJour.stops.map((stop, idx) => ({
+            "Visite N°": idx < feuilleDuJour.stops.length - 1 ? idx + 1 : "Retour",
+            "Nom": stop.name || '',
+            "Statut": stop.status || '',
+            "Adresse": stop.address || '',
+            "Code Postal": stop.postalCode || '',
+            "Km Parcourus": stop.distance !== undefined ? (stop.distance < 1000 ? `${stop.distance.toFixed(0)} m` : `${(stop.distance / 1000).toFixed(2)} km`) : '',
+            "Heure d'Arrivée": idx < feuilleDuJour.stops.length - 1 ? stop.arrivalTime || '' : '',
+            "Heure de Départ": idx < feuilleDuJour.stops.length - 1 ? stop.departureTime || '' : ''
+        }))
     
-    const generatePDF = (input, filename) => {
-        if (!input) {
-            console.error('Erreur : référence à l\'élément non valide');
-            return;
-        }
-    
-        const marginTop = 10;
-        const marginRight = 10;
-        const marginLeft = 10;
-    
-        html2canvas(input, {
-            useCORS: true,
-            scale: 2, 
-        }).then(canvas => {
-            const imgData = canvas.toDataURL('image/png');
-            const pdf = new jsPDF('p', 'mm', 'a4');
-            const pdfWidth = pdf.internal.pageSize.getWidth();
-            const pdfHeight = pdf.internal.pageSize.getHeight();
-            const canvasWidth = canvas.width;
-            const canvasHeight = canvas.height;
-            const ratio = canvasWidth / canvasHeight;
-            const width = pdfWidth - marginRight - marginLeft;
-            const height = width / ratio;
-    
-            let position = 0;
-    
-            const totalPages = height > pdfHeight - marginTop 
-                ? Math.ceil(canvasHeight / (canvasWidth * (pdfHeight - marginTop) / pdfWidth)) 
-                : 1;
-    
-            const addPageNumber = (pdf, pageNumber, totalPages) => {
-                pdf.setFontSize(10);
-                const pageNumText = `Page ${pageNumber} / ${totalPages}`;
-                pdf.text(pageNumText, pdfWidth / 2, pdfHeight - 10, { align: 'center' });
-            };
-    
-            if (totalPages > 1) {
-                for (let i = 0; i < totalPages; i++) {
-                    const pageCanvas = document.createElement('canvas');
-                    pageCanvas.width = canvasWidth;
-                    pageCanvas.height = canvasWidth * (pdfHeight - marginTop) / pdfWidth;
-                    const pageContext = pageCanvas.getContext('2d');
-                    pageContext.drawImage(canvas, 0, position, canvasWidth, pageCanvas.height, 0, 0, pageCanvas.width, pageCanvas.height);
-                    const pageImgData = pageCanvas.toDataURL('image/png');
-                    if (i > 0) {
-                        pdf.addPage();
-                    }
-                    pdf.addImage(pageImgData, 'PNG', marginLeft, marginTop, width, pdfHeight - marginTop);
-                    addPageNumber(pdf, i + 1, totalPages);
-                    position += pageCanvas.height;
-                }
-            } else {
-                pdf.addImage(imgData, 'PNG', marginLeft, marginTop, width, height);
-                addPageNumber(pdf, 1, totalPages);
-            }
-    
-            pdf.save(filename);
-        }).catch(error => {
-            console.error('Erreur lors de la génération du PDF :', error);
-        });
-    }
-    
-    const downloadPDF = () => {
-        const input = fdrJourRef.current;
-        generatePDF(input, "feuille-du-jour.pdf");
-    }
-    
-    
+        const recapData = [
+            ["Total de la distance parcourue", `${feuilleDuJour.totalKm < 1000 ? feuilleDuJour.totalKm.toFixed(0) + ' m' : (feuilleDuJour.totalKm / 1000).toFixed(2) + ' km'}`],
+            ["Total des visites effectuées", feuilleDuJour.stops.length - 1],
+            ["Visites client", feuilleDuJour.stops.filter(stop => stop.status === 'Client').length],
+            ["Visites prospect", feuilleDuJour.stops.filter(stop => stop.status === 'Prospect').length],
+            ["Validé le", feuilleDuJour.signatureDate || '']
+        ]
+
+        exportToExcel([].concat(feuilleData, recapData), `Feuille_de_route_du_${formatDate(today)}.xlsx`, ['Feuille du jour', 'Récapitulatif'], [feuilleData, recapData]);
+    };
+
 
    return (
         <div className='fdr-section'>
             <div className='titre-fiche'>
                 <h1>Feuilles de route journalières</h1>
-                <button onClick={onReturn} className="button-back"><img src={back} alt="retour" /></button>
+                <button onClick={onReturn} className="button-back"><img src={back} alt="retour" /></button> 
             </div>
+
             <div className='fdr-content' style={{ display: "flex", justifyContent: "space-around", padding: "0 20px" }}>
                 {feuilleDuJour ? (
-                    <div ref={fdrJourRef} style={{ width: "20%", fontSize: "14px" }} className='feuille-du-jour feuille-this-day'>
-                        <button className="download button-colored" onClick={downloadPDF}><img src={download} alt="Télécharger la feuille de route du jour" /></button>
+                    <div style={{ width: "20%", fontSize: "14px" }} className='feuille-du-jour feuille-this-day'>
+                        <button onClick={handleExport} className='button-colored'>Télécharger</button>
                         <h3 style={{ textAlign: "center", marginBottom: "10px" }}>Feuille du jour</h3>
                         <p style={{ textAlign: "center", color: "grey", fontSize: "14px", fontStyle: "italic", marginBottom: "20px" }}>{formatDate(today)}</p>
-                        {feuilleDuJour.stops.map((stop, idx) => (
+                        {feuilleDuJour.stops?.map((stop, idx) => (
                             <div key={idx} className='visites' style={{marginBottom: "20px"}}>
                                 {idx < feuilleDuJour.stops.length - 1 ? (
                                     <p style={{ background: "white", display: "inline-block", padding: "5px",  fontSize: "14px" }}><strong>Visite n°{idx + 1}</strong></p>
@@ -333,43 +282,55 @@ function FeuilleJournalière({ uid, onReturn }) {
                                     </>
                                 )}
                             </div>
-                        ))}  
-                        <div style={{background: "white", padding: "10px"}}>
-                            <p style={{ marginTop: "5px" }}><strong>Total de la distance parcourue </strong>: {formatDistance(feuilleDuJour.totalKm)}</p>
-                            <p style={{ marginTop: "5px" }}><strong>Total des visites effectuées </strong>: {getNombreDeVisites(feuilleDuJour.stops)}</p>
-                            <p style={{ marginTop: "5px" }}><strong>Visites client </strong>: {countVisitesByStatus(feuilleDuJour.stops, 'Client')}</p>
-                            <p style={{ marginTop: "5px" }}><strong>Visites prospect </strong>: {countVisitesByStatus(feuilleDuJour.stops, 'Prospect')}</p>
-                            
-                        </div> 
-                        {!feuilleDuJour.isClotured && !isEditing && showUpdateButton && ( 
+                        ))} 
+
+                        {feuilleDuJour.stops?.length > 0 && (
+                            <>
+                            <div style={{background: "white", padding: "10px"}}>
+                                <p style={{ marginTop: "5px" }}><strong>Total de la distance parcourue </strong>: {formatDistance(feuilleDuJour?.totalKm)}</p>
+                                <p style={{ marginTop: "5px" }}><strong>Total des visites effectuées </strong>: {getNombreDeVisites(feuilleDuJour?.stops)}</p>
+                                <p style={{ marginTop: "5px" }}><strong>Visites client </strong>: {countVisitesByStatus(feuilleDuJour?.stops, 'Client')}</p>
+                                <p style={{ marginTop: "5px" }}><strong>Visites prospect </strong>: {countVisitesByStatus(feuilleDuJour?.stops, 'Prospect')}</p>
+                            </div> 
+
+                            {!feuilleDuJour.isClotured && !isEditing && showUpdateButton && ( 
                             <>
                                 <button style={{ marginTop: "20px" }} onClick={() => setIsModalOpen(true)} className='button-colored'>Signer la feuille</button>
                                 <button style={{ marginTop: "20px", marginLeft: "10px" }} onClick={() => setIsEditing(true)} className='button-colored'>Mettre à jour</button>
                             </>
-                        )}
-                         {!showUpdateButton && !feuilleDuJour.isClotured && (    
-                            <>
+                            )}
+                            {!showUpdateButton && !feuilleDuJour.isClotured && (    
                                 <button style={{ marginTop: "20px" }} onClick={() => setIsModalOpen(true)} className='button-colored'>Signer la feuille</button>
-                               
+                            )}
+                            {feuilleDuJour.isClotured && (
+                                <p style={{ marginTop: "30px", fontWeight: "bold" }}>Validé le {feuilleDuJour?.signatureDate}</p>
+                            )}
+                            {isEditing && (
+                                <form onSubmit={handleUpdateFeuille}>
+                                    <button type="submit" style={{ marginTop: "20px" }} className='button-colored'>Mettre à jour</button>
+                                </form>
+                            )}
                             </>
                         )}
 
-                        {feuilleDuJour.isClotured && (
-                            <p style={{ marginTop: "30px", fontWeight: "bold" }}>Validé le {feuilleDuJour.signatureDate}</p>
-                        )}
-                        {isEditing && (
-                            <form onSubmit={handleUpdateFeuille}>
-                                <button type="submit" style={{ marginTop: "20px" }} className='button-colored'>Mettre à jour</button>
-                            </form>
-                        )}
+                        {feuilleDuJour.isVisitsStarted === false && (
+                            <div style={{background: "white", padding: "20px"}}>
+                                <p style={{marginBottom: "10px"}}><strong>Aucun déplacement effectué</strong></p>
+                                <p><strong>Motif</strong> : {feuilleDuJour.motif}</p>
+                            </div>
+                        )} 
+                        
+                        
                         {message && <p style={{ marginTop: "20px" }} className='success'>{message}</p>}
+
                         {isModalOpen && (
-                            <div className='modal'>  
-                                <div className='modal-content'> 
+                            <div className='modal' style={{zIndex: "99"}}>  
+                                <div className='modal-content'  > 
                                     <h2 style={{fontSize: "22px"}}>Validation par mot de passe</h2>
                                     <form onSubmit={handleSignerFiche}>
                                         <input className='input-mdp' style={{margin: "20px 0", marginBottom: "20px"}} placeholder="Votre mot de passe" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
                                         <button type="submit" className='button-colored'>Signer la feuille</button>
+                                        <button className="cancel" onClick={() => setIsModalOpen(false)}>Annuler</button> 
                                         {errorMsg && <p>{errorMsg}</p>}
                                     </form>
                                 </div>  

@@ -1,16 +1,15 @@
 
 // fichier SearchFeuillesDuJour.js
 
-import React, { useEffect, useState, useRef } from 'react' 
-import { collection, getDocs, query, where, Timestamp, addDoc } from 'firebase/firestore'
+import React, { useEffect, useState } from 'react' 
+import { collection, getDocs, query, where, Timestamp } from 'firebase/firestore'
 import { db } from '../../firebase.config'
 import FeuillesHebdoAdmin from './FeuillesHebdoAdmin';
 import FeuillesMensuellesAdmin from './FeuillesMensuellesAdmin';
-import jsPDF from "jspdf";   
-import html2canvas from "html2canvas";
 import download from "../../assets/download.png"  
+import exportToExcel from '../ExportToExcel';
 
-function SearchFeuillesDuJour({ uid }) {
+function SearchFeuillesDuJour() {
     const [feuillesDeRoute, setFeuillesDeRoute] = useState([]);
     const [usersMap, setUsersMap] = useState({});
     const [selectedUser, setSelectedUser] = useState(null);
@@ -28,8 +27,6 @@ function SearchFeuillesDuJour({ uid }) {
     const [showDaily, setShowDaily] = useState(false);
     const [showWeekly, setShowWeekly] = useState(false);
     const [showMonthly, setShowMonthly] = useState(false); 
-
-    const fdrJourRef = useRef()
 
     const resetForm = () => {
         setSearchTerm("")
@@ -71,9 +68,12 @@ function SearchFeuillesDuJour({ uid }) {
     
             if (startDate && endDate) {
                 const startTimestamp = Timestamp.fromDate(new Date(startDate));
-                const endTimestamp = Timestamp.fromDate(new Date(endDate));
+                const endDateObj = new Date(endDate)
+                endDateObj.setHours(23, 59, 59, 999)
+                const endTimestamp = Timestamp.fromDate(endDateObj)
                 q = query(q, where('date', '>=', startTimestamp), where('date', '<=', endTimestamp));
-            } else if (selectedMonthYear) {
+            } 
+            else if (selectedMonthYear) {
                 const [selectedYear, selectedMonth] = selectedMonthYear.split('-').map(Number);
                 const startOfMonth = new Date(selectedYear, selectedMonth - 1, 1);
                 const endOfMonth = new Date(selectedYear, selectedMonth, 0); // Dernier jour du mois
@@ -138,9 +138,6 @@ function SearchFeuillesDuJour({ uid }) {
                 console.error("Erreur lors de la récupération des fiches de démonstration : ", error);
             }
         };
-        
-        
-        
 
         fetchFeuillesDeRoute();
         fetchDemonstrationCount();
@@ -232,89 +229,68 @@ function SearchFeuillesDuJour({ uid }) {
         setShowResults(true);
     }
 
-    const generatePDF = (input, filename) => {
-        if (!input) {
-            console.error('Erreur : référence à l\'élément non valide');
-            return;
-        }
-    
-        const currentDate = new Date();
-        const formattedDate = `Téléchargé le ${currentDate.toLocaleDateString()} à ${currentDate.toLocaleTimeString()}`;
-    
-        html2canvas(input, {
-            useCORS: true,
-            scale: 2, 
-        }).then(canvas => {
-            const imgData = canvas.toDataURL('image/png');
-            const pdf = new jsPDF('p', 'mm', 'a4');
-            const pdfWidth = pdf.internal.pageSize.getWidth();
-            const pdfHeight = pdf.internal.pageSize.getHeight();
-            const canvasWidth = canvas.width;
-            const canvasHeight = canvas.height;
-            const ratio = canvasWidth / canvasHeight;
-            const width = pdfWidth;
-            const height = width / ratio;
-    
-            let position = 0;
-    
-            const totalPages = height > pdfHeight
-                ? Math.ceil(canvasHeight / (canvasWidth * pdfHeight / pdfWidth))
-                : 1;
-    
-            const addPageNumber = (pdf, pageNumber, totalPages) => {
-                pdf.setFontSize(8);
-                const pageNumText = `Page ${pageNumber} / ${totalPages}`;
-                pdf.text(pageNumText, pdfWidth - 15, pdfHeight - 10);
-            };
-    
-            const addDateTime = (pdf, dateTime) => {
-                pdf.setFontSize(8);
-                pdf.text(dateTime, pdfWidth - 50, 5);
-            };
-    
-            if (height > pdfHeight) {
-                for (let i = 0; i < totalPages; i++) {
-                    const pageCanvas = document.createElement('canvas');
-                    pageCanvas.width = canvasWidth;
-                    pageCanvas.height = canvasWidth * pdfHeight / pdfWidth;
-                    const pageContext = pageCanvas.getContext('2d');
-                    pageContext.drawImage(canvas, 0, position, canvasWidth, pageCanvas.height, 0, 0, pageCanvas.width, pageCanvas.height);
-                    const pageImgData = pageCanvas.toDataURL('image/png');
-                    if (i > 0) {
-                        pdf.addPage();
-                    }
-                    pdf.addImage(pageImgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-                    addPageNumber(pdf, i + 1, totalPages);
-                    if (i === 0) {
-                        addDateTime(pdf, formattedDate);
-                    }
-                    position += pageCanvas.height;
-                }
-            } else {
-                pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, height);
-                addPageNumber(pdf, 1, totalPages);
-                addDateTime(pdf, formattedDate);
-            }
-    
-            pdf.save(filename);
-        }).catch(error => {
-            console.error('Erreur lors de la génération du PDF :', error);
-        });
-    }
-    const downloadPDF = async () => {
-        const input = fdrJourRef.current
-        generatePDF(input, "feuille-de-route.pdf")
+    const handleExport = () => {
+        const feuillesData = feuillesDeRoute.flatMap((feuille) => {
 
-        try {
-            await addDoc(collection(db, "historiqueAdmin"), {
-                userId: uid,
-                date: new Date(),
-                action: `Feuille de route de ${searchTerm} téléchargée`,
-            })
-        } catch (error) {
-            console.error("Erreur lors de l'enregistrement de l'historique : ", error)
-        }
-    }
+            const stops = Array.isArray(feuille?.stops) ? feuille?.stops : [];
+
+            if (stops?.length === 0) {
+                return [{
+                    'Date': formatTimestamp(feuille.date),
+                    'Visite N°': feuille.motif || 'Motif non disponible',
+                    'Nom du salon': '',
+                    'Statut': '',
+                    'Adresse': '',
+                    'Code postal': '',
+                    'Km parcourus': '',
+                    'Heure d\'arrivée': '',
+                    'Heure de départ': '',
+                    'Total Distance': '',
+                    'Total Visites': '',
+                    'Visites Client': '',
+                    'Visites Prospect': '',
+                    'Validé le': ''
+                }, {}];
+            }
+
+            const stopsData = stops?.map((stop, idx) => ({
+                'Date': formatTimestamp(feuille.date),
+                'Visite N°': idx < feuille?.stops.length - 1 ? `Visite n°${idx + 1}` : 'Retour',
+                'Nom du salon': stop?.name || '',
+                'Statut': stop?.status || '',
+                'Adresse': stop?.address || '',
+                'Code postal': `${stop?.postalCode || ''}`,
+                'Km parcourus': formatDistance(stop?.distance || 0),
+                'Heure d\'arrivée': stop?.arrivalTime || '',
+                'Heure de départ': stop?.departureTime || '',
+                'Total Distance': idx === feuille.stops?.length - 1 ? formatDistance(feuille.totalKm || 0) : '',
+                'Total Visites': idx === feuille.stops?.length - 1 ? getNombreDeVisites(feuille.stops) : '',
+                'Visites Client': idx === feuille.stops?.length - 1 ? countVisitesByStatus(feuille.stops, 'Client') : '',
+                'Visites Prospect': idx === feuille.stops?.length - 1 ? countVisitesByStatus(feuille.stops, 'Prospect') : '',
+                'Validé le': idx === feuille.stops?.length - 1 ? (feuille.signatureDate || 'Non disponible') : ''
+            }));
+
+            // Saut de ligne après chaque feuille pour une meilleure lecture du tableau 
+            return [...stopsData, {}];
+        })
+
+        const selectedPeriod = startDate && endDate
+            ? `Du ${formatDate(startDate)} au ${formatDate(endDate)}`
+            : selectedMonthYear
+                ? new Date(selectedMonthYear.split('-')[0], selectedMonthYear.split('-')[1] - 1).toLocaleString('default', { month: 'long', year: 'numeric' })
+                : '';
+
+        const recapData = [
+            ['Nom du VRP', searchTerm],
+            ['Période sélectionnée', selectedPeriod],
+            ['Nombre de visites', nombreVisites],
+            ['Visites client', nombreVisitesClient],
+            ['Visites prospect', nombreVisitesProspect],
+            ['CR de RDV de démonstration', nombreFichesDemonstration],
+        ];
+
+        exportToExcel([].concat(feuillesData, recapData), `FDR_${searchTerm}_${selectedPeriod}.xlsx`, ['Feuilles de route', 'Récapitulatif'], [feuillesData, recapData]);
+    };
 
     return (
         <div  className='filter-feuilles filter-feuilles-admin' style={{marginTop: "30px", padding: "0 20px"}}>
@@ -361,10 +337,10 @@ function SearchFeuillesDuJour({ uid }) {
             </div>
 
             {showResults && (
-                <button style={{display: "flex", alignItems: "center", padding: "5px 20px" , marginTop: "30px"}} className="download-f button-colored" onClick={downloadPDF}><img style={{marginRight: "10px"}} src={download} alt="Télécharger la feuille de route du jour" />Télécharger les feuilles de route</button>
+                <button style={{display: "flex", alignItems: "center", padding: "5px 20px" , marginTop: "30px"}} className="download-f button-colored" onClick={handleExport}><img style={{marginRight: "10px"}} src={download} alt="Télécharger les feuilles de route" />Télécharger les feuilles de route</button>
             )}
 
-            <div className='search-test' style={{width: "100%"}} ref={fdrJourRef}>
+            <div className='search-test' style={{width: "100%"}}>
             {showResults && ( 
                 <div  className='filter-feuilles-stats-admin' style={{marginBottom: "20px"}}> 
                     <div className='part1'>
@@ -438,13 +414,23 @@ function SearchFeuillesDuJour({ uid }) {
                             </div>
                             </>
                         ))}
-                        <div style={{background: "white", padding: "20px", marginTop: "20px", paddingTop: "10px"}}>    
-                            <p style={{ marginTop: "20px" }}><strong>Total de la distance parcourue </strong>: {formatDistance(feuille.totalKm)}</p>
-                            <p style={{ marginTop: "5px" }}><strong>Total des visites effectuées </strong>: {getNombreDeVisites(feuille.stops || [])}</p>
-                            <p style={{ marginTop: "5px" }}><strong>Visites client </strong>: {countVisitesByStatus(feuille.stops || [], 'Client')}</p>
-                            <p style={{ marginTop: "5px" }}><strong>Visites prospect </strong>: {countVisitesByStatus(feuille.stops || [], 'Prospect')}</p>
-                            <p style={{ marginTop: "20px" }}>Validé le <strong>{feuille?.signatureDate}</strong></p> 
-                        </div>
+
+                        {feuille.isVisitsStarted && (
+                            <div style={{background: "white", padding: "20px", marginTop: "20px", paddingTop: "10px"}}>    
+                                <p style={{ marginTop: "20px" }}><strong>Total de la distance parcourue </strong>: {formatDistance(feuille.totalKm)}</p>
+                                <p style={{ marginTop: "5px" }}><strong>Total des visites effectuées </strong>: {getNombreDeVisites(feuille.stops || [])}</p>
+                                <p style={{ marginTop: "5px" }}><strong>Visites client </strong>: {countVisitesByStatus(feuille.stops || [], 'Client')}</p>
+                                <p style={{ marginTop: "5px" }}><strong>Visites prospect </strong>: {countVisitesByStatus(feuille.stops || [], 'Prospect')}</p>
+                                <p style={{ marginTop: "20px" }}>Validé le <strong>{feuille?.signatureDate}</strong></p> 
+                            </div>
+                        )}
+                        
+                        {feuille.isVisitsStarted === false && (  
+                            <div style={{background: "white", padding: "20px", paddingTop: "20px"}}>
+                                <p style={{marginBottom: "10px"}}><strong>Aucun déplacement effectué</strong></p>
+                                <p><strong>Motif</strong> : {feuille.motif}</p> 
+                            </div>
+                        )} 
                     </div>
                 ))} 
                 </div>

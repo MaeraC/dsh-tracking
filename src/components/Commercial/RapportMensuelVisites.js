@@ -52,14 +52,14 @@ function RapportMensuelVisites({uid, onReturn}) {
     const handleSalonSearch = (inputValue) => {
         const filteredSalons = feuillesRoute
           .map((feuille) =>
-            feuille?.stops?.slice(0, -1).map((stop) => stop.name)
+            feuille?.stops?.slice(0, -1).map((stop) => ({ name: stop.name, city: feuille.city}))
           )
           .flat()
           .filter(
-            (name, index, self) => 
-              name?.toLowerCase().includes(inputValue.toLowerCase()) &&
-              self?.indexOf(name) === index
-          );
+            (stop, index, self) => 
+                stop.name?.toLowerCase().includes(inputValue.toLowerCase()) &&
+                self.findIndex(s => s.name === stop.name && s.city === stop.city) === index
+        );
     
         setSalonSuggestions(filteredSalons);
     }
@@ -148,7 +148,7 @@ function RapportMensuelVisites({uid, onReturn}) {
             const { stopsByDay } = currentMonth[monthKey];
             Object.keys(stopsByDay).forEach(day => {
                 stopsByDay[day].stops.slice(0, -1).forEach(stop => {
-                    if (stop.name === "Domicile") return;  
+                    if (stop.domicile === true) return;  
                     if (!reports[stop.name]) {
                         reports[stop.name] = {
                             status: stop.status,
@@ -364,7 +364,7 @@ function RapportMensuelVisites({uid, onReturn}) {
                         <div>
                             <input type="text" placeholder="Rechercher un salon" value={selectedSalon} onChange={(e) => { setSelectedSalon(e.target.value); handleSalonSearch(e.target.value); }} className="input-rapport" />
                             {salonSuggestions.length > 0 && (   
-                                <ul style={{border: "1px solid #cfcfcf"}} >{salonSuggestions.map((salon, index) => ( <li style={{background: "white", padding: "5px 10px", borderBottom: "1px solid #cfcfcf", cursor: "pointer"}} key={index} onClick={() => handleSalonSelect(salon)}>{salon}</li> ))}</ul>
+                                <ul style={{border: "1px solid #cfcfcf"}} >{salonSuggestions.map((salon, index) => ( <li style={{background: "white", padding: "5px 10px", borderBottom: "1px solid #cfcfcf", cursor: "pointer"}} key={index} onClick={() => handleSalonSelect(salon.name)}>{salon.name}, {salon.city}</li> ))}</ul>
                             )}
                         </div>
                         <div>

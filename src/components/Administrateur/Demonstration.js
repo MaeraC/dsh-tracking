@@ -215,7 +215,7 @@ function Demonstration({ uid, onReturn }) {
                 <div className="select-sugg">
                     {suggestions.map((salon) => (
                         <div key={salon.id} onClick={() => handleSelectSuggestion(salon)} style={{ cursor: "pointer", padding: "5px", borderBottom: "1px solid #ccc" }}>
-                            {salon.name}
+                            {salon.name + ", " + salon.city}
                         </div>
                     ))}
                 </div>
@@ -233,11 +233,11 @@ function Demonstration({ uid, onReturn }) {
                     <div className="all-fiches-client">
                     <button  style={{margin: "20px", marginLeft: "40px", padding: "10px 30px"}} className="button-colored" onClick={() => {setShowAllCr(false)}} >Retour</button>
                     <button style={{ padding: "10px 30px" }} onClick={downloadPDF} className='button-colored'>Télécharger les  CR de RDV</button>
-                    <div ref={pageRef} style={{paddingTop: "20px", fontSize: "16px"}}>
+                    <div ref={pageRef} style={{paddingTop: "20px", fontSize: "16px", marginBottom: "30px"}}>
                         <h4 style={{textAlign: "center", fontSize: "20px", marginBottom: "20px"}}>Comptes rendu de RDV de Démonstration du salon {selectedSalon}</h4>
                         {allCR.map((fiche, index) => (
                            <li key={index}>
-                           <div style={{paddingLeft: "100px"}}>Enregistré le : <strong>{formatDate(fiche.createdAt)}</strong>, par <strong>{usersMap[fiche.userId].firstname} {usersMap[fiche.userId].lastname}</strong></div>
+                           <div style={{paddingLeft: "50px", color: "grey", marginBottom: "10px", fontStyle: "italic"}}>Enregistré le : {formatDate(fiche.createdAt)}, par {usersMap[fiche.userId].firstname} {usersMap[fiche.userId].lastname}</div>
                            
                            <ResultsFicheD 
                                data={{ 
@@ -262,6 +262,7 @@ function Demonstration({ uid, onReturn }) {
                                    nombreDeCollaborateurs: fiche.nombreDeCollaborateurs, 
                                   
                                }}
+                               isFirstFiche={index === 0}
                            />
                        </li>
                             ))}

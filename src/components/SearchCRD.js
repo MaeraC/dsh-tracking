@@ -4,7 +4,7 @@ import { getDocs, collection, addDoc } from "firebase/firestore"
 import back from "../assets/back.png"
 import jsPDF from "jspdf"
 import html2canvas from "html2canvas" 
-import ResultsFicheD from "./ResultsFicheD"
+import ResultsFicheD2 from "./ResultsFicheD2" 
 
 function SearchCRD({onReturn, uid}) {
     const [usersMap, setUsersMap] = useState({})
@@ -65,6 +65,8 @@ function SearchCRD({onReturn, uid}) {
                         } else if (filterType === 'dateRange' && selectedStartDate && selectedEndDate) {
                             const startDate = new Date(selectedStartDate);
                             const endDate = new Date(selectedEndDate);
+                            endDate.setHours(23, 59, 59, 999)
+                            
                             if (createdAt >= startDate && createdAt <= endDate) {
                                 filteredResults.push(demo);
                             }
@@ -229,8 +231,8 @@ function SearchCRD({onReturn, uid}) {
                     <ul>
                     {salons.map((fiche, index) => (
                         <li key={index}>
-                            <div style={{paddingLeft: "100px"}}>Enregistré le : <strong>{formatDate(fiche.createdAt)}</strong>, par <strong>{usersMap[fiche.userId].firstname} {usersMap[fiche.userId].lastname}</strong></div>
-                            <ResultsFicheD 
+                            <div style={{paddingLeft: "50px", color: "grey", marginBottom: "10px", fontStyle: "italic", marginTop: "20px"}}>Enregistré le : {formatDate(fiche.createdAt)}, par {usersMap[fiche.userId].firstname} {usersMap[fiche.userId].lastname}</div>
+                            <ResultsFicheD2
                                 data={{ 
                                     name: fiche.name,
                                     adresse: fiche.adresse,
